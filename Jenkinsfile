@@ -32,7 +32,7 @@ whoami'''
       parallel {
         stage('Notification openWRT') {
           steps {
-            slackSend(message: '[Compile Done] openWRT', baseUrl: 'https://withusplanet.slack.com/services/hooks/jenkins-ci/', token: 'fO9IZpUz2PuTiTzUxZh63YH6', failOnError: true, color: 'Red')
+            slackSend(message: 'cAP - building openmtk4010 success!', baseUrl: 'https://withusplanet.slack.com/services/hooks/jenkins-ci/', token: 'fO9IZpUz2PuTiTzUxZh63YH6', failOnError: true, color: 'Red')
           }
         }
         stage('Copy Image to tftpboot') {
