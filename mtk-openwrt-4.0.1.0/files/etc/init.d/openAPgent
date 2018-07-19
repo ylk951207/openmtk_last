@@ -1,0 +1,57 @@
+#!/bin/sh /etc/rc.common
+
+AP_IPADDR=0.0.0.0
+AP_PORT=8001
+
+APGENT_PATH=/www/openAPgent
+MANAGE_PY=$APGENT_PATH/manage.py
+APCLIENT=apClient
+
+APSERVER_LOG_FILE="/var/log/apServer.log"
+APCLIENT_LOG_FILE="/var/log/apClient.log"
+
+KILLALL=killall
+
+
+check_log_file () {
+	if [ ! -f "$APSERVER_LOG_FILE" ]; then
+	    touch $APSERVER_LOG_FILE
+	fi
+	if [ ! -f "$APCLIENT_LOG_FILE" ]; then
+	    touch $APCLIENT_LOG_FILE
+	fi
+}
+
+start () {
+    cd $APGENT_PATH
+
+#    echo "Install reqeusts module..."
+#    pip install requests
+
+    if [ "$MANAGE_PY" ]
+    then
+	echo "run apServer service......"
+	python $MANAGE_PY runserver $AP_IPADDR:$AP_PORT &
+	
+	echo "run apClient service......"
+	python -m $APCLIENT &
+
+	check_log_file
+    else
+	echo "Error: Cannot find $MANAGE_PY file."
+    fi
+}
+
+stop ()
+{
+    if [ -f /usr/bin/killall ] ; then
+	echo "killall : python"
+        $KILLALL python
+    else
+	echo "Kill: python manage.py runserver"
+	sudo pkill -f "python manage.py runserver"
+	echo "Kill: python $APCLIENT"
+	sudo pkill -f "python -m $APCLIENT" 
+    fi
+}
+

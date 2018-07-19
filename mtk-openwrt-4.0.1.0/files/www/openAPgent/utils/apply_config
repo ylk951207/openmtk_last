@@ -1,0 +1,4 @@
+#!/bin/sh
+
+sleep 3
+/etc/init.d/$1 restart

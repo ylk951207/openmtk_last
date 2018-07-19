@@ -1,0 +1,18 @@
+from setuptools import setup, find_packages
+
+setup(
+	name                 = 'openAPgent',
+	version              = '1.0',
+	description          = 'openAPgent Server and Client Program',
+	author               = 'Park Hyung Eun',
+	author email         = 'hepark@withusp.com',
+	url                  = '',
+	download_url         = '',
+	install_requires     = [ ],
+	packages             = find_packages(exclude = ['docs', 'tests*']),
+	keywords             = ['openAPgent', 'django-rest-framework'],
+	python_reuqires      = '>=2.7',
+	package_data         = { },
+	zip_safe=False,
+	classifiers          = []
+)

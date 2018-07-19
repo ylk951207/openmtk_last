@@ -1,0 +1,55 @@
+#!/usr/bin/env python
+import select
+import socket
+import sys,os
+import daemon
+from daemon import runner
+from log import *
+
+ip = '127.0.0.1'
+port = 8010 
+size = 1024
+
+APCLIENT_LOG_PATH="/var/log/apClient.log"
+WORKDIR=os.getcwd()
+
+APCLIENT_PID_PATH="%s/apClient.pid"%WORKDIR
+
+class App(): 
+    def __init__(self): 
+        self.stdin_path = '/dev/null'
+        self.stdout_path = '/dev/null' 
+        self.stderr_path = APCLIENT_LOG_PATH
+        self.pidfile_path = APCLIENT_PID_PATH
+        self.pidfile_timeout = 5
+
+    def run(self):
+        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server.bind((ip, port))
+        server.listen(5)
+        input_list = [server]
+
+        while True:
+            input_ready, write_ready, except_ready = select.select(input_list, [], [])
+
+            for ir in input_ready:
+                if ir == server:
+                    client, address = server.accept()
+		    input_list.append(client)
+                else:
+                    data = ir.recv(size)
+                    if data:
+                        log_info(LOG_MODULE_APCLIENT, data)
+                    else:
+                        ir.close()
+                        input_list.remove(ir)
+
+
+app = App()
+
+init_log()
+
+log_info(LOG_MODULE_APCLIENT, '----- Start module ----') 
+
+daemon_runner = runner.DaemonRunner(app)
+daemon_runner.do_action()
