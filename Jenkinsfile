@@ -17,7 +17,13 @@ whoami'''
         }
         stage('Build openWRT') {
           steps {
-            sh './build.sh openwrt'
+            sh '''echo "version check" 
+./build.sh openwrt'''
+          }
+        }
+        stage('Build Bootloader') {
+          steps {
+            echo 'TODO  bootloader'
           }
         }
       }
@@ -32,14 +38,15 @@ whoami'''
       parallel {
         stage('Notification openWRT') {
           steps {
-            slackSend(message: 'cAP - building openmtk4010 success!', baseUrl: 'https://withusplanet.slack.com/services/hooks/jenkins-ci/', token: 'fO9IZpUz2PuTiTzUxZh63YH6', failOnError: true, color: 'Red')
+            slackSend(message: 'cAP - building openmtk4010 success!', baseUrl: 'https://withusplanet.slack.com/services/hooks/jenkins-ci/', token: 'VevfQyHTHojGYOf0rvY3PRKG', failOnError: true, color: 'Red')
           }
         }
         stage('Copy Image to tftpboot') {
           steps {
             sh '''whoami 
 ls -al mtk-openwrt-4.0.1.0/bin/targets/mediatek/mt7622-glibc'''
-            sh 'sudo cp mtk-openwrt-4.0.1.0/bin/targets/mediatek/mt7622-glibc/lede-mediatek-mt7622-MTK-AC2600-RFB1-squashfs-sysupgrade.bin /tftpboot/lede-mediatek-mt7622-MTK-AC2600-RFB1-squashfs-sysupgrade.bin'
+            sh '''./build openwrt-release
+ls -al /tftpboot'''
           }
         }
         stage('Send Image to Server') {
