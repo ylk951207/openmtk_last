@@ -45,7 +45,7 @@ whoami'''
           steps {
             sh '''whoami 
 ls -al mtk-openwrt-4.0.1.0/bin/targets/mediatek/mt7622-glibc'''
-            sh '''./build openwrt-release
+            sh '''./build.sh openwrt-release
 ls -al /tftpboot'''
           }
         }
