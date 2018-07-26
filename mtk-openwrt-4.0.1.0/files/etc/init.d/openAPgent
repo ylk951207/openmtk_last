@@ -1,5 +1,7 @@
 #!/bin/sh /etc/rc.common
 
+START=55
+
 AP_IPADDR=0.0.0.0
 AP_PORT=8001
 
@@ -13,7 +15,7 @@ APCLIENT_LOG_FILE="/var/log/apClient.log"
 KILLALL=killall
 
 
-check_log_file () {
+check_log_file() {
 	if [ ! -f "$APSERVER_LOG_FILE" ]; then
 	    touch $APSERVER_LOG_FILE
 	fi
@@ -22,7 +24,7 @@ check_log_file () {
 	fi
 }
 
-start () {
+start() {
     cd $APGENT_PATH
 
 #    echo "Install reqeusts module..."
@@ -42,7 +44,7 @@ start () {
     fi
 }
 
-stop ()
+stop()
 {
     if [ -f /usr/bin/killall ] ; then
 	echo "killall : python"
