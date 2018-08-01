@@ -8,7 +8,7 @@ APCLIENT=apClient
 APSERVER_LOG_FILE="/var/log/apServer.log"
 APCLIENT_LOG_FILE="/var/log/apClient.log"
 
-KILLALL=killall5
+KILLALL=killall
 
 
 check_log_file () {

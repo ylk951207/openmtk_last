@@ -1,5 +1,5 @@
-from wapi.interface import *
-from wapi.system import *
+from puci.interface import *
+from puci.system import *
 
 '''
 Define SAL Method
