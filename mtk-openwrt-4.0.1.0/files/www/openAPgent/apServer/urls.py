@@ -19,72 +19,18 @@ from django.contrib import admin
 from django.conf.urls import include
 from rest_framework import routers
 from apServer.server import views
+from apServer.server.urls import custom_router
 
+router = routers.DefaultRouter()
+router.register(r'v1/devices', views.DeviceInfoViewSet)
 
-class CustomRouter(routers.SimpleRouter):
-    routes = [                                                       
-        # List route.                                                     
-        routers.Route(                                                  
-            url=r'^{prefix}{trailing_slash}$',                  
-            mapping={                                                  
-                'get': 'list'          
-            },                                   
-            name='{basename}-list',                       
-            initkwargs={'suffix': 'List'}     
-        ),                                    
-        # Dynamically generated list routes.  
-        # Generated using @list_route decorator
-        # on methods of the viewset.           
-        routers.DynamicListRoute(                      
-            url=r'^{prefix}/{methodname}{trailing_slash}$',
-            name='{basename}-{methodnamehyphen}',          
-            initkwargs={}                                  
-        ),                                                 
-        # Detail route.                                    
-        routers.Route(                                             
-            url=r'^{prefix}/{lookup}{trailing_slash}$',    
-            mapping={                                      
-                'get': 'retrieve',    
-                'post': 'create', 
-                'put': 'update',
-                'patch': 'partial_update',                 
-                'delete': 'destroy'                                  
-            }, 
-            name='{basename}-detail',                                           
-            initkwargs={'suffix': 'Instance'}          
-        ),                                             
-        # Dynamically generated detail routes.         
-        # Generated using @detail_route decorator on methods of the viewset.
-        routers.DynamicDetailRoute(                                                 
-            url=r'^{prefix}/{lookup}/{methodname}{trailing_slash}$',        
-            name='{basename}-{methodnamehyphen}',                           
-            initkwargs={}                                                   
-        ),                                                                  
-    ]                                                                       
-     
 
 '''
 Define URL Patterns
+	url(r'^v1/configs/interfaces/(?P<ifname>[a-z]+\d*)/v4addrs$', views.InterfaceV4AddrConfigView.as_view()),
 '''
-router = routers.DefaultRouter()
-router.register(r'v1/devices', views.DeviceInfoViewSet)
-# TODO: For the below, Support HTML handling like deviceInfo to validate the data without postman. (just for debugging)
-router.register(r'v1/statistics/traffic', views.GenericIfStatsViewSet)
-
-
-custom_router = CustomRouter()
-custom_router.register(r'v1/interfaces', views.InterfaceConfigViewSet, base_name="interfaces")
-
-system_config_list = views.SystemConfigViewSet.as_view({
-    'get': 'list',
-    'post': 'create',
-    'put': 'update'
-})
-
-
 urlpatterns = [
-    url(r'^v1/config/system/$', system_config_list, name='system-config-list'),
-    url(r'^admin/', admin.site.urls),
+	url(r'^admin/', admin.site.urls),
 ]
 
 urlpatterns += router.urls

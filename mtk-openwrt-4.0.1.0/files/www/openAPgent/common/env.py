@@ -63,7 +63,7 @@ Interface
 '''
 
 LAN_ETHDEV='eth0'
-WAN_ETHDEV='eth1'
+WAN_ETHDEV='eth0'
 
 
 IFNAME_LENGTH=30
