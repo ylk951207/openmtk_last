@@ -27,25 +27,3 @@ class DeviceInfo(models.Model):
     def __unicode__(self):
         return self.name
 
-
-#get_detail_view_name(GenericPortTraffic)
-
-class GenericIfStats(models.Model):
-    ifname = models.CharField(max_length=IFNAME_LENGTH, primary_key=True)
-    ifindex = models.IntegerField()
-    txBytes = models.IntegerField()
-    rxBytes = models.IntegerField()
-    txPkts = models.IntegerField()
-    rxPkts = models.IntegerField()
-
-class SystemConfig(models.Model):
-    enable_ntp_client = models.BooleanField()
-    provide_ntp_server = models.BooleanField()
-    ntp_server_candidates= models.CharField(max_length=100, default='')
-    logging_buffer_size = models.IntegerField()
-    logging_server_ipaddr = models.CharField(max_length=100, default='')
-    logging_server_port = models.IntegerField()
-    logging_server_protocol = models.CharField(max_length=100, default='')
-    logging_filename = models.CharField(max_length=100, default='')
-    logging_output_level = models.CharField(max_length=100, default='')
-    logging_cron_log_level = models.CharField(max_length=100, default='')

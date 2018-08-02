@@ -63,8 +63,6 @@ def init_device_info():
 
     fp.close()
 
-#    set_device_info_db()
-
 
 class ProcDeviceInfo(object):
     def __init__(self):
@@ -188,76 +186,3 @@ def proc_device_info(data):
         log_info(LOG_MODULE_APCLIENT, 'Invalid Argument')
 
 
-
-sql_create_device_info_table = """CREATE TABLE IF NOT EXISTS device_info (
-                            id integer PRIMARY KEY,
-                            name text NOT NULL,
-                            vendor_id integer,
-                            vendor_name text,
-                            device_type integer,
-                            model_num integer,
-                            user_id integer,
-                            user_passwd text,
-                            status integer,
-                            map_x integer,
-                            map_y integer
-                        );"""
-
-def create_table(conn, create_table_sql):
-    try:
-        c = conn.cursor()
-        c.execute(create_table_sql)
-    except sqlite3.Error as e:
-        log_err(LOG_MODULE_APCLIENT, e)
-
-
-def insert_device_info(conn):
-    try:
-        c = conn.cursor()
-        sql_insert = """INSERT INTO device_info
-                     (id, name, vendor_id, vendor_name, device_type, model_num, user_id, user_passwd, status, map_x, map_y)
-                     VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
-
-        c.execute(sql_insert, (0,
-                                gDeviceInfo.name,
-                                gDeviceInfo.vendor_id,
-                                gDeviceInfo.vendor_name,
-                                gDeviceInfo.device_type,
-                                gDeviceInfo.model_num,
-                                gDeviceInfo.user_id,
-                                gDeviceInfo.user_passwd,
-                                gDeviceInfo.status,
-                                gDeviceInfo.map_x,
-                                gDeviceInfo.map_y
-                                ))
-        result = c.execute("select * from device_info")
-        while True:
-            row = result.fetchone()
-            if row == None:
-                break
-            log_info (LOG_MODULE_APCLIENT, row[0],row[1])
-    except sqlite3.Error as e:
-        log_err(LOG_MODULE_APCLIENT, e)
-
-
-def set_device_info_db():
-    try:
-        # create a database connection
-        conn = sqlite3.connect(APGENT_DB_FILE)
-        if conn is not None:
-            # create projects table
-            create_table(conn, sql_create_device_info_table)
-
-            insert_device_info(conn)
-
-            log_info(LOG_MODULE_APCLIENT, "Successfully create and insert new device info to DB.")
-
-            conn.commit()
-
-    except sqlite3.Error, e:
-        if conn:
-            conn.rollback
-        log_err(LOG_MODULE_APCLIENT, "Error! cannot create the database connection.")
-    finally:
-        if conn:
-            conn.close()

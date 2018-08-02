@@ -20,27 +20,3 @@ class DeviceInfoSerializer(serializers.HyperlinkedModelSerializer):
                   'map_y', 
                   'counterfeit')
 
-
-class SystemConfigSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = SystemConfig
-        fields = ('enable_ntp_client', 
-                  'provide_ntp_server', 
-                  'ntp_server_candidates', 
-                  'logging_buffer_size',
-                  'logging_server_ipaddr', 
-                  'logging_server_port', 
-                  'logging_server_protocol', 
-                  'logging_filename',
-                  'logging_output_level',
-                  'logging_cron_log_level')
-
-class GenericIfStatsSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = GenericIfStats
-        fields = ('ifname',
-                  'ifindex', 
-                  'txBytes', 
-                  'rxBytes', 
-                  'txPkts', 
-                  'rxPkts')

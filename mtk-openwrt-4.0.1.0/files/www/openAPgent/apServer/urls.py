@@ -21,6 +21,7 @@ from rest_framework import routers
 from apServer.server import views
 from apServer.server.urls import custom_router
 
+
 router = routers.DefaultRouter()
 router.register(r'v1/devices', views.DeviceInfoViewSet)
 

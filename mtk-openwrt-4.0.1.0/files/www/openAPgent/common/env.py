@@ -7,7 +7,6 @@ Common
 
 WORKDIR=os.getcwd()
 
-APGENT_DB_FILE = WORKDIR+"db.sqlite3"
 
 '''
 Configuration Files
