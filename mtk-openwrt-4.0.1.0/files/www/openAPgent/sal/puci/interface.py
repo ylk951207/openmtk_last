@@ -5,7 +5,7 @@ from puci import *
 from common.log import *
 from common.env import *
 
-UCI_NETWORK_CONFIG="network"
+UCI_NETWORK_CONFIG="interfaceConfig"
 
 
 

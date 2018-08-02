@@ -1,0 +1,46 @@
+'''
+This file is REST Management Information Database(RMIB) that...
+'''
+
+
+URI=v1/configs/system
+BASENAME=system_config
+CLASSNAME=SysetmConfig
+METHODLIST=list,create,update,retrieve,detail_create,detail_update
+
+URI=v1/configs/interfaces
+BASENAME=interface_config
+CLASSNAME=InterfaceConfig
+METHODLIST=list,create,update,retrieve,detail_create,detail_update
+
+URI=v1/configs/vlans
+BASENAME=vlan_config
+CLASSNAME=VlanConfig
+METHODLIST=list,create,update,retrieve,detail_create,detail_update
+
+URI=v1/statistics
+BASENAME=if_statistics
+CLASSNAME=IfStatistics
+METHODLIST=list,retrieve
+
+
+#
+# Field efinitions
+#
+DEFINE_FIELD_systemConfigLogging={
+  'loggingBufferSize'   : CONFIG_TYPE_SCALAR : 'system.@system[0].log_size'
+  'loggingServerIpAddr' : CONFIG_TYPE_SCALAR : 'system.@system[0].log_ip'
+  'loggingServerPort'   : CONFIG_TYPE_SCALAR : 'system.@system[0].log_ip'
+	'loggingServerProtocol' : CONFIG_TYPE_SCALAR : 'system.@system[0].log_proto'
+	'loggingFilename'     : CONFIG_TYPE_SCALAR : 'system.@system[0].log_file'
+  'loggingOutputLevel'  : CONFIG_TYPE_SCALAR : '' 
+	'loggingCronLogLevel' : CONFIG_TYPE_SCALAR : ''
+};
+
+DEFINE_FIELD_interfaceConfig={
+  'ifname'              : CONFIG_TYPE_SCALAR : ".".join([config_name, args[0], 'ifname'])
+	'protocol'            : CONFIG_TYPE_SCALAR : ".".join([config_name, args[0], 'proto'])
+	'type'                : CONFIG_TYPE_SCALAR : ".".join([config_name, args[0], 'type'])
+};
+
+

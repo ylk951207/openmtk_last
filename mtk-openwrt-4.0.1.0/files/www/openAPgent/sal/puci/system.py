@@ -5,7 +5,7 @@ from puci import *
 from common.log import *
 from common.env import *
 
-UCI_SYSTEM_CONFIG="system"
+UCI_SYSTEM_CONFIG="systemConfigLogging"
 
 
 # TODO: fill values 
