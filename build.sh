@@ -27,8 +27,9 @@ bootloader)
     echo "Compile bootloader"
     ;;
 openwrt-release)
-    grep DISTRIB_RELEASE ${VERSION_FILE}  | awk -F"'" '{print $2}' > .mtk_version
+    grep DISTRIB_RELEASE ${VERSION_FILE} | awk -F"'" '{print $2}' > .mtk_version
+		date=$(date +%m%d)
     version=$(cat .mtk_version)
-    sudo cp ${MTK_IMAGE_NAME} /tftpboot/mtk4010_mt7622_AC2600_${version}.bin
+    sudo cp ${MTK_IMAGE_NAME} /tftpboot/mtk4010_mt7622_AC2600_${version}_${date}.bin
     ;;
 esac
