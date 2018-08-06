@@ -5,7 +5,7 @@ DO NOT EDIT.
 
 
 from puci.interface import *
-from puci.system_config import *
+from puci.system import *
 
 '''
  Define SAL Method

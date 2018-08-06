@@ -29,3 +29,22 @@ class DeviceInfoViewSet(viewsets.ModelViewSet):
     queryset = DeviceInfo.objects.all()
     serializer_class = DeviceInfoSerializer
 
+
+class InterfaceV4AddrConfigView(APIView):
+	def get(self, pk, ifname):
+		log_info(LOG_MODULE_APSERVER, "*" * 10 + "InterfaceV4AddrConfigView list()" + "*" * 10)
+		log_info(LOG_MODULE_APSERVER, "ifname: " + str(ifname))
+		data = sal_interface_v4addr_config(SAL_METHOD_LIST, None, str(ifname))
+		return Response(data, content_type='application/json')
+
+	def post(self, request, ifname, format=None):
+		log_info(LOG_MODULE_APSERVER, "*" * 10 + "InterfaceV4AddrConfigView create()" +  "*" * 10)
+		log_info(LOG_MODULE_APSERVER, "ifname: " + str(ifname))
+		data = sal_interface_v4addr_config(SAL_METHOD_CREATE, request.data, str(ifname))
+		return Response(data, content_type='application/json')
+
+	def put(self, request, ifname, format=None):
+		log_info(LOG_MODULE_APSERVER, "*" * 10 + "InterfaceV4AddrConfigView update()" + "*" * 10)
+		log_info(LOG_MODULE_APSERVER, "ifname: " + str(ifname))
+		data = sal_interface_v4addr_config(SAL_METHOD_UPDATE, request.data, str(ifname))
+		return Response(data, content_type='application/json')

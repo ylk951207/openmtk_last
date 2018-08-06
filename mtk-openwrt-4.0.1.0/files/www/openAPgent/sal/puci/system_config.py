@@ -1,11 +1,13 @@
 import fileinput
 
 from puci import *
-
 from common.log import *
 from common.env import *
 
-UCI_SYSTEM_CONFIG="systemConfigLogging"
+UCI_SYSTEMCONFIGLOGGING_CONFIG = "SystemConfigLogging"
+UCI_SYSTEMCONFIGNTP_CONFIG = "SystemConfigNtp"
+
+
 
 
 # TODO: fill values 
@@ -33,16 +35,16 @@ def _system_config_make_response(uci_config):
 '''
 SystemConfig
 '''
-def system_config_list():
-    uci_config = ConfigUCI(UCI_SYSTEM_CONFIG)
+def puci_system_config_list():
+    uci_config = ConfigUCI(UCI_SYSTEMCONFIGLOGGING_CONFIG)
 
     uci_config.show_uci_config(None)
     
     data = _system_config_make_response(uci_config)
     return data
 
-def system_config_create(req):
-    uci_config = ConfigUCI(UCI_SYSTEM_CONFIG)
+def puci_system_config_create(req):
+    uci_config = ConfigUCI(UCI_SYSTEMCONFIGLOGGING_CONFIG)
     
     log_info(LOG_MODULE_SAL, "request data = ", req)
     
@@ -65,8 +67,8 @@ def system_config_create(req):
     data = _system_config_make_response(uci_config)
     return data
 
-def system_config_update(req):
-    uci_config = ConfigUCI(UCI_SYSTEM_CONFIG)
+def puci_system_config_update(req):
+    uci_config = ConfigUCI(UCI_SYSTEMCONFIGLOGGING_CONFIG)
     
     for map_key in req.keys():
         map_val = uci_config.section_map[map_key]
@@ -82,3 +84,6 @@ def system_config_update(req):
     data = _system_config_make_response(uci_config)
     return data
     
+
+
+

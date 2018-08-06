@@ -28,10 +28,11 @@ router.register(r'v1/devices', views.DeviceInfoViewSet)
 
 '''
 Define URL Patterns
-	url(r'^v1/configs/interfaces/(?P<ifname>[a-z]+\d*)/v4addrs$', views.InterfaceV4AddrConfigView.as_view()),
 '''
+
 urlpatterns = [
 	url(r'^admin/', admin.site.urls),
+	url(r'^v1/configs/interfaces/(?P<ifname>[a-z]+\d*)/v4addrs$', views.InterfaceV4AddrConfigView.as_view()),
 ]
 
 urlpatterns += router.urls
