@@ -48,34 +48,70 @@ def subprocess_pipe(cmd_list):
 # TODO: Detail error handling 
 #
 class ConfigUCI:
-    def __init__(self, config_name, *args):
+    def __init__(self, config_file, config_name, *args):
+        self.config_file = config_file
         self.config_name = config_name
         self.section_map = uci_get_section_map(config_name, *args)
         log_info(LOG_MODULE_SAL, "Section_map(" + config_name + "): " + str(self.section_map))
 
     def restart_module(self):
-        command = '/www/openAPgent/utils/apply_config '+ self.config_name + ' &'
+        command = '/www/openAPgent/utils/apply_config '+ self.config_file + ' &'
         log_info(LOG_MODULE_SAL, "===" , command + "===")  
         return subprocess_open(command)
                                
     def commit_uci_config(self):
-        log_info(LOG_MODULE_SAL, "===" , UCI_COMMIT_CMD + self.config_name + "===")  
-        return subprocess_open(UCI_COMMIT_CMD + self.config_name)
+        log_info(LOG_MODULE_SAL, "===" , UCI_COMMIT_CMD + self.config_file + "===")
+        return subprocess_open(UCI_COMMIT_CMD + self.config_file)
 
-    def set_uci_list_config(self, option, value):
-        log_info(LOG_MODULE_SAL, UCI_ADD_LIST_CMD + option + '=' + value)  
-        output, error = subprocess_open(UCI_ADD_LIST_CMD + option + '=' + value)
-        if not error:
-            self.commit_uci_config()
-        return output, error
-        
-    def set_uci_config(self, option, value):
+    def set_uci_config_scalar(self, option, value):
         log_info(LOG_MODULE_SAL, UCI_SET_CMD + option + '=' + value)
-#        output, error = subprocess_open(UCI_SET_CMD + ".".join([config, section, option]) + "=" + value)
         output, error = subprocess_open(UCI_SET_CMD + option + '=' + value)
         if not error:
             self.commit_uci_config()
+        else:
+            log_error(LOG_MODULE_SAL, "set_uci_config_scalar() error:" + error)
         return output, error
+
+    def set_uci_config_list(self, option, values):
+        list_value = values.split(' ')
+
+        for i in range(0, len(list_value)):
+            log_info(LOG_MODULE_SAL, UCI_ADD_LIST_CMD + option + '=' + str(list_value[i]))
+            output, error = subprocess_open(UCI_ADD_LIST_CMD + option + '=' + list_value[i])
+            if not error:
+                self.commit_uci_config()
+            else:
+                log_error(LOG_MODULE_SAL, "set_uci_config_list() error:" + error)
+        return output, error
+
+    def set_uci_config(self, req):
+        for req_key in req.keys():
+            req_val = req[req_key]
+            # Check dictionary value
+            if isinstance(req_val, dict):
+                continue;
+
+            req_key = req_key
+            req_val = req[req_key]
+
+            # Update the requested SET Value to section_map
+            if req_key in self.section_map:
+                map_val = self.section_map[req_key]
+                map_val[2] = self.convert_config_value(req_val)
+                map_val.append('section_map_value_updated')
+
+        for map_val in self.section_map.values():
+            if not 'section_map_value_updated' in map_val: continue
+
+            self.delete_uci_config(map_val[1])
+
+            map_val[2] = map_val[2].strip()
+            if not map_val[2]: continue
+
+            if map_val[0] == CONFIG_TYPE_SCALAR:
+                self.set_uci_config_scalar(map_val[1], str(map_val[2]))
+            else:
+                self.set_uci_config_list(map_val[1], map_val[2])
 
     def delete_uci_list_config(self, option, value):
         log_info(LOG_MODULE_SAL, UCI_DELETE_LIST_CMD + option + '=' + value)  
@@ -91,43 +127,27 @@ class ConfigUCI:
             self.commit_uci_config()
         return output, error
         
-    def show_uci_config(self, option):
-        if option:
-            log_info(LOG_MODULE_SAL, UCI_SHOW_CMD + self.config_name + "." + option)
-            output, error = subprocess_open(UCI_SHOW_CMD + self.config_name + '.' + option)
-        else:
-            log_info(LOG_MODULE_SAL, UCI_SHOW_CMD + self.config_name)
-            output, error = subprocess_open(UCI_SHOW_CMD + self.config_name)
+    def show_uci_config(self):
+        log_info(LOG_MODULE_SAL, UCI_SHOW_CMD + self.config_file)
+        output, error = subprocess_open(UCI_SHOW_CMD + self.config_file)
         
         if not error:
-            line = output.splitlines()
+            lines = output.splitlines()
 
-            for i in range (0, len(line)):
-                token = line[i].split('=')
+            for line in lines:
+                token = line.split('=')
 
-                for map_key in self.section_map.keys():
-                    map_val = self.section_map[map_key]
+                for map_val in self.section_map.values():
                     if map_val[1] == token[0]:
+                        if token[1][0] == "'" and map_val[0] == CONFIG_TYPE_SCALAR :
+                            token[1] = token[1][1:-1]
                         map_val[2] = token[1]
                         break;
-                i += 1
 
             log_info(LOG_MODULE_SAL, "self.section_map = ", self.section_map)
 
-    def set_uci_config_list_value(self, keyword, option, list_value):
-        for i in range (0, len(list_value)):
-            self.set_uci_list_config(option, list_value[i])
-        
     def convert_config_value(self, val):
-        if val == True:
-            return 1
-        elif val == False:
-            return 2
-        else:
-            return val
-
-
-#TEST
-#result = get_config_object("system", "@system[0]", "log_file")
-#result = set_config_object("system", "@system[0]", "log_file", "/tmp/messages")
+        if val == True: return 1
+        elif val == False: return 2
+        else: return val
 

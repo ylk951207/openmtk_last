@@ -15,9 +15,11 @@ UCI_DATA_PREFIX     = 'DEFINE_FIELD_'
 UCI_DATA_SUFFIX     = '};'
 FIELD_NAME_PREFIX   = 'FIELD_NAME_'
 
+RMIB_FILE='RMIB/apServer.rmib'
+
 global gen_bpfile
 global test_mode
-
+global make_list
 
 
 '''
@@ -79,11 +81,13 @@ def get_django_header(filename):
 		header += "from puci.system_config import *\n\n"
 		header += "'''\n Define SAL Method\n'''\n"
 		header += "SAL_METHOD_LIST           = 1\n"
-		header += "SAL_METHOD_RETRIEVE       = 2\n"
-		header += "SAL_METHOD_CREATE         = 3\n"
-		header += "SAL_METHOD_UPDATE         = 4\n"
-		header += "SAL_METHOD_PARTIAL_UPDATE = 5\n"
-		header += "SAL_METHOD_DELETE         = 6\n\n\n"
+		header += "SAL_METHOD_CREATE         = 2\n"
+		header += "SAL_METHOD_UPDATE         = 3\n"
+		header += "SAL_METHOD_RETRIEVE       = 4\n"
+		header += "SAL_METHOD_DETAIL_CREATE  = 5\n"
+		header += "SAL_METHOD_DETAIL_UPDATE  = 6\n"
+		header += "SAL_METHOD_PARTIAL_UPDATE = 7\n"
+		header += "SAL_METHOD_DELETE         = 8\n\n\n"
 	elif filename == uci_data_file:
 		header += "from common.log import *\n\n"
 		header += "CONFIG_TYPE_SCALAR=1\n"
@@ -96,14 +100,14 @@ def get_django_header(filename):
 	return header
 
 
-def make_url_lines(url_path, base_name, class_name, method_list):
+def make_url_lines(url_path, base_name, class_name):
 	view_name = "views." + class_name + "ViewSet"
 	wline = "custom_router.register(r\'" + url_path + "\', " + view_name + ", base_name=\'" + base_name + "\')\n"
 	return wline
 
 
 
-def make_view_lines(url_path, base_name, class_name, method_list):
+def make_view_lines(base_name, class_name, method_list):
 	view_name = "views." + class_name + "ViewSet"
 
 	wline = "\n'''\n Define Class " + class_name + "\n'''"
@@ -123,7 +127,7 @@ def make_view_lines(url_path, base_name, class_name, method_list):
 	return wline
 
 
-def make_sal_lines(url_path, base_name, class_name, method_list):
+def make_sal_lines(base_name, method_list):
     support_apis = ['puci']
 
     wline = "\n\n'''\n Define " + base_name + " SAL function\n'''\n"
@@ -191,11 +195,13 @@ def make_django_pyfile(filename, header):
 			print "VIEW_NAME:   " + view_name
 
 			if filename == url_file:
-				wline += make_url_lines(url_path, base_name, class_name, method_list)
+				if not url_path == 'no':
+					wline += make_url_lines(url_path, base_name, class_name)
 			elif filename == view_file:
-				wline += make_view_lines(url_path, base_name, class_name, method_list)
+				if not url_path == 'no':
+					wline += make_view_lines(base_name, class_name, method_list)
 			elif filename == sal_file:
-				wline += make_sal_lines(url_path, base_name, class_name, method_list)
+				wline += make_sal_lines(base_name, method_list)
 
 			do_write = False
 
@@ -312,37 +318,46 @@ def make_sal_user_specific_file():
 '''
  Main routine
 '''
-RMIB_FILE=sys.argv[1]
 
-options, args = getopt.getopt(sys.argv[2:], "bt")
+options, args = getopt.getopt(sys.argv[1:], "btm:")
 
 gen_bpfile = False
 test_mode = False
+make_list=['url', 'view', 'sal', 'uci']
 
 for op,p in options:
 	if op == '-b':
 		gen_bpfile = True
 	elif op == '-t':
 		test_mode = True
+	elif op == '-m':
+		make_list = p.split(',')
+		print p
 	else:
 		print "Invalid Arguments",op
 
 print "\nRMIB FILE: " + RMIB_FILE
-print "Test mode: " + str(test_mode) + ", Generate backupfile : " + str(gen_bpfile)
+print "Test mode: " + str(test_mode) + ", Generate backupfile : " + str(gen_bpfile) + ", Make lists : " + str(make_list)
 print "\n"
 
 initialize_file(test_mode)
 
+if 'url' in make_list:
+	header = get_django_header(url_file)
+	make_django_pyfile(url_file, header)
 
-header = get_django_header(url_file)
-make_django_pyfile(url_file, header)
+if 'view' in make_list:
+	header = get_django_header(view_file)
+	make_django_pyfile(view_file, header)
 
-header = get_django_header(view_file)
-make_django_pyfile(view_file, header)
+if 'sal' in make_list:
+	header = get_django_header(sal_file)
+	make_django_pyfile(sal_file, header)
 
-header = get_django_header(sal_file)
-make_django_pyfile(sal_file, header)
+if 'uci' in make_list:
+	header = get_django_header(uci_data_file)
+	make_django_uci_data_pyfile(uci_data_file, header)
 
-header = get_django_header(uci_data_file)
+#if 'user' in make_list:
+#	make_sal_user_specific_file()
 
-make_sal_user_specific_file()

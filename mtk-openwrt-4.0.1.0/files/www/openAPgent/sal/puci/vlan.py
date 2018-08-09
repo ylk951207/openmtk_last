@@ -4,8 +4,6 @@ from puci import *
 from common.log import *
 from common.env import *
 
-UCI_VLANCOMMONCONFIG_CONFIG = "vlanCommonConfig"
-UCI_VLANCONFIG_CONFIG = "vlanConfig"
-
-
+UCI_VLAN_COMMON_CONFIG_CONFIG = "vlan_common_config"
+UCI_VLAN_CONFIG_CONFIG = "vlan_config"
 

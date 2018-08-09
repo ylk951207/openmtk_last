@@ -1,143 +1,18 @@
 import fileinput
 
 from puci import *
-
 from common.log import *
 from common.env import *
+from common.error import *
 
-UCI_INTERFACE_CONFIG="interfaceConfig"
-UCI_INTERFACE_V4ADDR_CONFIG="interfaceV4addrConfig"
+UCI_NETWORK_FILE="network"
+UCI_INTERFACE_CONFIG_CONFIG = "interface_config"
+UCI_INTERFACE_V4ADDR_CONFIG = "interface_v4addr_config"
 
 
 '''
 InterfaceConfig
 '''
-def interface_config_common_get(ifname, interface_data):
-
-    uci_config = ConfigUCI(UCI_INTERFACE_CONFIG, ifname)
-
-    uci_config.show_uci_config(ifname)
-
-    for map_key in uci_config.section_map.keys():
-        map_val = uci_config.section_map[map_key]
-        interface_data[map_key] = map_val[2]
-
-    return interface_data
-
-def interface_config_common_set(req, ifname, interface_data):
-
-    uci_config = ConfigUCI(UCI_INTERFACE_CONFIG, ifname)
-
-    uci_config.set_uci_config(req)
-
-    for map_key in uci_config.section_map.keys():
-        map_val = uci_config.section_map[map_key]
-        if interface_data:
-            interface_data[map_key] = map_val[2]
-
-    return interface_data
-
-
-def interface_config_v4addr_get(ifname, interface_data):
-    addr_data = dict()
-
-    uci_config = ConfigUCI(UCI_INTERFACE_V4ADDR_CONFIG, ifname)
-
-    uci_config.show_uci_config(ifname)
-
-    for map_key in uci_config.section_map.keys():
-        map_val = uci_config.section_map[map_key]
-        addr_data[map_key] = map_val[2]
-
-    interface_data['v4addr'] = addr_data
-
-    log_info(LOG_MODULE_SAL, interface_data)
-
-    return interface_data
-
-
-def interface_config_v4addr_set(req, ifname, interface_data):
-    addr_data = dict()
-
-    uci_config = ConfigUCI(UCI_INTERFACE_V4ADDR_CONFIG, ifname)
-
-    uci_config.set_uci_config(req)
-
-    for map_key in uci_config.section_map.keys():
-        map_val = uci_config.section_map[map_key]
-        addr_data[map_key] = map_val[2]
-
-    interface_data['v4addr'] = addr_data
-
-    return interface_data
-
-def puci_interface_config_retrieve(ifname, add_header):
-    if not ifname: return None
-    log_info(LOG_MODULE_SAL, "[ifname] : " + ifname)
-
-    interface_data = dict()
-
-    interface_data = interface_config_common_get(ifname, interface_data)
-    interface_data = interface_config_v4addr_get(ifname, interface_data)
-
-    if add_header == 1:
-        data = {
-            'interface' : interface_data,
-            'header' : {
-                            'resultCode':200,
-                            'resultMessage':'Success.',
-                            'isSuccessful':'true'
-                           }
-        }
-    else:
-        data = interface_data
-
-    return data
-
-def puci_interface_v4addr_config_retrieve(ifname, add_header):
-    if not ifname: return None
-
-    interface_data = dict()
-    interface_data = interface_config_v4addr_get(ifname, interface_data)
-
-    if add_header == 1:
-        data = interface_data
-        data['header'] = {
-                            'resultCode':200,
-                            'resultMessage':'Success.',
-                            'isSuccessful':'true'
-                           }
-    return data
-
-
-def puci_interface_v4addr_config_create(req, ifname):
-    if not ifname: return None
-
-    interface_data = dict()
-    interface_data = interface_config_v4addr_set(req, ifname, interface_data)
-
-    data = interface_data
-    data['header'] = {
-        'resultCode':200,
-        'resultMessage':'Success.',
-        'isSuccessful':'true'
-    }
-    return data
-
-def puci_interface_v4addr_config_update(req, ifname):
-    if not ifname: return None
-
-    interface_data = dict()
-    interface_data = interface_config_v4addr_set(req, ifname, interface_data)
-
-    data = interface_data
-    data['header'] = {
-        'resultCode':200,
-        'resultMessage':'Success.',
-        'isSuccessful':'true'
-    }
-    return data
-
 def puci_interface_config_list():
     iflist=['lan', 'wan', 'wan6']
 
@@ -159,54 +34,176 @@ def puci_interface_config_list():
             }
     return data
 
-
-def puci_interface_config_create(reqs):
-    reqs_data = reqs['interfaces-list']
-
-    while len(reqs_data) > 0:
-        req = reqs_data.pop(0)
-
-        ifname = req['ifname']
-
-        interface_config_common_set(req, ifname, None)
-        if "v4addr" in req:
-            interface_config_v4addr_set(req['v4addr'], ifname, None)
-
-    data = {
-            'header' : {
-                        'resultCode':200,
-                        'resultMessage':'Success.',
-                        'isSuccessful':'true'
-                       }
-            }
-
-    return data
-
-def puci_interface_config_update(req, ifname):
-    if not ifname: return None
+def puci_interface_config_retrieve(ifname, add_header):
+    if not ifname:
+        raise RespNotFound("Interface")
     log_info(LOG_MODULE_SAL, "[ifname] : " + ifname)
 
     interface_data = dict()
 
-    interface_data = interface_config_common_set(req, ifname, interface_data)
-    if "v4addr" in req:
-        interface_data = interface_config_v4addr_set(req['v4addr'], ifname, interface_data)
+    interface_data = interface_config_common_uci_get(ifname, interface_data)
+    interface_data = interface_config_v4addr_uci_get(ifname, interface_data)
+
+    if add_header == 1:
+        data = {
+            'interface' : interface_data,
+            'header' : {
+                            'resultCode':200,
+                            'resultMessage':'Success.',
+                            'isSuccessful':'true'
+                        }
+        }
+    else:
+        data = interface_data
+
+    return data
+
+def puci_interface_config_create(request):
+    return interface_config_common_set(request)
+
+def puci_interface_config_update(request):
+    return interface_config_common_set(request)
+
+def puci_interface_config_detail_create(request, ifname):
+    return interface_config_common_detail_set(request, ifname)
+
+def puci_interface_config_detail_update(request, ifname):
+    return interface_config_common_detail_set(request, ifname)
+
+
+def interface_config_common_set(request):
+    interface_list = request['interface_list']
+
+    while len(interface_list) > 0:
+        ifdata = interface_list.pop(0)
+
+        ifname = ifdata['ifname']
+
+        interface_config_common_uci_set(ifdata, ifname)
+        if "v4addr" in ifdata:
+            interface_config_v4addr_uci_set(ifdata['v4addr'], ifname)
 
     data = {
-            'interface_list': interface_data,
-            'header' : {
-                        'resultCode':200,
-                        'resultMessage':'Success.',
-                        'isSuccessful':'true'
-                       }
-           }
+        'header' : {
+            'resultCode': 200,
+            'resultMessage': 'Success.',
+            'isSuccessful': 'true'
+        }
+    }
     return data
+
+def interface_config_common_detail_set(request, ifname):
+    if not ifname:
+        raise RespNotFound("Interface")
+
+    interface_config_common_uci_set(request, ifname)
+    if "v4addr" in request:
+        interface_config_v4addr_uci_set(request['v4addr'], ifname)
+
+    data = {
+        'header' : {
+            'resultCode': 200,
+            'resultMessage': 'Success.',
+            'isSuccessful': 'true'
+        }
+    }
+    return data
+
+
+def interface_config_common_uci_get(ifname, interface_data):
+    uci_config = ConfigUCI(UCI_NETWORK_FILE, UCI_INTERFACE_CONFIG_CONFIG, ifname)
+    if uci_config == None:
+        raise RespNotFound("UCI Config")
+
+    uci_config.show_uci_config()
+
+    interface_data['ifname'] = ifname
+    for map_key in uci_config.section_map.keys():
+        map_val = uci_config.section_map[map_key]
+        interface_data[map_key] = map_val[2]
+
+    return interface_data
+
+def interface_config_common_uci_set(req_data, ifname):
+    if not ifname:
+        raise RespNotFound("Interface")
+
+    uci_config = ConfigUCI(UCI_NETWORK_FILE, UCI_INTERFACE_CONFIG_CONFIG, ifname)
+    if uci_config == None:
+        raise RespNotFound("UCI Config")
+
+    uci_config.set_uci_config(req_data)
+
+
+def puci_interface_v4addr_config_list(ifname):
+    if not ifname:
+        raise RespNotFound("Interface")
+
+    interface_data = dict()
+    interface_data = interface_config_v4addr_uci_get(ifname, interface_data)
+
+    data = interface_data
+    data['header'] = {
+        'resultCode':200,
+        'resultMessage':'Success.',
+        'isSuccessful':'true'
+    }
+    return data
+
+def puci_interface_v4addr_config_create(request, ifname):
+    return interface_config_v4addr_set(request, ifname)
+
+def puci_interface_v4addr_config_update(request, ifname):
+    return interface_config_v4addr_set(request, ifname)
+
+def interface_config_v4addr_set(request, ifname):
+    if not ifname:
+        raise RespNotFound("Interface")
+
+    interface_config_v4addr_uci_set(request, ifname)
+
+    data = {
+        'header' : {
+            'resultCode': 200,
+            'resultMessage': 'Success.',
+            'isSuccessful': 'true'
+        }
+    }
+    return data
+
+def interface_config_v4addr_uci_get(ifname, interface_data):
+    addr_data = dict()
+
+    uci_config = ConfigUCI(UCI_NETWORK_FILE, UCI_INTERFACE_V4ADDR_CONFIG, ifname)
+    if uci_config == None:
+        raise RespNotFound("UCI Config")
+
+    uci_config.show_uci_config()
+
+    for map_key in uci_config.section_map.keys():
+        map_val = uci_config.section_map[map_key]
+        addr_data[map_key] = map_val[2]
+
+    interface_data['v4addr'] = addr_data
+
+    log_info(LOG_MODULE_SAL, interface_data)
+
+    return interface_data
+
+def interface_config_v4addr_uci_set(req_data, ifname):
+
+    uci_config = ConfigUCI(UCI_NETWORK_FILE, UCI_INTERFACE_V4ADDR_CONFIG, ifname)
+    if uci_config == None:
+        raise RespNotFound("UCI Config")
+
+    uci_config.set_uci_config(req_data)
+
 
 
 '''
 GenericIfStats
 '''
-def get_generic_port_traffic(ifname):
+def generic_ifstats_get(ifname):
     #Get port traffic from /proc/net/dev file
     stats=None
     port_count = 0
@@ -234,8 +231,8 @@ def get_generic_port_traffic(ifname):
     return stats, port_count
 
 
-def generic_ifstats_list():
-    stats, port_count = get_generic_port_traffic('')
+def puci_if_statistics_list():
+    stats, port_count = generic_ifstats_get('')
 
     for index in range(0, port_count):
         temp = {
@@ -263,11 +260,13 @@ def generic_ifstats_list():
     return data
 
 
-def generic_ifstats_retrieve(ifname):
-    if not ifname: return None
+def puci_if_statistics_retrieve(ifname, add_header):
+    if not ifname:
+        raise RespNotFound("Interface")
+
     log_info(LOG_MODULE_SAL, "[ifname] : " + ifname)
 
-    stats, port_count = get_generic_port_traffic(ifname)
+    stats, port_count = generic_ifstats_get(ifname)
     if not stats: return None
 
     ifstats_body = {
@@ -288,6 +287,3 @@ def generic_ifstats_retrieve(ifname):
         }
     }
     return data
-
-
-

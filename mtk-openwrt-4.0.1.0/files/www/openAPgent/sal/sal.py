@@ -11,11 +11,13 @@ from puci.system_config import *
  Define SAL Method
 '''
 SAL_METHOD_LIST           = 1
-SAL_METHOD_RETRIEVE       = 2
-SAL_METHOD_CREATE         = 3
-SAL_METHOD_UPDATE         = 4
-SAL_METHOD_PARTIAL_UPDATE = 5
-SAL_METHOD_DELETE         = 6
+SAL_METHOD_CREATE         = 2
+SAL_METHOD_UPDATE         = 3
+SAL_METHOD_RETRIEVE       = 4
+SAL_METHOD_DETAIL_CREATE  = 5
+SAL_METHOD_DETAIL_UPDATE  = 6
+SAL_METHOD_PARTIAL_UPDATE = 7
+SAL_METHOD_DELETE         = 8
 
 
 
@@ -88,6 +90,24 @@ def sal_interface_config(method, request, pk):
 
   if method == SAL_METHOD_DETAIL_UPDATE:
     return puci_interface_config_detail_update(request, pk)
+
+  return None
+
+
+'''
+ Define interface_v4addr_config SAL function
+'''
+def sal_interface_v4addr_config(method, request, pk):
+
+  # For Python-UCI APIs
+  if method == SAL_METHOD_LIST:
+    return puci_interface_v4addr_config_list()
+
+  if method == SAL_METHOD_CREATE:
+    return puci_interface_v4addr_config_create(request)
+
+  if method == SAL_METHOD_UPDATE:
+    return puci_interface_v4addr_config_update(request)
 
   return None
 
@@ -229,5 +249,20 @@ def sal_if_statistics(method, request, pk):
 
   if method == SAL_METHOD_RETRIEVE:
     return puci_if_statistics_retrieve(pk, 1)
+
+  return None
+
+
+'''
+ Define sys_mgt SAL function
+'''
+def sal_sys_mgt(method, request, pk):
+
+  # For Python-UCI APIs
+  if method == SAL_METHOD_RTRIEVE:
+    return puci_sys_mgt_rtrieve(request, pk)
+
+  if method == SAL_METHOD_DETAIL_POST:
+    return puci_sys_mgt_detail_post(request, pk)
 
   return None

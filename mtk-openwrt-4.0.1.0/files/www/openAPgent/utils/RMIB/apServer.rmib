@@ -13,25 +13,30 @@ URI=v1/configs/system
 BASENAME=system_config
 CLASSNAME=SysetmConfig
 METHODLIST=list,create,update,retrieve,detail_create,detail_update
-FIELD_NAME_system_config=SystemConfigLogging,SystemConfigNtp
+FIELD_NAME_system_config=system_config_logging,system_config_ntp
 
 URI=v1/configs/interfaces
 BASENAME=interface_config
 CLASSNAME=InterfaceConfig
 METHODLIST=list,create,update,retrieve,detail_create,detail_update
-FIELD_NAME_interface=interfaceConfig
+FIELD_NAME_interface=interface_config,interface_v4addr_config
+
+URI=no
+BASENAME=interface_v4addr_config
+CLASSNAME=InterfaceV4addrConfig
+METHODLIST=list,create,update
 
 URI=v1/configs/vlans
 BASENAME=vlan_config
 CLASSNAME=VlanConfig
 METHODLIST=list,create,update,retrieve,detail_create,detail_update
-FIELD_NAME_vlan=vlanCommonConfig,vlanConfig
+FIELD_NAME_vlan=vlan_common_config,vlan_config
 
 URI=v1/configs/dhcp/common
 BASENAME=dhcp_common_config
 CLASSNAME=DhcpCommonConfig
 METHODLIST=list,create,update
-FIELD_NAME_dhcp=dhcpCommonConfig,dhcpInterfacePoolConfig,dhcpInterfacev6PoolConfig,dhcpStaticLeasesConfig
+FIELD_NAME_dhcp=dhcp_common,dhcp_interface_pool,dhcp_interface_v6pool,dhcp_static_lease
 
 URI=v1/configs/dhcp/pools
 BASENAME=dhcp_pool_config
@@ -58,13 +63,19 @@ URI=v1/statistics
 BASENAME=if_statistics
 CLASSNAME=IfStatistics
 METHODLIST=list,retrieve
-#FIELD_NAME_if_stats=GenericIfStats,TrafficMonitorIfStats(not UCI field)
+#FIELD_NAME_if_stats=generic_if_stats,traffic_monitor_if_stats(not UCI field)
+
+URI=v1/management
+BASENAME=sys_mgt
+CLASSNAME=SystemMgt
+METHODLIST=rtrieve,detail_post
+
 
 #
 # Field efinitions
 #
 
-DEFINE_FIELD_systemConfigLogging= {
+DEFINE_FIELD_system_config_logging= {
     'loggingBufferSize'     : CONFIG_TYPE_SCALAR : 'system.@system[0].log_size'
     'loggingServerIpAddr'   : CONFIG_TYPE_SCALAR : 'system.@system[0].log_ip'
     'loggingServerPort'     : CONFIG_TYPE_SCALAR : 'system.@system[0].log_ip'
@@ -74,15 +85,15 @@ DEFINE_FIELD_systemConfigLogging= {
     'loggingCronLogLevel'   : CONFIG_TYPE_SCALAR : ''
 };
 
-DEFINE_FIELD_systemConfigNtp= {
+DEFINE_FIELD_system_config_ntp= {
     'enableNtpClient'       : CONFIG_TYPE_SCALAR : 'system.ntp.enabled'
     'provideNtpServer'      : CONFIG_TYPE_SCALAR : 'system.ntp.enable_server'
     'ntpServerCandidates'   : CONFIG_TYPE_LIST   : 'system.ntp.server'
 };
 
-# args[0] is ifname
-DEFINE_FIELD_interfaceConfig= {
-  'ifname'              : CONFIG_TYPE_SCALAR : ".".join(['network', args[0], 'ifname'])
+# args[0] is ifname(logical ifname)
+DEFINE_FIELD_interface_config= {
+  'portName'            : CONFIG_TYPE_SCALAR : ".".join(['network', args[0], 'ifname'])
 	'protocol'            : CONFIG_TYPE_SCALAR : ".".join(['network', args[0], 'proto'])
 	'type'                : CONFIG_TYPE_SCALAR : ".".join(['network', args[0], 'type'])
 	'stp'                 : CONFIG_TYPE_SCALAR : ".".join(['network', args[0], 'stp'])
@@ -93,7 +104,7 @@ DEFINE_FIELD_interfaceConfig= {
 };
 
 # args[0] is ifname
-DEFINE_FIELD_interfaceV4addrConfig= {
+DEFINE_FIELD_interface_v4addr_config= {
 	'ipv4Address'         : CONFIG_TYPE_SCALAR : ".".join(['network', args[0], 'ipaddr'])
 	'ipv4Netmask'         : CONFIG_TYPE_SCALAR : ".".join(['network', args[0], 'netmask'])
 	'ipv4Gateway'         : CONFIG_TYPE_SCALAR : ".".join(['network', args[0], 'gateway'])
@@ -101,17 +112,17 @@ DEFINE_FIELD_interfaceV4addrConfig= {
 	'dnsServer'           : CONFIG_TYPE_LIST   : ".".join(['network', args[0], 'dns'])
 };
 
-DEFINE_FIELD_vlanCommonConfig= {
+DEFINE_FIELD_vlan_common_config= {
     'enableVlan'       : CONFIG_TYPE_SCALAR : 'show network.@switch[0].enable_vlan'
 };
 
 # if 'VLAN 1', uci show network.@switch_vlan[1]  (args[0] : switch_vlan[1])
-DEFINE_FIELD_vlanConfig= {
+DEFINE_FIELD_vlan_config= {
     'vlanId'           : CONFIG_TYPE_SCALAR : ".".join(['network', args[0], 'vlan'])
     'ports'            : CONFIG_TYPE_LIST   : ".".join(['network', args[0], 'ports'])
 };
 
-DEFINE_FIELD_dhcpCommonConfig= {
+DEFINE_FIELD_dhcp_common= {
     'domainRequired'           : CONFIG_TYPE_SCALAR : 'dhcp.@dnsmasq[0].domainneeded'
     'authoritative'            : CONFIG_TYPE_SCALAR : 'dhcp.@dnsmasq[0].authoritative'
     'localServer'              : CONFIG_TYPE_SCALAR : 'dhcp.@dnsmasq[0].local'
@@ -148,7 +159,7 @@ DEFINE_FIELD_dhcpCommonConfig= {
 };
 
 # args[0] is ifname
-DEFINE_FIELD_dhcpInterfacePoolConfig= {
+DEFINE_FIELD_dhcp_interface_pool= {
     'ignore'                  : CONFIG_TYPE_SCALAR : ".".join(['dhcp', args[0], 'ignore'])
     'ifname'                  : CONFIG_TYPE_SCALAR : ".".join(['dhcp', args[0], 'interface'])
     'addrStart'               : CONFIG_TYPE_SCALAR : ".".join(['dhcp', args[0], 'start'])
@@ -161,7 +172,7 @@ DEFINE_FIELD_dhcpInterfacePoolConfig= {
 };
 
 # args[0] is ifname
-DEFINE_FIELD_dhcpInterfacev6PoolConfig= {
+DEFINE_FIELD_dhcp_interface_v6pool= {
     'ra'                      : CONFIG_TYPE_SCALAR : ".".join(['dhcp', args[0], 'ra'])
     'dhcpv6'                  : CONFIG_TYPE_SCALAR : ".".join(['dhcp', args[0], 'dhcpv6'])
     'ndp'                     : CONFIG_TYPE_SCALAR : ".".join(['dhcp', args[0], 'ndp'])
@@ -172,7 +183,7 @@ DEFINE_FIELD_dhcpInterfacev6PoolConfig= {
 };
 
 # args[0] is 'name'
-DEFINE_FIELD_dhcpStaticLeasesConfig={
+DEFINE_FIELD_dhcp_static_leases={
     'name'                    : CONFIG_TYPE_SCALAR : ".".join(['dhcp', args[0], 'name'])
     'dns'                     : CONFIG_TYPE_SCALAR : ".".join(['dhcp', args[0], 'dns'])
     'mac'                     : CONFIG_TYPE_SCALAR : ".".join(['dhcp', args[0], 'mac'])

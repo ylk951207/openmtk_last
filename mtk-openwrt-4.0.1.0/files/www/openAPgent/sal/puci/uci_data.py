@@ -14,7 +14,7 @@ def uci_get_section_map(config_name, *args):
 
   log_info(LOG_MODULE_SAL, "ARGS: " + str(args))
 
-  if config_name == 'systemConfigLogging':
+  if config_name == 'system_config_logging':
     section_map = {
       'loggingBufferSize'      :  [ CONFIG_TYPE_SCALAR  , 'system.@system[0].log_size'                 ,' ' ],
       'loggingServerIpAddr'    :  [ CONFIG_TYPE_SCALAR  , 'system.@system[0].log_ip'                   ,' ' ],
@@ -26,7 +26,7 @@ def uci_get_section_map(config_name, *args):
     }
     return section_map
 
-  if config_name == 'systemConfigNtp':
+  if config_name == 'system_config_ntp':
     section_map = {
       'enableNtpClient'        :  [ CONFIG_TYPE_SCALAR  , 'system.ntp.enabled'                         ,' ' ],
       'provideNtpServer'       :  [ CONFIG_TYPE_SCALAR  , 'system.ntp.enable_server'                   ,' ' ],
@@ -34,9 +34,9 @@ def uci_get_section_map(config_name, *args):
     }
     return section_map
 
-  if config_name == 'interfaceConfig':
+  if config_name == 'interface_config':
     section_map = {
-      'ifname'                 :  [ CONFIG_TYPE_SCALAR  , ".".join(['network', args[0], 'ifname'])     ,' ' ],
+      'portName'               :  [ CONFIG_TYPE_SCALAR  , ".".join(['network', args[0], 'ifname'])     ,' ' ],
       'protocol'               :  [ CONFIG_TYPE_SCALAR  , ".".join(['network', args[0], 'proto'])      ,' ' ],
       'type'                   :  [ CONFIG_TYPE_SCALAR  , ".".join(['network', args[0], 'type'])       ,' ' ],
       'stp'                    :  [ CONFIG_TYPE_SCALAR  , ".".join(['network', args[0], 'stp'])        ,' ' ],
@@ -47,7 +47,7 @@ def uci_get_section_map(config_name, *args):
     }
     return section_map
 
-  if config_name == 'interfaceV4addrConfig':
+  if config_name == 'interface_v4addr_config':
     section_map = {
       'ipv4Address'            :  [ CONFIG_TYPE_SCALAR  , ".".join(['network', args[0], 'ipaddr'])     ,' ' ],
       'ipv4Netmask'            :  [ CONFIG_TYPE_SCALAR  , ".".join(['network', args[0], 'netmask'])    ,' ' ],
@@ -57,20 +57,20 @@ def uci_get_section_map(config_name, *args):
     }
     return section_map
 
-  if config_name == 'vlanCommonConfig':
+  if config_name == 'vlan_common_config':
     section_map = {
       'enableVlan'             :  [ CONFIG_TYPE_SCALAR  , 'show network.@switch[0].enable_vlan'        ,' ' ],
     }
     return section_map
 
-  if config_name == 'vlanConfig':
+  if config_name == 'vlan_config':
     section_map = {
       'vlanId'                 :  [ CONFIG_TYPE_SCALAR  , ".".join(['network', args[0], 'vlan'])       ,' ' ],
       'ports'                  :  [ CONFIG_TYPE_LIST    , ".".join(['network', args[0], 'ports'])      ,' ' ],
     }
     return section_map
 
-  if config_name == 'dhcpCommonConfig':
+  if config_name == 'dhcp_common':
     section_map = {
       'domainRequired'         :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].domainneeded'              ,' ' ],
       'authoritative'          :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].authoritative'             ,' ' ],
@@ -108,7 +108,7 @@ def uci_get_section_map(config_name, *args):
     }
     return section_map
 
-  if config_name == 'dhcpInterfacePoolConfig':
+  if config_name == 'dhcp_interface_pool':
     section_map = {
       'ignore'                 :  [ CONFIG_TYPE_SCALAR  , ".".join(['dhcp', args[0], 'ignore'])        ,' ' ],
       'ifname'                 :  [ CONFIG_TYPE_SCALAR  , ".".join(['dhcp', args[0], 'interface'])     ,' ' ],
@@ -122,7 +122,7 @@ def uci_get_section_map(config_name, *args):
     }
     return section_map
 
-  if config_name == 'dhcpInterfacev6PoolConfig':
+  if config_name == 'dhcp_interface_v6pool':
     section_map = {
       'ra'                     :  [ CONFIG_TYPE_SCALAR  , ".".join(['dhcp', args[0], 'ra'])            ,' ' ],
       'dhcpv6'                 :  [ CONFIG_TYPE_SCALAR  , ".".join(['dhcp', args[0], 'dhcpv6'])        ,' ' ],
@@ -134,7 +134,7 @@ def uci_get_section_map(config_name, *args):
     }
     return section_map
 
-  if config_name == 'dhcpStaticLeasesConfig':
+  if config_name == 'dhcp_static_leases':
     section_map = {
       'name'                   :  [ CONFIG_TYPE_SCALAR  , ".".join(['dhcp', args[0], 'name'])          ,' ' ],
       'dns'                    :  [ CONFIG_TYPE_SCALAR  , ".".join(['dhcp', args[0], 'dns'])           ,' ' ],

@@ -10,7 +10,6 @@ import fcntl, socket, struct
 from apClient.request import SendRequest
 from common.log import *
 from common.env import *
-from common.error import *
 from time import sleep
 
 def get_ip_address(ifname):

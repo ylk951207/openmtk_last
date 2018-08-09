@@ -18,7 +18,7 @@ from apServer.server.models import *
 from apServer.server.serializers import *
 from common.log import *
 from common.env import *
-from sal.sal import *
+from sal.puci.interface import *
 from apServer.server.custom_views import *
 
 
@@ -34,17 +34,17 @@ class InterfaceV4AddrConfigView(APIView):
 	def get(self, pk, ifname):
 		log_info(LOG_MODULE_APSERVER, "*" * 10 + "InterfaceV4AddrConfigView list()" + "*" * 10)
 		log_info(LOG_MODULE_APSERVER, "ifname: " + str(ifname))
-		data = sal_interface_v4addr_config(SAL_METHOD_LIST, None, str(ifname))
+		data = puci_interface_v4addr_config_list(str(ifname))
 		return Response(data, content_type='application/json')
 
 	def post(self, request, ifname, format=None):
 		log_info(LOG_MODULE_APSERVER, "*" * 10 + "InterfaceV4AddrConfigView create()" +  "*" * 10)
 		log_info(LOG_MODULE_APSERVER, "ifname: " + str(ifname))
-		data = sal_interface_v4addr_config(SAL_METHOD_CREATE, request.data, str(ifname))
+		data = puci_interface_v4addr_config_create(request.data, str(ifname))
 		return Response(data, content_type='application/json')
 
 	def put(self, request, ifname, format=None):
 		log_info(LOG_MODULE_APSERVER, "*" * 10 + "InterfaceV4AddrConfigView update()" + "*" * 10)
 		log_info(LOG_MODULE_APSERVER, "ifname: " + str(ifname))
-		data = sal_interface_v4addr_config(SAL_METHOD_UPDATE, request.data, str(ifname))
+		data = puci_interface_v4addr_config_update(request.data, str(ifname))
 		return Response(data, content_type='application/json')

@@ -39,7 +39,7 @@ def log_info(module, *values):
         val_list = ' '.join(str(x) for x in values)
         gLogger.logger.info('%s: %s' % (module, val_list))
 
-def log_err(module, *values):
+def log_error(module, *values):
     if not values:
         gLogger.logger.error('%s: Invaild log' % module)
     else:

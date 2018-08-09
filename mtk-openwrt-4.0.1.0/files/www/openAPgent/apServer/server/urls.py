@@ -19,3 +19,4 @@ custom_router.register(r'v1/configs/dhcp/static-leases', views.DhcpStaticLeasesC
 custom_router.register(r'v1/management/firmware', views.FirmwareMgtViewSet, base_name='firmware_management')
 custom_router.register(r'v1/management/configuration', views.ConfigMgtViewSet, base_name='config_management')
 custom_router.register(r'v1/statistics', views.IfStatisticsViewSet, base_name='if_statistics')
+custom_router.register(r'v1/management', views.SystemMgtViewSet, base_name='sys_mgt')

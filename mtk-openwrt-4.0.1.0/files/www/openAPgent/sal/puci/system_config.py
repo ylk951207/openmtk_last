@@ -1,89 +1,141 @@
-import fileinput
-
 from puci import *
 from common.log import *
 from common.env import *
+from common.error import *
 
-UCI_SYSTEMCONFIGLOGGING_CONFIG = "SystemConfigLogging"
-UCI_SYSTEMCONFIGNTP_CONFIG = "SystemConfigNtp"
+UCI_SYSTEM_CONFIG_FILE = "system"
+UCI_SYSTEM_CONFIG_LOGGING_CONFIG = "system_config_logging"
+UCI_SYSTEM_CONFIG_NTP_CONFIG = "system_config_ntp"
 
-
-
-
-# TODO: fill values 
-def _system_config_make_response(uci_config):
-    temp = dict()
-    for map_key in uci_config.section_map.keys():
-        map_val = uci_config.section_map[map_key]
-        temp[map_key] = map_val[2]
-#    for i in range (0, len(config.section_map)):  
-#        temp[config.section_map[i][0]] = config.section_map[i][2]
-#        i += 1
-
-    data = {
-            'system': temp,
-            'header':{
-            'resultCode':200,
-            'resultMessage':'Success.',
-            'isSuccessful':'true'
-            }
-        }
-    log_info(LOG_MODULE_SAL, "Response = ", str(data))
-    return data
 
 
 '''
 SystemConfig
 '''
 def puci_system_config_list():
-    uci_config = ConfigUCI(UCI_SYSTEMCONFIGLOGGING_CONFIG)
+    system_log_data = dict()
+    system_ntp_data = dict()
 
-    uci_config.show_uci_config(None)
-    
-    data = _system_config_make_response(uci_config)
+    system_log_data = system_config_uci_get(UCI_SYSTEM_CONFIG_LOGGING_CONFIG, system_log_data)
+    system_ntp_data = system_config_uci_get(UCI_SYSTEM_CONFIG_NTP_CONFIG, system_ntp_data)
+
+    data = {
+        "logging": system_log_data,
+        "ntp": system_ntp_data,
+        'header': {
+            'resultCode': 200,
+            'resultMessage': 'Success.',
+            'isSuccessful': 'true'
+        }
+    }
     return data
 
-def puci_system_config_create(req):
-    uci_config = ConfigUCI(UCI_SYSTEMCONFIGLOGGING_CONFIG)
-    
-    log_info(LOG_MODULE_SAL, "request data = ", req)
-    
-    for map_key in req.keys():
-        if map_key in uci_config.section_map:
-            map_val = uci_config.section_map[map_key]
-            map_val[2] = uci_config.convert_config_value(req[map_key])
+
+def puci_system_config_retrieve(command, add_header):
+    system_data = dict()
+
+    log_info(LOG_MODULE_SAL, "command = ", command)
+
+    if command == 'logging':
+        system_data = system_config_uci_get(UCI_SYSTEM_CONFIG_LOGGING_CONFIG, system_data)
+    elif command == 'ntp':
+        system_data = system_config_uci_get(UCI_SYSTEM_CONFIG_NTP_CONFIG, system_data)
+    else:
+        raise RespNotFound("Command")
+
+    data = {
+        command: system_data,
+        'header': {
+            'resultCode': 200,
+            'resultMessage': 'Success.',
+            'isSuccessful': 'true'
+        }
+    }
+    log_info(LOG_MODULE_SAL, "Response = ", str(data))
+
+    return data
+
+
+def puci_system_config_create(request):
+    return system_config_set(request)
+
+
+def puci_system_config_update(request):
+    return system_config_set(request)
+
+
+def puci_system_config_detail_create(request, command):
+    return system_config_detail_set(request, command)
+
+
+def puci_system_config_detail_update(request, command):
+    return system_config_detail_set(request, command)
+
+def system_config_set(request):
+    system_log_data = dict()
+    system_ntp_data = dict()
+
+    log_info(LOG_MODULE_SAL, "request data = ", request)
+
+    system_log_data = system_config_uci_set(UCI_SYSTEM_CONFIG_LOGGING_CONFIG, request['logging'], system_log_data)
+    system_ntp_data = system_config_uci_set(UCI_SYSTEM_CONFIG_NTP_CONFIG, request['ntp'], system_ntp_data)
+
+    data = {
+        'header': {
+            'resultCode': 200,
+            'resultMessage': 'Success.',
+            'isSuccessful': 'true'
+        }
+    }
+    return data
+
+def system_config_detail_set(request, command):
+    system_data = dict()
+
+    log_info(LOG_MODULE_SAL, "command = ", command)
+    log_info(LOG_MODULE_SAL, "request data = ", request)
+
+    if command == 'logging':
+        system_data = system_config_uci_set(UCI_SYSTEM_CONFIG_LOGGING_CONFIG, request, system_data)
+    elif command == 'ntp':
+        system_data = system_config_uci_set(UCI_SYSTEM_CONFIG_NTP_CONFIG, request, system_data)
+    else:
+        raise RespNotFound("Command")
+
+    data = {
+        'header': {
+            'resultCode': 200,
+            'resultMessage': 'Success.',
+            'isSuccessful': 'true'
+        }
+    }
+    return data
+
+
+def system_config_uci_get(uci_file, system_data):
+    uci_config = ConfigUCI(UCI_SYSTEM_CONFIG_FILE, uci_file)
+    if uci_config == None:
+        raise RespNotFound("UCI Config")
+
+    uci_config.show_uci_config()
+
+    for map_key, map_val in uci_config.section_map.items():
+        system_data[map_key] = map_val[2]
+
+    return system_data
+
+
+def system_config_uci_set(uci_file, req_data, system_data):
+    log_info(LOG_MODULE_SAL, "request data = ", req_data)
+    uci_config = ConfigUCI(UCI_SYSTEM_CONFIG_FILE, uci_file)
+    if uci_config == None:
+        raise RespNotFound("UCI Config")
+
+    uci_config.set_uci_config(req_data)
 
     for map_key in uci_config.section_map.keys():
         map_val = uci_config.section_map[map_key]
-        if map_val[2]:
-            if map_val[0] == CONFIG_TYPE_SCALAR:
-                uci_config.set_uci_config(map_val[1], str(map_val[2]))
-            else:
-                uci_config.delete_uci_config(map_val[1])
-                uci_config.set_uci_config_list_value(req, map_val[1], map_val[2])
-                
-    uci_config.restart_module()
-    
-    data = _system_config_make_response(uci_config)
-    return data
+        if system_data:
+            system_data[map_key] = map_val[2]
 
-def puci_system_config_update(req):
-    uci_config = ConfigUCI(UCI_SYSTEMCONFIGLOGGING_CONFIG)
-    
-    for map_key in req.keys():
-        map_val = uci_config.section_map[map_key]
-        if map_key in uci_config.section_map:
-            map_val[2] = uci_config.convert_config_value(req[map_key])
-            uci_config.delete_uci_config(map_val[1])
-
-        uci_config.delete_uci_config(map_val[1])
-        if map_val[2]:
-            #update
-            uci_config.set_uci_config(map_val[1], str(map_val[2]))
-    
-    data = _system_config_make_response(uci_config)
-    return data
-    
-
-
-
+    return system_data
