@@ -31,11 +31,8 @@ def sal_system_usage(method, request, pk):
   if method == SAL_METHOD_LIST:
     return puci_system_usage_list()
 
-  if method == SAL_METHOD_CREATE:
-    return puci_system_usage_create(request)
-
-  if method == SAL_METHOD_UPDATE:
-    return puci_system_usage_update(request)
+  if method == SAL_METHOD_RETRIEVE:
+    return puci_system_usage_retrieve(pk, 1)
 
   return None
 

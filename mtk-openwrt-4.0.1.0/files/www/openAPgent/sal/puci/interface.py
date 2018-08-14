@@ -236,7 +236,7 @@ def puci_if_statistics_list():
 
     for index in range(0, port_count):
         temp = {
-                'ifName':stats[index][0],
+                'ifname':stats[index][0],
                 'ifIndex':0,
                 'rxBytes':stats[index][1],
                 'rxPkts':stats[index][2],
@@ -250,7 +250,7 @@ def puci_if_statistics_list():
         index = index + 1
 
     data = {
-            'traffic-list': ifstats_body,
+            'if-statistics': ifstats_body,
             'header':{
             'resultCode':200,
             'resultMessage':'Success.',
@@ -270,7 +270,7 @@ def puci_if_statistics_retrieve(ifname, add_header):
     if not stats: return None
 
     ifstats_body = {
-            'ifName':stats[0][0],
+            'ifname':stats[0][0],
             'ifIndex':0,
             'rxBytes':stats[0][1],
             'rxPkts':stats[0][2],
@@ -279,7 +279,7 @@ def puci_if_statistics_retrieve(ifname, add_header):
     }
 
     data = {
-            'traffic': ifstats_body,
+            'if-statistics': ifstats_body,
             'header':{
             'resultCode':200,
             'resultMessage':'Success.',

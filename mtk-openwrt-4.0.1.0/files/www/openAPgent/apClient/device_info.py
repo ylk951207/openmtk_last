@@ -89,23 +89,29 @@ class ProcDeviceInfo(object):
 #        info = fcntl.ioctl(s.fileno(), 0x8927, struct.pack('256s', bytes(ifname[:15], 'utf-8')))
 #        return ''.join(['%02x:' % b for b in info[18:24]])[:-1]
 
+    def _get_uptime(self):
+        with open('/proc/uptime', 'r') as f:
+            uptime_seconds = float(f.readline().split()[0])
+            return uptime_seconds
+
     def _make_request_data(self):
         self.data = {\
-	              "device_id": gDeviceInfo.device_id, \
-	              "name": gDeviceInfo.name, \
-	              "vendor_id": gDeviceInfo.vendor_id, \
-	              "vendor_name": gDeviceInfo.vendor_name, \
-	              "serial_num": gDeviceInfo.serial_num, \
-	              "device_type": gDeviceInfo.device_type, \
-	              "model_num": gDeviceInfo.model_num, \
-	              "ip_addr": gDeviceInfo.ip_addr, \
-	              "mac_addr": gDeviceInfo.mac_addr, \
-	              "user_id": gDeviceInfo.user_id, \
-	              "user_passwd": gDeviceInfo.user_passwd, \
-	              "status": gDeviceInfo.status, \
-	              "map_x": gDeviceInfo.map_x, \
-	              "map_y": gDeviceInfo.map_y, \
-	              "counterfeit": gDeviceInfo.counterfeit, \
+	                "id": gDeviceInfo.device_id, \
+	                "name": gDeviceInfo.name, \
+	                "vendorId": gDeviceInfo.vendor_id, \
+	                "vendorName": gDeviceInfo.vendor_name, \
+	                "serialNumber": gDeviceInfo.serial_num, \
+	                "type": gDeviceInfo.device_type, \
+	                "model": gDeviceInfo.model_num, \
+	                "ip": gDeviceInfo.ip_addr, \
+	                "mac": gDeviceInfo.mac_addr, \
+	                "userId": gDeviceInfo.user_id, \
+	                "userPasswd": gDeviceInfo.user_passwd, \
+	                "status": gDeviceInfo.status, \
+	                "mapX": gDeviceInfo.map_x, \
+	                "mapY": gDeviceInfo.map_y, \
+	                "counterfeit": gDeviceInfo.counterfeit, \
+                  "uptime" : gDeviceInfo._get_uptime() \
                  }
 
         log_info(LOG_MODULE_APCLIENT,  "\n<Send Request>")
@@ -114,13 +120,13 @@ class ProcDeviceInfo(object):
 
         return self.data
 
-    def request_post_device_info(self):
+    def request_post_device_info(self, url):
         try:                   
             post_req = SendRequest('POST', self.device_id)
                                    
             post_req.data = self._make_request_data()
             post_req.headers = {'content-type': 'application/json'}
-            resp = post_req.send_request(DEVICE_INFO_POST_URL)
+            resp = post_req.send_request(CAPC_DEVICE_INFO_POST_URL)
                                        
         except requests.exceptions.RequestException as e:
             log_info(LOG_MODULE_APCLIENT,  "RequestException", e)
@@ -139,31 +145,34 @@ class ProcDeviceInfo(object):
 
     def request_put_device_info(self):
         if self.device_id==0:
-            log_err(LOG_MODULE_APCLIENT, APCLIENT_ERR_DEVICE_INFO_PUT_INVALID_DEVICE_ID)
+            log_err(LOG_MODULE_APCLIENT, "Invalid device ID")
 
         post_req = SendRequest('PUT', self.device_id)
 
         post_req.data = self._make_request_data()
         post_req.headers = {'content-type': 'application/json'}
 
-        resp = post_req.send_request(DEVICE_INFO_URL)
+        resp = post_req.send_request(CAPC_DEVICE_INFO_POST_URL)
 
         '''
         if resp.status_code == 200:
-            resp = post_req.send_request(APSERVER_DEVICE_INFO_URL)
+            resp = post_req.send_request(APSERVER_DEVICE_INFO_POST_URL)
         '''
     def request_get_device_info(self):
         log_info (LOG_MODULE_APCLIENT, 'Get device Info')
         post_req = SendRequest('GET', self.device_id)
-        post_req.send_request(DEVICE_INFO_URL)
+        post_req.send_request(CAPC_DEVICE_INFO_URL)
 
 
 def register_device_info():
     gDeviceInfo.update_device_info()
     for i in range (0, 360):
-        status_code = gDeviceInfo.request_post_device_info()
+        status_code = gDeviceInfo.request_post_device_info(CAPC_DEVICE_INFO_POST_URL)
         if status_code == 200:
             log_info (LOG_MODULE_APCLIENT, "** AP Device has successfully registered to Controller. **")
+            break
+        elif status_code == 451:
+            log_info(LOG_MODULE_APCLIENT, "** AP Device already exists. **")
             break
         sleep(5)
 
@@ -178,7 +187,7 @@ def proc_device_info(data):
     if method == 'GET':
         gDeviceInfo.request_get_device_info()
     elif method == 'POST':
-        gDeviceInfo.request_post_device_info()
+        gDeviceInfo.request_post_device_info(CAPC_DEVICE_INFO_POST_URL)
     elif method == 'PUT':
         gDeviceInfo.request_put_device_info()
     else:

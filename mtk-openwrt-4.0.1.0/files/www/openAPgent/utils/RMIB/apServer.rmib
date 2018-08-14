@@ -5,7 +5,7 @@ This file is REST Management Information Database(RMIB) that...
 URI=v1/infos/usages
 BASENAME=system_usage
 CLASSNAME=SysetmUsage
-METHODLIST=list,create,update
+METHODLIST=list,retrieve
 
 #  v1/configs/system/logging, v1/configs/system/ntp
 #     : retrieve,detail_ceate,detail_update

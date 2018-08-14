@@ -19,13 +19,13 @@ DEVICE_INFO_CONFIG=WORKDIR+"/conf/device_info.default"
 Controller
 '''
 
-SERVER_IP='192.168.1.184'
-SERVER_PORT='8090'
+CAPC_SERVER_IP='192.168.1.34'
+CAPC_SERVER_PORT='80'
 
-SERVER_URL='http://' + SERVER_IP + ':' + SERVER_PORT
+CAPC_SERVER_URL='http://' + CAPC_SERVER_IP + ':' + CAPC_SERVER_PORT
 
-DEVICE_INFO_URL=SERVER_URL+'/v1/devices/'
-DEVICE_INFO_POST_URL=SERVER_URL+'/v1/devices/registration/'
+CAPC_DEVICE_INFO_URL=CAPC_SERVER_URL+'/v1/devices/'
+CAPC_DEVICE_INFO_POST_URL=CAPC_SERVER_URL+'/v1/devices/registration/'
 
 
 '''
@@ -62,7 +62,7 @@ Interface
 '''
 
 LAN_ETHDEV='eth0'
-WAN_ETHDEV='eth0'
+WAN_ETHDEV='eth1'
 
 
 IFNAME_LENGTH=30
