@@ -5,6 +5,7 @@ This file is REST Management Information Database(RMIB) that...
 URI=v1/infos/usages
 BASENAME=system_usage
 CLASSNAME=SysetmUsage
+SAL_FUNCTION=swigc
 METHODLIST=list,retrieve
 
 #  v1/configs/system/logging, v1/configs/system/ntp
@@ -12,29 +13,34 @@ METHODLIST=list,retrieve
 URI=v1/configs/system
 BASENAME=system_config
 CLASSNAME=SysetmConfig
+SAL_FUNCTION=puci
 METHODLIST=list,create,update,retrieve,detail_create,detail_update
 FIELD_NAME_system_config=system_config_logging,system_config_ntp
 
 URI=v1/configs/interfaces
 BASENAME=interface_config
 CLASSNAME=InterfaceConfig
+SAL_FUNCTION=puci
 METHODLIST=list,create,update,retrieve,detail_create,detail_update
 FIELD_NAME_interface=interface_config,interface_v4addr_config
 
 URI=no
 BASENAME=interface_v4addr_config
 CLASSNAME=InterfaceV4addrConfig
+SAL_FUNCTION=puci
 METHODLIST=list,create,update
 
 URI=v1/configs/vlans
 BASENAME=vlan_config
 CLASSNAME=VlanConfig
+SAL_FUNCTION=puci
 METHODLIST=list,create,update,retrieve,detail_create,detail_update
 FIELD_NAME_vlan=vlan_common_config,vlan_config
 
 URI=v1/configs/dhcp/common
 BASENAME=dhcp_common_config
 CLASSNAME=DhcpCommonConfig
+SAL_FUNCTION=puci
 METHODLIST=list,create,update
 FIELD_NAME_dhcp=dhcp_common,dhcp_interface_pool,dhcp_interface_v6pool,dhcp_static_lease
 
@@ -46,29 +52,28 @@ METHODLIST=list,create,update,retrieve,detail_create,detail_update
 URI=v1/configs/dhcp/static-leases
 BASENAME=dhcp_static_leases_config
 CLASSNAME=DhcpStaticLeasesConfig
+SAL_FUNCTION=puci
 METHODLIST=list,create,update,retrieve,detail_create,detail_update
 
 URI=v1/management/firmware
 BASENAME=firmware_management
 CLASSNAME=FirmwareMgt
+SAL_FUNCTION=puci
 METHODLIST=create
 
 URI=v1/management/configuration
 BASENAME=config_management
 CLASSNAME=ConfigMgt
+SAL_FUNCTION=puci
 METHODLIST=list,create
 #FIELD_NAME=TODO
 
 URI=v1/statistics
 BASENAME=if_statistics
 CLASSNAME=IfStatistics
+SAL_FUNCTION=puci
 METHODLIST=list,retrieve
 #FIELD_NAME_if_stats=generic_if_stats,traffic_monitor_if_stats(not UCI field)
-
-URI=v1/management
-BASENAME=sys_mgt
-CLASSNAME=SystemMgt
-METHODLIST=rtrieve,detail_post
 
 
 #

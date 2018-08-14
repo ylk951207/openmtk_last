@@ -20,14 +20,9 @@ class SysetmUsageViewSet(viewsets.ViewSet):
     data = sal_system_usage(SAL_METHOD_LIST, request.data, None)
     return Response(data, content_type='application/json')
 
-  def create(self, request):
-    log_info(LOG_MODULE_APSERVER, "*** SysetmUsage create() ***")
-    data = sal_system_usage(SAL_METHOD_CREATE, request.data, None)
-    return Response(data, content_type='application/json')
-
-  def update(self, request):
-    log_info(LOG_MODULE_APSERVER, "*** SysetmUsage update() ***")
-    data = sal_system_usage(SAL_METHOD_UPDATE, request.data, None)
+  def retrieve(self, request, pk):
+    log_info(LOG_MODULE_APSERVER, "*** SysetmUsage retrieve(), pk = " + pk + " ***")
+    data = sal_system_usage(SAL_METHOD_RETRIEVE, request.data, pk)
     return Response(data, content_type='application/json')
 
 
@@ -263,20 +258,5 @@ class IfStatisticsViewSet(viewsets.ViewSet):
   def retrieve(self, request, pk):
     log_info(LOG_MODULE_APSERVER, "*** IfStatistics retrieve(), pk = " + pk + " ***")
     data = sal_if_statistics(SAL_METHOD_RETRIEVE, request.data, pk)
-    return Response(data, content_type='application/json')
-
-
-'''
- Define Class SystemMgt
-'''
-class SystemMgtViewSet(viewsets.ViewSet):
-  def rtrieve(self, request, pk):
-    log_info(LOG_MODULE_APSERVER, "*** SystemMgt rtrieve(), pk = " + pk + " ***")
-    data = sal_sys_mgt(SAL_METHOD_RTRIEVE, request.data, pk)
-    return Response(data, content_type='application/json')
-
-  def detail_post(self, request, pk):
-    log_info(LOG_MODULE_APSERVER, "*** SystemMgt detail_post(), pk = " + pk + " ***")
-    data = sal_sys_mgt(SAL_METHOD_DETAIL_POST, request.data, pk)
     return Response(data, content_type='application/json')
 

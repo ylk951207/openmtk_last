@@ -11,6 +11,7 @@ from apClient.request import SendRequest
 from common.log import *
 from common.env import *
 from time import sleep
+from conf.ap_device_config import *
 
 def get_ip_address(ifname):
     f = os.popen('ifconfig '+ ifname +' | grep "inet\ addr" | cut -d: -f2 | cut -d" " -f1')
@@ -25,43 +26,20 @@ def init_device_info():
 
     gDeviceInfo.device_id = 0
     gDeviceInfo.name = socket.gethostname()
-#    gDeviceInfo.ip_addr = ni.ifaddresses(WAN_ETHDEV)[ni.AF_INET][0]['addr']
     gDeviceInfo.ip_addr = get_ip_address(WAN_ETHDEV) 
     gDeviceInfo.mac_addr = gDeviceInfo._get_hwaddr(WAN_ETHDEV)
     gDeviceInfo.serial_num = gDeviceInfo._get_serial_num(gDeviceInfo.mac_addr)
     gDeviceInfo.counterfeit = 0
 
-    fp = open(DEVICE_INFO_CONFIG,'r')
-
-    while True:
-        line = fp.readline()
-    	if not line: break
-        line = line.replace("\n", "")
-    	token = line.split('=')
-
-    	if token[0] == 'vendor_id':
-    	    gDeviceInfo.vendor_id = token[1]
-    	elif token[0] == 'vendor_name':
-    	    gDeviceInfo.vendor_name = token[1]
-    	elif token[0] == 'device_type':
-    	    gDeviceInfo.device_type = token[1]
-    	elif token[0] == 'model_num':
-    	    gDeviceInfo.model_num = token[1]
-    	elif token[0] == 'user_id':
-    	    gDeviceInfo.user_id = token[1]
-    	elif token[0] == 'user_passwd':
-    	    gDeviceInfo.user_passwd = token[1]
-    	elif token[0] == 'status':
-    	    gDeviceInfo.status = token[1]
-    	elif token[0] == 'map_x':
-    	    gDeviceInfo.map_x = token[1]
-    	elif token[0] == 'map_y':
-    	    gDeviceInfo.map_y = token[1]
-        else:
-    	    log_warn(LOG_MODULE_APCLIENT, 'Invalid token', token[1])
-
-    fp.close()
-
+    gDeviceInfo.vendor_id = AP_VENDOR_ID
+    gDeviceInfo.vendor_name = AP_VENDOR_NAME
+    gDeviceInfo.device_type = AP_DEVICE_TYPE
+    gDeviceInfo.model_num = AP_MODEL_NUMBER
+    gDeviceInfo.user_id = AP_USER_ID
+    gDeviceInfo.user_passwd = AP_USER_PASSWD
+    gDeviceInfo.status = AP_STATUS
+    gDeviceInfo.map_x = AP_MAP_X
+    gDeviceInfo.map_y = AP_MAP_Y
 
 class ProcDeviceInfo(object):
     def __init__(self):
@@ -111,7 +89,7 @@ class ProcDeviceInfo(object):
 	                "mapX": gDeviceInfo.map_x, \
 	                "mapY": gDeviceInfo.map_y, \
 	                "counterfeit": gDeviceInfo.counterfeit, \
-                  "uptime" : gDeviceInfo._get_uptime() \
+                    "uptime" : gDeviceInfo._get_uptime() \
                  }
 
         log_info(LOG_MODULE_APCLIENT,  "\n<Send Request>")

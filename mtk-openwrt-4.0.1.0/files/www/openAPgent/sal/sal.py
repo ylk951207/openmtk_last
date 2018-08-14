@@ -6,6 +6,8 @@ DO NOT EDIT.
 
 from puci.interface import *
 from puci.system_config import *
+from swigc.sys_usage import *
+
 
 '''
  Define SAL Method
@@ -21,27 +23,22 @@ SAL_METHOD_DELETE         = 8
 
 
 
-
 '''
  Define system_usage SAL function
 '''
 def sal_system_usage(method, request, pk):
-
-  # For Python-UCI APIs
+  # For SWIG C APIs
   if method == SAL_METHOD_LIST:
-    return puci_system_usage_list()
+    return swigc_system_usage_list()
 
   if method == SAL_METHOD_RETRIEVE:
-    return puci_system_usage_retrieve(pk, 1)
-
-  return None
+    return swigc_system_usage_retrieve(pk, 1)
 
 
 '''
  Define system_config SAL function
 '''
 def sal_system_config(method, request, pk):
-
   # For Python-UCI APIs
   if method == SAL_METHOD_LIST:
     return puci_system_config_list()
@@ -61,14 +58,11 @@ def sal_system_config(method, request, pk):
   if method == SAL_METHOD_DETAIL_UPDATE:
     return puci_system_config_detail_update(request, pk)
 
-  return None
-
 
 '''
  Define interface_config SAL function
 '''
 def sal_interface_config(method, request, pk):
-
   # For Python-UCI APIs
   if method == SAL_METHOD_LIST:
     return puci_interface_config_list()
@@ -88,14 +82,11 @@ def sal_interface_config(method, request, pk):
   if method == SAL_METHOD_DETAIL_UPDATE:
     return puci_interface_config_detail_update(request, pk)
 
-  return None
-
 
 '''
  Define interface_v4addr_config SAL function
 '''
 def sal_interface_v4addr_config(method, request, pk):
-
   # For Python-UCI APIs
   if method == SAL_METHOD_LIST:
     return puci_interface_v4addr_config_list()
@@ -106,14 +97,11 @@ def sal_interface_v4addr_config(method, request, pk):
   if method == SAL_METHOD_UPDATE:
     return puci_interface_v4addr_config_update(request)
 
-  return None
-
 
 '''
  Define vlan_config SAL function
 '''
 def sal_vlan_config(method, request, pk):
-
   # For Python-UCI APIs
   if method == SAL_METHOD_LIST:
     return puci_vlan_config_list()
@@ -133,14 +121,11 @@ def sal_vlan_config(method, request, pk):
   if method == SAL_METHOD_DETAIL_UPDATE:
     return puci_vlan_config_detail_update(request, pk)
 
-  return None
-
 
 '''
  Define dhcp_common_config SAL function
 '''
 def sal_dhcp_common_config(method, request, pk):
-
   # For Python-UCI APIs
   if method == SAL_METHOD_LIST:
     return puci_dhcp_common_config_list()
@@ -151,14 +136,11 @@ def sal_dhcp_common_config(method, request, pk):
   if method == SAL_METHOD_UPDATE:
     return puci_dhcp_common_config_update(request)
 
-  return None
-
 
 '''
  Define dhcp_pool_config SAL function
 '''
 def sal_dhcp_pool_config(method, request, pk):
-
   # For Python-UCI APIs
   if method == SAL_METHOD_LIST:
     return puci_dhcp_pool_config_list()
@@ -178,14 +160,11 @@ def sal_dhcp_pool_config(method, request, pk):
   if method == SAL_METHOD_DETAIL_UPDATE:
     return puci_dhcp_pool_config_detail_update(request, pk)
 
-  return None
-
 
 '''
  Define dhcp_static_leases_config SAL function
 '''
 def sal_dhcp_static_leases_config(method, request, pk):
-
   # For Python-UCI APIs
   if method == SAL_METHOD_LIST:
     return puci_dhcp_static_leases_config_list()
@@ -205,26 +184,20 @@ def sal_dhcp_static_leases_config(method, request, pk):
   if method == SAL_METHOD_DETAIL_UPDATE:
     return puci_dhcp_static_leases_config_detail_update(request, pk)
 
-  return None
-
 
 '''
  Define firmware_management SAL function
 '''
 def sal_firmware_management(method, request, pk):
-
   # For Python-UCI APIs
   if method == SAL_METHOD_CREATE:
     return puci_firmware_management_create(request)
-
-  return None
 
 
 '''
  Define config_management SAL function
 '''
 def sal_config_management(method, request, pk):
-
   # For Python-UCI APIs
   if method == SAL_METHOD_LIST:
     return puci_config_management_list()
@@ -232,14 +205,11 @@ def sal_config_management(method, request, pk):
   if method == SAL_METHOD_CREATE:
     return puci_config_management_create(request)
 
-  return None
-
 
 '''
  Define if_statistics SAL function
 '''
 def sal_if_statistics(method, request, pk):
-
   # For Python-UCI APIs
   if method == SAL_METHOD_LIST:
     return puci_if_statistics_list()
@@ -247,19 +217,3 @@ def sal_if_statistics(method, request, pk):
   if method == SAL_METHOD_RETRIEVE:
     return puci_if_statistics_retrieve(pk, 1)
 
-  return None
-
-
-'''
- Define sys_mgt SAL function
-'''
-def sal_sys_mgt(method, request, pk):
-
-  # For Python-UCI APIs
-  if method == SAL_METHOD_RTRIEVE:
-    return puci_sys_mgt_rtrieve(request, pk)
-
-  if method == SAL_METHOD_DETAIL_POST:
-    return puci_sys_mgt_detail_post(request, pk)
-
-  return None

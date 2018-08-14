@@ -12,7 +12,7 @@ WORKDIR=os.getcwd()
 Configuration Files
 '''
 
-DEVICE_INFO_CONFIG=WORKDIR+"/conf/device_info.default"
+DEVICE_INFO_CONFIG=WORKDIR+"/conf/ap_device_config.py"
 
 
 '''

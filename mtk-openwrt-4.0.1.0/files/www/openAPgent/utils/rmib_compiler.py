@@ -10,6 +10,7 @@ DELIMETER           = '='
 URI_PREFIX          = 'URI' + DELIMETER
 BASENAME_PREFIX     = 'BASENAME' + DELIMETER
 CLASSNAME_PREFIX    = 'CLASSNAME' + DELIMETER
+SAL_FUNCTION_PREFIX = "SAL_FUNCTION" + DELIMETER
 METHODLIST_PREFIX   = 'METHODLIST' + DELIMETER
 UCI_DATA_PREFIX     = 'DEFINE_FIELD_'
 UCI_DATA_SUFFIX     = '};'
@@ -37,7 +38,7 @@ def initialize_file(test_mode):
 	if test_mode:
 		print "=================== TEST MODE ===================="
 		if not os.path.isdir('test'): os.makedirs('test')
-		view_file = "test/views.py"
+		view_file = "test/custom_views.py"
 		url_file  = "test/urls.py"
 		sal_file  = "test/sal.py"
 		uci_data_file = "test/uci_data.py"
@@ -78,8 +79,9 @@ def get_django_header(filename):
 		header += "from common.log import *\n\n"
 	elif filename == sal_file:
 		header += "from puci.interface import *\n"
-		header += "from puci.system_config import *\n\n"
-		header += "'''\n Define SAL Method\n'''\n"
+		header += "from puci.system_config import *\n"
+		header += "from swigc.sys_usage import *\n"
+		header += "\n\n'''\n Define SAL Method\n'''\n"
 		header += "SAL_METHOD_LIST           = 1\n"
 		header += "SAL_METHOD_CREATE         = 2\n"
 		header += "SAL_METHOD_UPDATE         = 3\n"
@@ -127,27 +129,33 @@ def make_view_lines(base_name, class_name, method_list):
 	return wline
 
 
-def make_sal_lines(base_name, method_list):
-    support_apis = ['puci']
+def make_sal_lines(base_name, method_list, sal_func_list):
 
-    wline = "\n\n'''\n Define " + base_name + " SAL function\n'''\n"
+    wline = "\n'''\n Define " + base_name + " SAL function\n'''\n"
     wline += "def sal_" + base_name + "(method, request, pk):\n"
 
-    for api in support_apis:
-        wline += "\n  # For Python-UCI APIs\n"
-        for method in method_list:
-            wline += "  if method == SAL_METHOD_" + method.upper() + ":\n"
-            if method == 'list':
-                wline += "    return puci_" + base_name + "_" + method + "()\n"
-            elif method == 'create' or method == 'update':
-                wline += "    return puci_" + base_name + "_" + method + "(request)\n"
-            elif method == 'retrieve':
-                wline += "    return puci_" + base_name + "_" + method + "(pk, 1)\n"
-            else:
-                wline += "    return puci_" + base_name + "_" + method + "(request, pk)\n"
-            wline += "\n"
+    for api in sal_func_list:
+		func_prefix = api + "_"
+		if api == 'puci':
+			wline += "  # For Python-UCI APIs\n"
+		elif api == 'swigc' :
+			wline += "  # For SWIG C APIs\n"
+		else:
+			continue
 
-    wline += "  return None\n"
+		for method in method_list:
+			wline += "  if method == SAL_METHOD_" + method.upper() + ":\n"
+			if method == 'list':
+				wline += "    return " + func_prefix + base_name + "_" + method + "()\n"
+			elif method == 'create' or method == 'update':
+				wline += "    return " + func_prefix + base_name + "_" + method + "(request)\n"
+			elif method == 'retrieve':
+				wline += "    return " + func_prefix + base_name + "_" + method + "(pk, 1)\n"
+			else:
+				wline += "    return " + func_prefix + base_name + "_" + method + "(request, pk)\n"
+			wline += "\n"
+
+ #   wline += "  return None\n"
 
     return wline
 
@@ -178,6 +186,9 @@ def make_django_pyfile(filename, header):
 			base_name = line.split(DELIMETER)[1]
 		elif CLASSNAME_PREFIX in line:
 			class_name = line.split(DELIMETER)[1]
+		elif SAL_FUNCTION_PREFIX in line:
+			sal_func_list = line.split(DELIMETER)
+			sal_func_list = sal_func_list[1].split(',')
 		elif METHODLIST_PREFIX in line:
 			method_list = line.split(DELIMETER)
 			method_list = method_list[1].split(',')
@@ -190,6 +201,7 @@ def make_django_pyfile(filename, header):
 			print "URL_PATH:    " + url_path
 			print "BASE_NAME:   " + base_name
 			print "CLASS_NAME:  " + class_name
+			print "SAL_FUNCTION_LIST: " + str(sal_func_list)
 			print "METHOD_LIST: " + str(method_list)
 			view_name = "views." + class_name + "ViewSet"
 			print "VIEW_NAME:   " + view_name
@@ -201,7 +213,7 @@ def make_django_pyfile(filename, header):
 				if not url_path == 'no':
 					wline += make_view_lines(base_name, class_name, method_list)
 			elif filename == sal_file:
-				wline += make_sal_lines(base_name, method_list)
+				wline += make_sal_lines(base_name, method_list, sal_func_list)
 
 			do_write = False
 
