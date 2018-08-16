@@ -1,0 +1,17 @@
+#!/bin/sh /etc/rc.common
+
+START=80
+
+GUNICORN=/usr/bin/gunicorn
+APSERVER_DIR=/www/openAPgent
+
+start() {
+	cd $APSERVER_DIR
+	$GUNICORN --workers 3 --error-logfile /var/log/gunicorn.log --daemon    \
+						--bind unix:/www/openAPgent/apServer.sock apServer.wsgi:application
+	echo "run gunicorn..."
+}
+
+stop() {
+	echo "stop gunicorn..."
+}
