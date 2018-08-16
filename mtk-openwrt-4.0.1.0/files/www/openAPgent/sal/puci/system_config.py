@@ -20,8 +20,10 @@ def puci_system_config_list():
     system_ntp_data = system_config_uci_get(UCI_SYSTEM_CONFIG_NTP_CONFIG, system_ntp_data)
 
     data = {
-        "logging": system_log_data,
-        "ntp": system_ntp_data,
+        "system" : {
+             "logging": system_log_data,
+             "ntp": system_ntp_data
+        },
         'header': {
             'resultCode': 200,
             'resultMessage': 'Success.',
