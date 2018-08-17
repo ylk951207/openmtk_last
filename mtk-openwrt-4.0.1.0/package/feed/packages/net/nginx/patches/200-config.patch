@@ -24,7 +24,7 @@
 -        server_name  localhost;
 +        #listen       80;
 +        #server_name  localhost;
-+        listen        8012;
++        listen        8001;
 +        server_name apserver.com www.apserver.com;
  
          #charset koi8-r;

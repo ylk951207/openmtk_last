@@ -19,7 +19,7 @@ DEVICE_INFO_CONFIG=WORKDIR+"/conf/ap_device_config.py"
 Controller
 '''
 
-CAPC_SERVER_IP='192.168.1.191'
+CAPC_SERVER_IP='www.laputa-wp.com'
 CAPC_SERVER_PORT='80'
 
 CAPC_SERVER_URL='http://' + CAPC_SERVER_IP + ':' + CAPC_SERVER_PORT
@@ -52,7 +52,7 @@ APCLIENT_LOG_PATH="/var/log/apClient.log"
 '''
 Client
 '''
-APCLIENT_CMD_PORT=8010
+APCLIENT_CMD_PORT=8007
 #APCLIENT_PID_PATH="%s/apClient.pid"%WORKDIR
 APCLIENT_PID_PATH="/var/run/apClient.pid"
 

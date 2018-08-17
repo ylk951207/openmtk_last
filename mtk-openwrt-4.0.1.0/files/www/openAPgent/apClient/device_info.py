@@ -10,7 +10,7 @@ import fcntl, socket, struct
 from apClient.request import SendRequest
 from common.log import *
 from common.env import *
-from time import sleep
+#from time import sleep
 from conf.ap_device_config import *
 
 def get_ip_address(ifname):
@@ -152,7 +152,6 @@ def register_device_info():
         elif status_code == 451:
             log_info(LOG_MODULE_APCLIENT, "** AP Device already exists. **")
             break
-        sleep(5)
 
 def proc_device_info(data):
     msg = data.split(' ')
