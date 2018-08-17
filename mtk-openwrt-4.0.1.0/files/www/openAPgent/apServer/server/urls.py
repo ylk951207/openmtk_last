@@ -5,7 +5,7 @@ DO NOT EDIT.
 
 
 from apServer.server import views
-from common.generic_defs import CustomRouter
+from common.classes import CustomRouter
 
 custom_router = CustomRouter()
 

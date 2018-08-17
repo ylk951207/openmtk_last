@@ -17,12 +17,9 @@ float cpu_usage(void)
     int jiffies[2][JIFFIES_NUM] = {0}, total_jiffies;
     int diff_jiffies[JIFFIES_NUM];
     int idx;
-    double cpu_usage_data;
-    int j = 0;
+    float cpu_usage_data;
 
 //    while(1)
-    while(j < 2)
-    {
 	    FILE* stat_file = fopen("/proc/stat", "r");
 	    if(stat_file == NULL)
 	    {
@@ -48,9 +45,8 @@ float cpu_usage(void)
 
 	    memcpy(jiffies[ZERO], jiffies[ONE], sizeof(int)*JIFFIES_NUM);
 	    fclose(stat_file);
-        //sleep(1);
-	    j++;
-    }
+        
+	
     return cpu_usage_data;
 }
 /*------------------------------------------------------------------------*/
