@@ -1,0 +1,10 @@
+{
+    "storage-driver": "overlay",
+    "raw-logs": true,
+    "ipv6": false,
+    "bip": "10.1.1.1/16",
+    "mtu": 1500,
+    "default-gateway": "",
+    "dns": ["168.126.63.1","8.8.8.8"]
+}
+

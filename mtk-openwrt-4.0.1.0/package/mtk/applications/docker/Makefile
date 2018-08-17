@@ -31,8 +31,10 @@ define Build/Prepare
 endef
 
 define Package/docker/install
-    $(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_DIR) $(1)/etc/docker
 	$(INSTALL_BIN) ./files/docker* $(1)/usr/bin
+	$(INSTALL_BIN) ./files/daemon.json $(1)/etc/docker
 endef
 
 $(eval $(call BuildPackage,docker))
