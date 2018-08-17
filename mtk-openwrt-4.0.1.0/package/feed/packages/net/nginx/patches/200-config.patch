@@ -1,22 +1,22 @@
---- a/conf/nginx.conf
-+++ b/conf/nginx.conf
+--- nginx-1.10.2.orig/conf/nginx.conf	2016-10-18 15:03:13.000000000 +0000
++++ nginx-1.10.2/conf/nginx.conf	2018-08-17 08:50:42.346250993 +0000
 @@ -1,5 +1,5 @@
-
+ 
 -#user  nobody;
 +user nobody nogroup;
  worker_processes  1;
-
+ 
  #error_log  logs/error.log;
-@@ -16,22 +16,22 @@ events {
-
+@@ -16,7 +16,7 @@
+ 
  http {
      include       mime.types;
 -    default_type  application/octet-stream;
 +    #default_type  application/octet-stream;
-
+ 
      #log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
      #                  '$status $body_bytes_sent "$http_referer" '
-@@ -33,56 +33,56 @@
+@@ -33,16 +33,24 @@
      #gzip  on;
  
      server {
@@ -24,26 +24,24 @@
 -        server_name  localhost;
 +        #listen       80;
 +        #server_name  localhost;
-+        listen        8001;
-+        server_name apserver.com www.apserver.com;
++        listen       8001;
++        server_name  apserver.com www.apserver.com;
  
          #charset koi8-r;
  
          #access_log  logs/host.access.log  main;
 +        location = /favicon.ico { access_log off; log_not_found off; }
 +        location /static {
-+            root /home/hepark/openAPgent;
-+        }
++			root /home/hepark/openAPgent;
++		}
  
          location / {
 -            root   html;
 -            index  index.html index.htm;
--        }
 +            #root   html;
 +            #index  index.html index.htm;
-+            include         proxy_params;
-+            proxy_pass http://unix:/www/openAPgent/apServer.sock;
-+				}
++			include	proxy_params;
++			proxy_pass http://unix:/www/openAPgent/apServer.sock;
+         }
  
          #error_page  404              /404.html;
- 
