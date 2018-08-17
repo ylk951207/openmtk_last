@@ -32,7 +32,7 @@ Define URL Patterns
 
 urlpatterns = [
 	url(r'^admin/', admin.site.urls),
-	url(r'^v1/configs/interfaces/(?P<ifname>[a-z]+\d*)/v4addrs$', views.InterfaceV4AddrConfigView.as_view()),
+	url(r'^v1/configs/interfaces/(?P<ifname>[a-z]+\d*)/v4addr$', views.InterfaceV4AddrConfigView.as_view()),
 ]
 
 urlpatterns += router.urls

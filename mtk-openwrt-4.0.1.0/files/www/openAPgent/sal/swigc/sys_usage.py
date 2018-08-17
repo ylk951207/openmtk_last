@@ -57,7 +57,7 @@ def system_usage_get(command):
 
     if command == 'cpu_usage':
         cpu_field = {
-            'cpuCondition' : libsrc._sys_usage.cpu_usage(),
+            'cpuCurrent' : libsrc._sys_usage.cpu_usage(),
         }
         return cpu_field
 
