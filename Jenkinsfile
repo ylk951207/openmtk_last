@@ -49,11 +49,6 @@ ls -al mtk-openwrt-4.0.1.0/bin/targets/mediatek/mt7622-glibc'''
 ls -al /tftpboot'''
           }
         }
-        stage('Send Image to Server') {
-          steps {
-            sshPublisher(masterNodeName: 'hepark@192.168.1.166', publishers: [ sshPublisherDesc(configName: 'hepark@192.168.1.166',		    		transfers: [										sshTransfer(										sourceFiles: 'openmtk4010/mtk-openwrt-4.0.1.0/bin/targets/mediatek/mt7622-glibc/lede-mediatek-mt7622-MTK-AC2600-RFB1-squashfs-sysupgrade.bin',						removePrefix: 'openmtk4010/mtk-openwrt-4.0.1.0/bin/targets/mediatek/mt7622-glibc',                        			remoteDirectory: '/home/hepark/release',                        				execCommand: 'scp mtk-openwrt-4.0.1.0/bin/targets/mediatek/mt7622-glibc/lede-mediatek-mt7622-MTK-AC2600-RFB1-squashfs-sysupgrade.bin /home/hepark/release/lede-mediatek-mt7622-MTK-AC2600-RFB1-squashfs-sysupgrade.bin'											)		    								]		  							)	        								 ])
-          }
-        }
       }
     }
   }
