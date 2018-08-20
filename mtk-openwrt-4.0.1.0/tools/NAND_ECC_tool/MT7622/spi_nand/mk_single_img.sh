@@ -1,12 +1,15 @@
-#!/bin/sh
+#!/bin/bash
 
 . ./flash.info
 
 # Modify input/output image name
-PRELOADER_NAME=preloader_evb7622_64.bin
-ATF_NAME=atf.bin
+#PRELOADER_NAME=preloader_evb7622_64.bin
+#ATF_NAME=atf.bin
+#KERNEL_NAME=root_uImage
+PRELOADER_NAME=preloader_rfb1_7622_64_forspinand.bin.header_truncated
+ATF_NAME=trustzone.img
 UBOOT_NAME=u-boot-mtk.bin
-KERNEL_NAME=root_uImage
+KERNEL_NAME=Image
 OUTPUT_NAME=mt7622_img 
 
 # Modify BLOCK_SIZE in case nand block size is not 0x20000=131072 
