@@ -42,7 +42,7 @@ BASENAME=dhcp_common_config
 CLASSNAME=DhcpCommonConfig
 SAL_FUNCTION=puci
 METHODLIST=list,create,update
-FIELD_NAME_dhcp=dhcp_common,dhcp_interface_pool,dhcp_interface_v6pool,dhcp_static_lease
+FIELD_NAME_dhcp=dhcp_common,dhcp_interface_pool,dhcp_interface_v6pool,dhcp_static_leases
 
 URI=v1/configs/dhcp/pools
 BASENAME=dhcp_pool_config
