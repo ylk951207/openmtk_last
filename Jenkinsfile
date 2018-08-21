@@ -10,7 +10,7 @@ whoami'''
             echo 'Compile openWRT'
           }
         }
-        stage('CPPCheck') {
+        stage('CPP Check') {
           steps {
             sh 'cppcheck  mtk-openwrt-4.0.1.0'
           }
@@ -21,34 +21,34 @@ whoami'''
 ./build.sh openwrt'''
           }
         }
+      }
+    }
+    stage('Build Bootloader') {
+      parallel {
         stage('Build Bootloader') {
           steps {
-            echo 'TODO  bootloader'
+            echo 'TEST TODO'
+            sh 'ls -al'
+          }
+        }
+        stage('CPP Check') {
+          steps {
+            echo 'TODO'
           }
         }
       }
     }
-    stage('Test openWRT') {
+    stage('Copy Image to tftpboot') {
       steps {
-        echo 'TEST TODO'
-        sh 'ls -al'
+        sh '''whoami 
+ls -al mtk-openwrt-4.0.1.0/bin/targets/mediatek/mt7622-glibc'''
+        sh '''./build.sh openwrt-release
+ls -al /tftpboot'''
       }
     }
-    stage('Notification openWRT') {
-      parallel {
-        stage('Notification openWRT') {
-          steps {
-            slackSend(message: 'cAP - building openmtk4010 success!', baseUrl: 'https://withusplanet.slack.com/services/hooks/jenkins-ci/', token: 'VevfQyHTHojGYOf0rvY3PRKG', failOnError: true, color: 'Red')
-          }
-        }
-        stage('Copy Image to tftpboot') {
-          steps {
-            sh '''whoami 
-ls -al mtk-openwrt-4.0.1.0/bin/targets/mediatek/mt7622-glibc'''
-            sh '''./build.sh openwrt-release
-ls -al /tftpboot'''
-          }
-        }
+    stage('Send Slack Messsage') {
+      steps {
+        slackSend(message: 'cAP - building openmtk4010 success!', baseUrl: 'https://withusplanet.slack.com/services/hooks/jenkins-ci/', failOnError: true, color: 'Red', token: 'VevfQyHTHojGYOf0rvY3PRKG')
       }
     }
   }
