@@ -15,7 +15,7 @@ from conf.ap_device_config import *
 
 def get_ip_address(ifname):
     f = os.popen('ifconfig '+ ifname +' | grep "inet\ addr" | cut -d: -f2 | cut -d" " -f1')
-    return f.read()
+    return f.read()[:-1]
 
 def init_device_info():
     log_info (LOG_MODULE_APCLIENT, DEVICE_INFO_CONFIG)
@@ -89,7 +89,7 @@ class ProcDeviceInfo(object):
 	                "mapX": gDeviceInfo.map_x, \
 	                "mapY": gDeviceInfo.map_y, \
 	                "counterfeit": gDeviceInfo.counterfeit, \
-                    "uptime" : gDeviceInfo._get_uptime() \
+                        "uptime" : gDeviceInfo._get_uptime() \
                  }
 
         log_info(LOG_MODULE_APCLIENT,  "\n<Send Request>")
