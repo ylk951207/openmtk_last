@@ -1,5 +1,6 @@
 {
-    "storage-driver": "overlay",
+    "storage-driver": "overlay2",
+    "data-root": "/tmp",
     "raw-logs": true,
     "ipv6": false,
     "bip": "10.1.1.1/16",
