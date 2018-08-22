@@ -166,7 +166,6 @@ DEFINE_FIELD_dhcp_common= {
 # args[0] is ifname
 DEFINE_FIELD_dhcp_interface_pool= {
     'ignore'                  : CONFIG_TYPE_SCALAR : ".".join(['dhcp', args[0], 'ignore'])
-    'ifname'                  : CONFIG_TYPE_SCALAR : ".".join(['dhcp', args[0], 'interface'])
     'addrStart'               : CONFIG_TYPE_SCALAR : ".".join(['dhcp', args[0], 'start'])
     'addrLimit'               : CONFIG_TYPE_SCALAR : ".".join(['dhcp', args[0], 'limit'])
     'leaseTime'               : CONFIG_TYPE_SCALAR : ".".join(['dhcp', args[0], 'leasetime'])
