@@ -19,7 +19,7 @@ DEVICE_INFO_CONFIG=WORKDIR+"/conf/ap_device_config.py"
 Controller
 '''
 
-CAPC_SERVER_IP='www.laputa-wp.com'
+CAPC_SERVER_IP='capc.withusp.com'
 CAPC_SERVER_PORT='80'
 
 CAPC_SERVER_URL='http://' + CAPC_SERVER_IP + ':' + CAPC_SERVER_PORT
