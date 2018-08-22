@@ -111,7 +111,6 @@ def uci_get_section_map(config_name, *args):
   if config_name == 'dhcp_interface_pool':
     section_map = {
       'ignore'                 :  [ CONFIG_TYPE_SCALAR  , ".".join(['dhcp', args[0], 'ignore'])        ,' ' ],
-      'ifname'                 :  [ CONFIG_TYPE_SCALAR  , ".".join(['dhcp', args[0], 'interface'])     ,' ' ],
       'addrStart'              :  [ CONFIG_TYPE_SCALAR  , ".".join(['dhcp', args[0], 'start'])         ,' ' ],
       'addrLimit'              :  [ CONFIG_TYPE_SCALAR  , ".".join(['dhcp', args[0], 'limit'])         ,' ' ],
       'leaseTime'              :  [ CONFIG_TYPE_SCALAR  , ".".join(['dhcp', args[0], 'leasetime'])     ,' ' ],
