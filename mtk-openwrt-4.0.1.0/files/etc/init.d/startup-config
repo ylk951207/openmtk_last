@@ -22,10 +22,10 @@ start() {
 	uci delete network.lan.ipaddr
 	uci delete network.lan.netmask
 
-	uci set network.wan.ipaddr='192.168.74.2'
-	uci set network.wan.netmask='255.255.0.0'
-	uci set network.wan.proto='static'
-	uci set network.wan.gateway='192.168.255.254'
+#	uci set network.wan.ipaddr='192.168.74.2'
+#	uci set network.wan.netmask='255.255.0.0'
+	uci set network.wan.proto='dhcp'
+#	uci set network.wan.gateway='192.168.255.254'
 	uci set network.wan.dns='8.8.8.8'
 
 	uci commit network
