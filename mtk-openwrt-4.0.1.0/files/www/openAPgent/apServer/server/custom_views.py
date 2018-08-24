@@ -260,3 +260,83 @@ class IfStatisticsViewSet(viewsets.ViewSet):
     data = sal_if_statistics(SAL_METHOD_RETRIEVE, request.data, pk)
     return Response(data, content_type='application/json')
 
+
+'''
+ Define Class DockerDownload
+'''
+class DockerDownloadViewSet(viewsets.ViewSet):
+  def list(self, request):
+    log_info(LOG_MODULE_APSERVER, "*** DockerDownload list() ***")
+    data = sal_docker_download(SAL_METHOD_LIST, request.data, None)
+    return Response(data, content_type='application/json')
+
+  def retrieve(self, request, pk):
+    log_info(LOG_MODULE_APSERVER, "*** DockerDownload retrieve(), pk = " + pk + " ***")
+    data = sal_docker_download(SAL_METHOD_RETRIEVE, request.data, pk)
+    return Response(data, content_type='application/json')
+
+  def post(self, request, pk):
+    log_info(LOG_MODULE_APSERVER, "*** DockerDownload post(), pk = " + pk + " ***")
+    data = sal_docker_download(SAL_METHOD_POST, request.data, pk)
+    return Response(data, content_type='application/json')
+
+  def detail_post(self, request, pk):
+    log_info(LOG_MODULE_APSERVER, "*** DockerDownload detail_post(), pk = " + pk + " ***")
+    data = sal_docker_download(SAL_METHOD_DETAIL_POST, request.data, pk)
+    return Response(data, content_type='application/json')
+
+  def destroy(self, request, pk):
+    log_info(LOG_MODULE_APSERVER, "*** DockerDownload destroy(), pk = " + pk + " ***")
+    data = sal_docker_download(SAL_METHOD_DESTROY, request.data, pk)
+    return Response(data, content_type='application/json')
+
+  def detail_destroy(self, request, pk):
+    log_info(LOG_MODULE_APSERVER, "*** DockerDownload detail_destroy(), pk = " + pk + " ***")
+    data = sal_docker_download(SAL_METHOD_DETAIL_DESTROY, request.data, pk)
+    return Response(data, content_type='application/json')
+
+
+'''
+ Define Class ContainerCreation
+'''
+class ContainerCreationViewSet(viewsets.ViewSet):
+  def post(self, request, pk):
+    log_info(LOG_MODULE_APSERVER, "*** ContainerCreation post(), pk = " + pk + " ***")
+    data = sal_container_creation(SAL_METHOD_POST, request.data, pk)
+    return Response(data, content_type='application/json')
+
+  def detail_post(self, request, pk):
+    log_info(LOG_MODULE_APSERVER, "*** ContainerCreation detail_post(), pk = " + pk + " ***")
+    data = sal_container_creation(SAL_METHOD_DETAIL_POST, request.data, pk)
+    return Response(data, content_type='application/json')
+
+
+'''
+ Define Class ContainerGet
+'''
+class ContainerGetViewSet(viewsets.ViewSet):
+  def list(self, request):
+    log_info(LOG_MODULE_APSERVER, "*** ContainerGet list() ***")
+    data = sal_container_get(SAL_METHOD_LIST, request.data, None)
+    return Response(data, content_type='application/json')
+
+  def retrieve(self, request, pk):
+    log_info(LOG_MODULE_APSERVER, "*** ContainerGet retrieve(), pk = " + pk + " ***")
+    data = sal_container_get(SAL_METHOD_RETRIEVE, request.data, pk)
+    return Response(data, content_type='application/json')
+
+
+'''
+ Define Class ContainerManagement
+'''
+class ContainerManagementViewSet(viewsets.ViewSet):
+  def post(self, request, pk):
+    log_info(LOG_MODULE_APSERVER, "*** ContainerManagement post(), pk = " + pk + " ***")
+    data = sal_container_management(SAL_METHOD_POST, request.data, pk)
+    return Response(data, content_type='application/json')
+
+  def detail_post(self, request, pk):
+    log_info(LOG_MODULE_APSERVER, "*** ContainerManagement detail_post(), pk = " + pk + " ***")
+    data = sal_container_management(SAL_METHOD_DETAIL_POST, request.data, pk)
+    return Response(data, content_type='application/json')
+

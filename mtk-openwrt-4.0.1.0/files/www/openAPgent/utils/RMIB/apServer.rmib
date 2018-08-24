@@ -75,6 +75,31 @@ SAL_FUNCTION=puci
 METHODLIST=list,retrieve
 #FIELD_NAME_if_stats=generic_if_stats,traffic_monitor_if_stats(not UCI field)
 
+URI=v1/virtualization/downloads
+BASENAME=docker_download
+CLASSNAME=DockerDownload
+SAL_FUNCTION=swigc
+METHODLIST=list,retrieve,post,detail_post,destroy,detail_destroy
+
+URI=v1/virtualization/containers-creation
+BASENAME=container_creation
+CLASSNAME=ContainerCreation
+SAL_FUNCTION=swigc
+METHODLIST=post,detail_post
+
+URI=v1/virtualization/containers
+BASENAME=container_get
+CLASSNAME=ContainerGet
+SAL_FUNCTION=swigc
+METHODLIST=list,retrieve
+
+URI=v1/virtualization/containers-management
+BASENAME=container_management
+CLASSNAME=ContainerManagement
+SAL_FUNCTION=swigc
+METHODLIST=post,detail_post
+
+
 
 #
 # Field efinitions

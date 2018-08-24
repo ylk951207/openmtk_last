@@ -217,3 +217,63 @@ def sal_if_statistics(method, request, pk):
   if method == SAL_METHOD_RETRIEVE:
     return puci_if_statistics_retrieve(pk, 1)
 
+
+'''
+ Define docker_download SAL function
+'''
+def sal_docker_download(method, request, pk):
+  # For SWIG C APIs
+  if method == SAL_METHOD_LIST:
+    return swigc_docker_download_list()
+
+  if method == SAL_METHOD_RETRIEVE:
+    return swigc_docker_download_retrieve(pk, 1)
+
+  if method == SAL_METHOD_POST:
+    return swigc_docker_download_post(request, pk)
+
+  if method == SAL_METHOD_DETAIL_POST:
+    return swigc_docker_download_detail_post(request, pk)
+
+  if method == SAL_METHOD_DESTROY:
+    return swigc_docker_download_destroy(request, pk)
+
+  if method == SAL_METHOD_DETAIL_DESTROY:
+    return swigc_docker_download_detail_destroy(request, pk)
+
+
+'''
+ Define container_creation SAL function
+'''
+def sal_container_creation(method, request, pk):
+  # For SWIG C APIs
+  if method == SAL_METHOD_POST:
+    return swigc_container_creation_post(request, pk)
+
+  if method == SAL_METHOD_DETAIL_POST:
+    return swigc_container_creation_detail_post(request, pk)
+
+
+'''
+ Define container_get SAL function
+'''
+def sal_container_get(method, request, pk):
+  # For SWIG C APIs
+  if method == SAL_METHOD_LIST:
+    return swigc_container_get_list()
+
+  if method == SAL_METHOD_RETRIEVE:
+    return swigc_container_get_retrieve(pk, 1)
+
+
+'''
+ Define container_management SAL function
+'''
+def sal_container_management(method, request, pk):
+  # For SWIG C APIs
+  if method == SAL_METHOD_POST:
+    return swigc_container_management_post(request, pk)
+
+  if method == SAL_METHOD_DETAIL_POST:
+    return swigc_container_management_detail_post(request, pk)
+

@@ -19,3 +19,7 @@ custom_router.register(r'v1/configs/dhcp/static-leases', views.DhcpStaticLeasesC
 custom_router.register(r'v1/management/firmware', views.FirmwareMgtViewSet, base_name='firmware_management')
 custom_router.register(r'v1/management/configuration', views.ConfigMgtViewSet, base_name='config_management')
 custom_router.register(r'v1/statistics', views.IfStatisticsViewSet, base_name='if_statistics')
+custom_router.register(r'v1/virtualization/downloads', views.DockerDownloadViewSet, base_name='docker_download')
+custom_router.register(r'v1/virtualization/containers-creation', views.ContainerCreationViewSet, base_name='container_creation')
+custom_router.register(r'v1/virtualization/containers', views.ContainerGetViewSet, base_name='container_get')
+custom_router.register(r'v1/virtualization/containers-management', views.ContainerManagementViewSet, base_name='container_management')
