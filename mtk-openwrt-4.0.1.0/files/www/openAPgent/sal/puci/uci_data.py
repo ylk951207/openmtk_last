@@ -12,7 +12,7 @@ CONFIG_TYPE_LIST=2
 
 def uci_get_section_map(config_name, *args):
 
-  log_info(LOG_MODULE_SAL, "uci_get_section_map() args: " + str(args))
+  log_info(LOG_MODULE_SAL, "ARGS: " + str(args))
 
   if config_name == 'system_config_logging':
     section_map = {
@@ -40,10 +40,10 @@ def uci_get_section_map(config_name, *args):
       'protocol'               :  [ CONFIG_TYPE_SCALAR  , ".".join(['network', args[0], 'proto'])      ,' ' ],
       'type'                   :  [ CONFIG_TYPE_SCALAR  , ".".join(['network', args[0], 'type'])       ,' ' ],
       'stp'                    :  [ CONFIG_TYPE_SCALAR  , ".".join(['network', args[0], 'stp'])        ,' ' ],
-      'igmpSnoop'              :  [ CONFIG_TYPE_SCALAR  , ".".join(['network', args[0], 'igmp_snooping']),' ' ],
+      'igmpSnooping'           :  [ CONFIG_TYPE_SCALAR  , ".".join(['network', args[0], 'igmp_snooping']),' ' ],
       'macAddr'                :  [ CONFIG_TYPE_SCALAR  , ".".join(['network', args[0], 'macaddr'])    ,' ' ],
       'mtu'                    :  [ CONFIG_TYPE_SCALAR  , ".".join(['network', args[0], 'mtu'])        ,' ' ],
-      'ipv6'                   :  [ CONFIG_TYPE_SCALAR  , ".".join(['network', args[0], 'ipv6'])       ,' ' ],
+      'ipv6Enable'             :  [ CONFIG_TYPE_SCALAR  , ".".join(['network', args[0], 'ipv6'])       ,' ' ],
     }
     return section_map
 

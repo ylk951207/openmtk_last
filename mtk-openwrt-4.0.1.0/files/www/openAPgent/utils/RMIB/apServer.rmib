@@ -127,10 +127,10 @@ DEFINE_FIELD_interface_config= {
 	'protocol'            : CONFIG_TYPE_SCALAR : ".".join(['network', args[0], 'proto'])
 	'type'                : CONFIG_TYPE_SCALAR : ".".join(['network', args[0], 'type'])
 	'stp'                 : CONFIG_TYPE_SCALAR : ".".join(['network', args[0], 'stp'])
-	'igmpSnoop'           : CONFIG_TYPE_SCALAR : ".".join(['network', args[0], 'igmp_snooping'])
+	'igmpSnooping'        : CONFIG_TYPE_SCALAR : ".".join(['network', args[0], 'igmp_snooping'])
 	'macAddr'             : CONFIG_TYPE_SCALAR : ".".join(['network', args[0], 'macaddr'])
 	'mtu'                 : CONFIG_TYPE_SCALAR : ".".join(['network', args[0], 'mtu'])
-	'ipv6'                : CONFIG_TYPE_SCALAR : ".".join(['network', args[0], 'ipv6'])
+	'ipv6Enable'          : CONFIG_TYPE_SCALAR : ".".join(['network', args[0], 'ipv6'])
 };
 
 # args[0] is ifname
