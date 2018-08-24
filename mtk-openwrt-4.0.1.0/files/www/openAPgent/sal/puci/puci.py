@@ -73,11 +73,19 @@ class ConfigUCI:
         return output, error
 
     def set_uci_config_list(self, option, values):
-        list_value = values.split(' ')
+        output = None
+        error = 0
+        
+        while len(values) > 0:
+            value = values.pop()
+            if not value: continue
+        
+            if isinstance(value, basestring):
+                value = value.strip()
+                if not value: continue
 
-        for i in range(0, len(list_value)):
-            log_info(LOG_MODULE_SAL, UCI_ADD_LIST_CMD + option + '=' + str(list_value[i]))
-            output, error = subprocess_open(UCI_ADD_LIST_CMD + option + '=' + list_value[i])
+            log_info(LOG_MODULE_SAL, UCI_ADD_LIST_CMD + option + '=' + str(value))
+            output, error = subprocess_open(UCI_ADD_LIST_CMD + option + '=' + value)
             if not error:
                 self.commit_uci_config()
             else:
@@ -87,6 +95,7 @@ class ConfigUCI:
     def set_uci_config(self, req):
         for req_key in req.keys():
             req_val = req[req_key]
+            
             # Check dictionary value
             if isinstance(req_val, dict):
                 continue;
@@ -100,13 +109,21 @@ class ConfigUCI:
                 map_val[2] = self.convert_config_value(req_val)
                 map_val.append('section_map_value_updated')
 
+        log_info(LOG_MODULE_SAL, "After SET Check:: Section_map(" + self.config_name + "): " + str(self.section_map))
+        
         for map_val in self.section_map.values():
             if not 'section_map_value_updated' in map_val: continue
 
             self.delete_uci_config(map_val[1])
 
-            map_val[2] = map_val[2].strip()
             if not map_val[2]: continue
+
+            if isinstance(map_val[2], basestring):
+                map_val[2] = map_val[2].strip()
+                if not map_val[2]: continue
+
+            log_info(LOG_MODULE_SAL, "Set uci config for '" + 
+                     req_key + "', uci values[key,value]: " + str(map_val[1]) + ", " + str(map_val[2]))
 
             if map_val[0] == CONFIG_TYPE_SCALAR:
                 self.set_uci_config_scalar(map_val[1], str(map_val[2]))
@@ -131,20 +148,33 @@ class ConfigUCI:
         log_info(LOG_MODULE_SAL, UCI_SHOW_CMD + self.config_file)
         output, error = subprocess_open(UCI_SHOW_CMD + self.config_file)
         
-        if not error:
-            lines = output.splitlines()
+        if error: return None
+        
+        lines = output.splitlines()
 
-            for line in lines:
-                token = line.split('=')
+        for line in lines:
+            token = line.split('=')
 
-                for map_val in self.section_map.values():
-                    if map_val[1] == token[0]:
-                        if token[1][0] == "'" and map_val[0] == CONFIG_TYPE_SCALAR :
-                            token[1] = token[1][1:-1]
-                        map_val[2] = token[1]
-                        break;
+            for map_val in self.section_map.values():
+                if map_val[1] != token[0]: continue
+                
+                if map_val[0] == CONFIG_TYPE_SCALAR:
+                    if token[1][0] == "'":
+                        token[1] = token[1][1:-1]
+                    map_val[2] = token[1]
+                else:
+                    # change uci format ['A' 'B' 'C'] string to ['A', 'B', 'C'] list.
+                    list_value = token[1].split(' ')
+                    map_val[2] = list()
+                    while len(list_value):
+                        value = list_value.pop()
+                        
+                        if value[0] == "'":
+                            value = value[1:-1]
 
-            log_info(LOG_MODULE_SAL, "self.section_map = ", self.section_map)
+                        map_val[2].append(value)
+
+        log_info(LOG_MODULE_SAL, "self.section_map = ", self.section_map)
 
     def convert_config_value(self, val):
         if val == True: return 1

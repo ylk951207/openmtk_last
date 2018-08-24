@@ -12,6 +12,7 @@ class CustomRouter(routers.SimpleRouter):
 				'get': 'list',
 				'post': 'create',
 				'put': 'update',
+				'delete' : 'destroy',
 			},
 			name='{basename}-list',
 			initkwargs={'suffix': 'List'}
@@ -32,7 +33,7 @@ class CustomRouter(routers.SimpleRouter):
 				'post': 'detail_create',
 				'put': 'detail_update',
 				'patch': 'partial_update',
-				'delete': 'destroy'
+				'delete': 'delete_destroy'
 			},
 			name='{basename}-detail',
 			initkwargs={'suffix': 'Instance'}

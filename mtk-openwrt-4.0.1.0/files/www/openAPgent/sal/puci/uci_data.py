@@ -12,7 +12,7 @@ CONFIG_TYPE_LIST=2
 
 def uci_get_section_map(config_name, *args):
 
-  log_info(LOG_MODULE_SAL, "ARGS: " + str(args))
+  log_info(LOG_MODULE_SAL, "uci_get_section_map() args: " + str(args))
 
   if config_name == 'system_config_logging':
     section_map = {

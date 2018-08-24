@@ -9,6 +9,10 @@ UCI_NETWORK_FILE="network"
 UCI_INTERFACE_CONFIG_CONFIG = "interface_config"
 UCI_INTERFACE_V4ADDR_CONFIG = "interface_v4addr_config"
 
+UCI_INTERFACE_LIST_STR='interfaces-list'
+UCI_INTERFACE_STR='interface'
+UCI_INTERFACE_V4ADDR_STR='v4Addr'
+UCI_INTERFACE_V6ADDR_STR='v6Addr'
 
 '''
 InterfaceConfig
@@ -25,7 +29,7 @@ def puci_interface_config_list():
             iflist_body.append(rc)
 
     data = {
-            'interface_list': iflist_body,
+            UCI_INTERFACE_LIST_STR : iflist_body,
             'header' : {
                         'resultCode':200,
                         'resultMessage':'Success.',
@@ -37,6 +41,7 @@ def puci_interface_config_list():
 def puci_interface_config_retrieve(ifname, add_header):
     if not ifname:
         raise RespNotFound("Interface")
+
     log_info(LOG_MODULE_SAL, "[ifname] : " + ifname)
 
     interface_data = dict()
@@ -46,7 +51,7 @@ def puci_interface_config_retrieve(ifname, add_header):
 
     if add_header == 1:
         data = {
-            'interface' : interface_data,
+            UCI_INTERFACE_STR : interface_data,
             'header' : {
                             'resultCode':200,
                             'resultMessage':'Success.',
@@ -72,7 +77,10 @@ def puci_interface_config_detail_update(request, ifname):
 
 
 def interface_config_common_set(request):
-    interface_list = request['interface_list']
+
+    log_info(LOG_MODULE_SAL, "request data = ", str(request))
+
+    interface_list = request[UCI_INTERFACE_LIST_STR]
 
     while len(interface_list) > 0:
         ifdata = interface_list.pop(0)
@@ -80,8 +88,8 @@ def interface_config_common_set(request):
         ifname = ifdata['ifname']
 
         interface_config_common_uci_set(ifdata, ifname)
-        if "v4addr" in ifdata:
-            interface_config_v4addr_uci_set(ifdata['v4addr'], ifname)
+        if UCI_INTERFACE_V4ADDR_STR in ifdata:
+            interface_config_v4addr_uci_set(ifdata[UCI_INTERFACE_V4ADDR_STR], ifname)
 
     data = {
         'header' : {
@@ -96,9 +104,11 @@ def interface_config_common_detail_set(request, ifname):
     if not ifname:
         raise RespNotFound("Interface")
 
+    log_info(LOG_MODULE_SAL, "ifname[" + ifname + "], " + "request data = ", str(request))
+
     interface_config_common_uci_set(request, ifname)
-    if "v4addr" in request:
-        interface_config_v4addr_uci_set(request['v4addr'], ifname)
+    if UCI_INTERFACE_V4ADDR_STR in request:
+        interface_config_v4addr_uci_set(request[UCI_INTERFACE_V4ADDR_STR], ifname)
 
     data = {
         'header' : {
@@ -184,7 +194,7 @@ def interface_config_v4addr_uci_get(ifname, interface_data):
         map_val = uci_config.section_map[map_key]
         addr_data[map_key] = map_val[2]
 
-    interface_data['v4addr'] = addr_data
+    interface_data[UCI_INTERFACE_V4ADDR_STR] = addr_data
 
     log_info(LOG_MODULE_SAL, interface_data)
 
