@@ -31,8 +31,13 @@ define Build/Prepare
 endef
 
 define Package/docker/install
+	$(INSTALL_DIR) $(1)/root
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_DIR) $(1)/etc/docker
+	$(INSTALL_BIN) ./files/Dockerfile $(1)/root
+	$(INSTALL_BIN) ./files/hello-world.sh $(1)/root
+	$(INSTALL_BIN) ./files/build-hello.sh $(1)/root
+	$(INSTALL_BIN) ./files/run-hello.sh $(1)/root
 	$(INSTALL_BIN) ./files/docker* $(1)/usr/bin
 	$(INSTALL_BIN) ./files/daemon.json $(1)/etc/docker
 endef
