@@ -1,6 +1,6 @@
 {
     "storage-driver": "overlay2",
-    "data-root": "/tmp",
+    "data-root": "/mnt/sda2/docker",
     "raw-logs": true,
     "ipv6": false,
     "bip": "10.1.1.1/16",
