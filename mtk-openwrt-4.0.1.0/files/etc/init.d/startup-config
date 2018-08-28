@@ -20,5 +20,5 @@ start() {
 	uci set network.lan.igmp_snooping='1'
 
 	uci commit network
-	/etc/init.d/network restart
+#	/etc/init.d/network restart
 }
