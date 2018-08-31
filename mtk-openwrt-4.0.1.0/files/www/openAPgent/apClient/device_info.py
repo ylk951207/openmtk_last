@@ -7,7 +7,7 @@ import requests
 import sqlite3
 #import netifaces as ni
 import fcntl, socket, struct
-from apClient.request import SendRequest
+from common.request import *
 from common.log import *
 from common.env import *
 #from time import sleep
@@ -73,23 +73,23 @@ class ProcDeviceInfo(object):
             return uptime_seconds
 
     def _make_request_data(self):
-        self.data = {\
-	                "id": gDeviceInfo.device_id, \
-	                "name": gDeviceInfo.name, \
-	                "vendorId": gDeviceInfo.vendor_id, \
-	                "vendorName": gDeviceInfo.vendor_name, \
-	                "serialNumber": gDeviceInfo.serial_num, \
-	                "type": gDeviceInfo.device_type, \
-	                "model": gDeviceInfo.model_num, \
-	                "ip": gDeviceInfo.ip_addr, \
-	                "mac": gDeviceInfo.mac_addr, \
-	                "userId": gDeviceInfo.user_id, \
-	                "userPasswd": gDeviceInfo.user_passwd, \
-	                "status": gDeviceInfo.status, \
-	                "mapX": gDeviceInfo.map_x, \
-	                "mapY": gDeviceInfo.map_y, \
-	                "counterfeit": gDeviceInfo.counterfeit, \
-                        "uptime" : gDeviceInfo._get_uptime() \
+        self.data = {
+	                "id": gDeviceInfo.device_id,
+	                "name": gDeviceInfo.name,
+	                "vendorId": gDeviceInfo.vendor_id,
+	                "vendorName": gDeviceInfo.vendor_name,
+	                "serialNumber": gDeviceInfo.serial_num,
+	                "type": gDeviceInfo.device_type,
+	                "model": gDeviceInfo.model_num,
+	                "ip": gDeviceInfo.ip_addr,
+	                "mac": gDeviceInfo.mac_addr,
+	                "userId": gDeviceInfo.user_id,
+	                "userPasswd": gDeviceInfo.user_passwd,
+	                "status": gDeviceInfo.status,
+	                "mapX": gDeviceInfo.map_x,
+	                "mapY": gDeviceInfo.map_y,
+	                "counterfeit": gDeviceInfo.counterfeit,
+                  "uptime" : gDeviceInfo._get_uptime()
                  }
 
         log_info(LOG_MODULE_APCLIENT,  "\n<Send Request>")
@@ -100,7 +100,7 @@ class ProcDeviceInfo(object):
 
     def request_post_device_info(self, url):
         try:                   
-            post_req = SendRequest('POST', self.device_id)
+            post_req = SendRequest('POST')
                                    
             post_req.data = self._make_request_data()
             post_req.headers = {'content-type': 'application/json'}
@@ -111,35 +111,6 @@ class ProcDeviceInfo(object):
             return 600  
 
         return resp.status_code
-        
-        '''
-        if resp.status_code == 200:
-            self.update_device_id (post_req.resp_json)
-
-            post_req.data = self._make_request_data()
-            post_req.headers = {'content-type': 'application/json'}
-            resp = post_req.send_request(APSERVER_DEVICE_INFO_POST_URL)
-        '''
-
-    def request_put_device_info(self):
-        if self.device_id==0:
-            log_err(LOG_MODULE_APCLIENT, "Invalid device ID")
-
-        post_req = SendRequest('PUT', self.device_id)
-
-        post_req.data = self._make_request_data()
-        post_req.headers = {'content-type': 'application/json'}
-
-        resp = post_req.send_request(CAPC_DEVICE_INFO_POST_URL)
-
-        '''
-        if resp.status_code == 200:
-            resp = post_req.send_request(APSERVER_DEVICE_INFO_POST_URL)
-        '''
-    def request_get_device_info(self):
-        log_info (LOG_MODULE_APCLIENT, 'Get device Info')
-        post_req = SendRequest('GET', self.device_id)
-        post_req.send_request(CAPC_DEVICE_INFO_URL)
 
 
 def register_device_info():
@@ -161,12 +132,8 @@ def proc_device_info(data):
 
     gDeviceInfo.update_device_info()
 
-    if method == 'GET':
-        gDeviceInfo.request_get_device_info()
-    elif method == 'POST':
+    if method == 'POST':
         gDeviceInfo.request_post_device_info(CAPC_DEVICE_INFO_POST_URL)
-    elif method == 'PUT':
-        gDeviceInfo.request_put_device_info()
     else:
         log_info(LOG_MODULE_APCLIENT, 'Invalid Argument')
 

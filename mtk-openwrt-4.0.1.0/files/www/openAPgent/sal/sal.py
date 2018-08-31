@@ -6,7 +6,9 @@ DO NOT EDIT.
 
 from puci.interface import *
 from puci.system_config import *
+from puci.dhcp import *
 from swigc.sys_usage import *
+from python.docker_api import *
 
 
 '''
@@ -219,61 +221,61 @@ def sal_if_statistics(method, request, pk):
 
 
 '''
- Define docker_download SAL function
+ Define docker_images SAL function
 '''
-def sal_docker_download(method, request, pk):
-  # For SWIG C APIs
+def sal_docker_images(method, request, pk):
+  # For Python APIs
   if method == SAL_METHOD_LIST:
-    return swigc_docker_download_list()
+    return py_docker_images_list()
 
   if method == SAL_METHOD_RETRIEVE:
-    return swigc_docker_download_retrieve(pk, 1)
+    return py_docker_images_retrieve(pk, 1)
 
-  if method == SAL_METHOD_POST:
-    return swigc_docker_download_post(request, pk)
+  if method == SAL_METHOD_CREATE:
+    return py_docker_images_create(request)
 
-  if method == SAL_METHOD_DETAIL_POST:
-    return swigc_docker_download_detail_post(request, pk)
+  if method == SAL_METHOD_DETAIL_CREATE:
+    return py_docker_images_detail_create(request, pk)
 
   if method == SAL_METHOD_DESTROY:
-    return swigc_docker_download_destroy(request, pk)
+    return py_docker_images_destroy(request)
 
   if method == SAL_METHOD_DETAIL_DESTROY:
-    return swigc_docker_download_detail_destroy(request, pk)
+    return py_docker_images_detail_destroy(request, pk)
 
 
 '''
  Define container_creation SAL function
 '''
 def sal_container_creation(method, request, pk):
-  # For SWIG C APIs
-  if method == SAL_METHOD_POST:
-    return swigc_container_creation_post(request, pk)
+  # For Python APIs
+  if method == SAL_METHOD_CREATE:
+    return py_container_creation_create(request)
 
-  if method == SAL_METHOD_DETAIL_POST:
-    return swigc_container_creation_detail_post(request, pk)
+  if method == SAL_METHOD_DETAIL_CREATE:
+    return py_container_creation_detail_create(request, pk)
 
 
 '''
  Define container_get SAL function
 '''
 def sal_container_get(method, request, pk):
-  # For SWIG C APIs
+  # For Python APIs
   if method == SAL_METHOD_LIST:
-    return swigc_container_get_list()
+    return py_container_get_list()
 
   if method == SAL_METHOD_RETRIEVE:
-    return swigc_container_get_retrieve(pk, 1)
+    return py_container_get_retrieve(pk, 1)
 
 
 '''
  Define container_management SAL function
 '''
 def sal_container_management(method, request, pk):
-  # For SWIG C APIs
-  if method == SAL_METHOD_POST:
-    return swigc_container_management_post(request, pk)
+  # For Python APIs
+  if method == SAL_METHOD_CREATE:
+    return py_container_management_create(request)
 
-  if method == SAL_METHOD_DETAIL_POST:
-    return swigc_container_management_detail_post(request, pk)
+  if method == SAL_METHOD_DETAIL_CREATE:
+    return py_container_management_detail_create(request, pk)
 

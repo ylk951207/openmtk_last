@@ -75,29 +75,29 @@ SAL_FUNCTION=puci
 METHODLIST=list,retrieve
 #FIELD_NAME_if_stats=generic_if_stats,traffic_monitor_if_stats(not UCI field)
 
-URI=v1/virtualization/downloads
-BASENAME=docker_download
-CLASSNAME=DockerDownload
-SAL_FUNCTION=swigc
-METHODLIST=list,retrieve,post,detail_post,destroy,detail_destroy
+URI=v1/virtualization/images
+BASENAME=docker_images
+CLASSNAME=DockerImages
+SAL_FUNCTION=py
+METHODLIST=list,retrieve,create,detail_create,destroy,detail_destroy
 
 URI=v1/virtualization/containers-creation
 BASENAME=container_creation
 CLASSNAME=ContainerCreation
-SAL_FUNCTION=swigc
-METHODLIST=post,detail_post
+SAL_FUNCTION=py
+METHODLIST=create,detail_create
 
 URI=v1/virtualization/containers
 BASENAME=container_get
 CLASSNAME=ContainerGet
-SAL_FUNCTION=swigc
+SAL_FUNCTION=py
 METHODLIST=list,retrieve
 
 URI=v1/virtualization/containers-management
 BASENAME=container_management
 CLASSNAME=ContainerManagement
-SAL_FUNCTION=swigc
-METHODLIST=post,detail_post
+SAL_FUNCTION=py
+METHODLIST=create,detail_create
 
 
 
@@ -207,8 +207,8 @@ DEFINE_FIELD_dhcp_interface_v6pool= {
     'ndp'                     : CONFIG_TYPE_SCALAR : ".".join(['dhcp', args[0], 'ndp'])
     'dhcpv6Mode'              : CONFIG_TYPE_SCALAR : ".".join(['dhcp', args[0], 'ra_management'])
     'raDefault'               : CONFIG_TYPE_SCALAR : ".".join(['dhcp', args[0], 'ra_default'])
-    'dnsServer'               : CONFIG_TYPE_SCALAR : ".".join(['dhcp', args[0], 'dns'])
-    'dnsDomain'               : CONFIG_TYPE_SCALAR : ".".join(['dhcp', args[0], 'domain'])
+    'dnsServer'               : CONFIG_TYPE_LIST   : ".".join(['dhcp', args[0], 'dns'])
+    'dnsDomain'               : CONFIG_TYPE_LIST   : ".".join(['dhcp', args[0], 'domain'])
 };
 
 # args[0] is 'name'

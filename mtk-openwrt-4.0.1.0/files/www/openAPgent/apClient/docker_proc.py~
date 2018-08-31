@@ -1,0 +1,124 @@
+#!/usr/bin/env python
+import docker
+from common.log import *
+from common.env import *
+from common.request import *
+
+def _get_docker_image_name(image_name, image_tag, registry):
+    registry_ipaddr = registry['registryAddr']
+    if registry_ipaddr:
+        image_name = registry_ipaddr + "/" + request['imageName']
+
+    if image_tag :
+        image_name = image_name + ":" + image_tag
+
+    log_info(LOG_MODULE_APCLIENT, "image_name: " + image_name)
+    return image_name
+
+
+def send_notification(noti_image_list, noti_container_list):
+    if noti_image_list:
+        noti_data = {
+            'header': {
+                'resultCode': 200,
+                'resultMessage': 'Success.',
+                'isSuccessful': 'true'
+            }
+        }
+        url = CAPC_NOTIFICATION_IMAGE_POST_URL
+
+    if noti_container_list:
+        noti_data = {
+            'containerName' : request['containerName'],
+            'header': {
+                'resultCode': 200,
+                'resultMessage': 'Success.',
+                'isSuccessful': 'true'
+            }
+        }
+        url = CAPC_NOTIFICATION_CONTAINER_POST_URL
+
+    log_info(LOG_MODULE_APCLIENT, "Response = ", str(noti_data))
+
+    noti_req = SendNotification()
+    noti_req.data = json.dumps(noti_data)
+    noti_req.headers = {'content-type': 'application/json'}
+    noti_resp = noti_req.send_notification(url)
+
+
+def docker_image_create(request):
+    noti_image_list = list()
+    log_info(LOG_MODULE_APCLIENT, "request: " + str(request))
+
+    image_list = request["docker-images"]
+    while len(image_list) > 0:
+        image = image_list.pop(0)
+
+        image_name = _get_docker_image_name(request['imageName'], request['imageTag'], request['registry'])
+        client = docker.from_env()
+        rc = client.images.pull(image_name)
+
+        noti_image_list.append(rc)
+
+    send_notification (noti_image_list, None)
+
+def docker_image_detail_create(request):
+    noti_image_list = list()
+    image_name = _get_docker_image_name (request['imageName'], request['imageTag'], request['registry'])
+
+    client = docker.from_env()
+    rc = client.images.pull(image_name)
+    log_info(LOG_MODULE_APCLIENT, "Image result: " + str(rc))
+    noti_image_list.append(rc)
+
+    send_notification (noti_image_list, None)
+
+
+'''
+command = '["/usr/sbin/sshd", "-D"]'
+ports = {'443/tcp':('192.168.1.175, '443'), '9000/tcp':9000}
+volumes = {'/tmp/test':{'bind':'/tmp/test', 'mode':'rw'}, '/tmp/lib' : {'bind': /tmp/lib', 'mode':'rw'}}
+'''
+def docker_container_creation_create(request):
+    noti_container_list = list()
+    image_name = _get_docker_image_name(request['imageName'], request['imageTag'], request['registry'])
+
+    cmd_str = ""
+    if request['containerName']:
+        cmd_str = cmd_str + "name="+ request['containerName'] + ","
+    if request['command']:
+        cmd_str = cmd_str + "command=" + request['command'] + ","
+    if request['ports']:
+        cmd_str = cmd_str "ports=" + request['ports'] + ","
+    if request['volumes']:
+        cmd_str = cmd_str + "volumes=" + request['volumes'] + ","
+    if request['options']:
+        cmd_str = cmd_str + request['options']
+
+    #cmd_str = cmd_str.rstrip(',')
+    cmd_str = cmd_str +  'detach=True'
+
+    log_info(LOG_MODULE_APCLIENT, "docker container run command: " + cmd_str)
+
+    client = docker.from_env()
+    rc = client.containers.run(image_name, cmd_str)
+    log_info(LOG_MODULE_APCLIENT, "Image result: " + str(rc))
+    noti_container_list.append(rc)
+
+    send_notification (None, noti_container_list)
+
+
+def proc_docker(command, request):
+    log_info(LOG_MODULE_APCLIENT, 'Received message: %s [request: %s]' % (command, str(request)))
+
+    if command == SAL_PYTHON_DOCKER_IMAGE_CREATE:
+        docker_image_create(request)
+    elif command == SAL_PYTHON_DOCKER_IMAGE_DETAIL_CREATE:
+        docker_image_detail_create(request)
+    elif command == SAL_PYTHON_DOCKER_CONTAINER_CREATE:
+        docker_container_creation_create(request)
+    else:
+        log_info(LOG_MODULE_APCLIENT, 'Invalid Argument')
+
+
+

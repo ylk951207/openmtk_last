@@ -3,7 +3,7 @@ import fileinput
 from puci import *
 from common.log import *
 from common.env import *
-from common.error import *
+from common.response import *
 
 UCI_NETWORK_FILE="network"
 UCI_INTERFACE_CONFIG_CONFIG = "interface_config"

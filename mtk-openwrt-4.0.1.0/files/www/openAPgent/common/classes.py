@@ -33,7 +33,7 @@ class CustomRouter(routers.SimpleRouter):
 				'post': 'detail_create',
 				'put': 'detail_update',
 				'patch': 'partial_update',
-				'delete': 'delete_destroy'
+				'delete': 'delete_destroy',
 			},
 			name='{basename}-detail',
 			initkwargs={'suffix': 'Instance'}

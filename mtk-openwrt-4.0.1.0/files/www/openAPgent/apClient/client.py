@@ -4,6 +4,7 @@ import time
 import logging
 import socket
 from apClient.device_info import *
+#from apClient.docker_proc import *
 from common.log import *
 from common.env import *
 
@@ -36,13 +37,20 @@ class ClientCmdApp():
 
             data = sock.recv(1024)
 
+            if data:
+                proc_docker(data['command'], data['body'])
             '''
             [TODO] command segmantation, not only proc_device_info
-            '''
+           
             if data:
                 log_info(LOG_MODULE_APCLIENT, 'data:', data, 'len:', len(data))
-                proc_device_info(data)
-
+                data = eval(data)
+                module = data['module']
+                if module == 'DOCKER':
+                    proc_docker(data['command'], data['body'])
+                else:
+                    proc_device_info(data)
+            '''
             log_info(LOG_MODULE_APCLIENT, '---- Socket close ----')
             sock.close()
 

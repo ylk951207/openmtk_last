@@ -80,7 +80,9 @@ def get_django_header(filename):
 	elif filename == sal_file:
 		header += "from puci.interface import *\n"
 		header += "from puci.system_config import *\n"
+		header += "from puci.dhcp import *\n"
 		header += "from swigc.sys_usage import *\n"
+		header += "from python.docker_api import *\n"
 		header += "\n\n'''\n Define SAL Method\n'''\n"
 		header += "SAL_METHOD_LIST           = 1\n"
 		header += "SAL_METHOD_CREATE         = 2\n"
@@ -116,7 +118,7 @@ def make_view_lines(base_name, class_name, method_list):
 	wline += "\nclass " + class_name + "ViewSet(viewsets.ViewSet):\n"
 
 	for method in method_list:
-		if method == 'list' or method == 'create' or method == 'update':
+		if method == 'list' or method == 'create' or method == 'update' or method == 'destroy':
 			wline += "  def " + method + "(self, request):\n"
 			wline += "    log_info(LOG_MODULE_APSERVER, \"*** " + class_name + " " + method + "() ***\")\n"
 			wline += "    data = sal_" + base_name + "(SAL_METHOD_" + method.upper() + ", request.data, None)\n"				
@@ -131,15 +133,17 @@ def make_view_lines(base_name, class_name, method_list):
 
 def make_sal_lines(base_name, method_list, sal_func_list):
 
-    wline = "\n'''\n Define " + base_name + " SAL function\n'''\n"
-    wline += "def sal_" + base_name + "(method, request, pk):\n"
+	wline = "\n'''\n Define " + base_name + " SAL function\n'''\n"
+	wline += "def sal_" + base_name + "(method, request, pk):\n"
 
-    for api in sal_func_list:
+	for api in sal_func_list:
 		func_prefix = api + "_"
 		if api == 'puci':
 			wline += "  # For Python-UCI APIs\n"
 		elif api == 'swigc' :
 			wline += "  # For SWIG C APIs\n"
+		elif api == 'py' :
+			wline += "  # For Python APIs\n"
 		else:
 			continue
 
@@ -147,7 +151,7 @@ def make_sal_lines(base_name, method_list, sal_func_list):
 			wline += "  if method == SAL_METHOD_" + method.upper() + ":\n"
 			if method == 'list':
 				wline += "    return " + func_prefix + base_name + "_" + method + "()\n"
-			elif method == 'create' or method == 'update':
+			elif method == 'create' or method == 'update' or method == 'destroy':
 				wline += "    return " + func_prefix + base_name + "_" + method + "(request)\n"
 			elif method == 'retrieve':
 				wline += "    return " + func_prefix + base_name + "_" + method + "(pk, 1)\n"
@@ -155,17 +159,17 @@ def make_sal_lines(base_name, method_list, sal_func_list):
 				wline += "    return " + func_prefix + base_name + "_" + method + "(request, pk)\n"
 			wline += "\n"
 
- #   wline += "  return None\n"
+#   wline += "  return None\n"
 
-    return wline
+	return wline
 
 def make_django_pyfile(filename, header):
 	do_write = False
-	
+
 	if gen_bpfile == True:
 		shutil.copy (filename, filename + ".bp")
-	
-	print "filename: " + filename 
+
+	print "filename: " + filename
 
 	wfile = open(filename, 'w')
 	rfile = open(RMIB_FILE, 'r')
@@ -194,7 +198,7 @@ def make_django_pyfile(filename, header):
 			method_list = method_list[1].split(',')
 			do_write = True
 		else:
-			continue	
+			continue
 
 		if do_write == True:
 			print "============= " + filename +  " ================="
@@ -228,8 +232,8 @@ def make_django_uci_data_pyfile(filename, header):
 
 	if gen_bpfile == True:
 		shutil.copy (filename, filename + ".bp")
-	
-	print "filename: " + filename 
+
+	print "filename: " + filename
 
 	wfile = open(filename, 'w')
 	rfile = open(RMIB_FILE, 'r')
@@ -247,10 +251,10 @@ def make_django_uci_data_pyfile(filename, header):
 		if UCI_DATA_PREFIX in line:
 			config_name = line.split(UCI_DATA_PREFIX)[1]
 			config_name = config_name.split('=')[0]
-			
+
 			wline += "  if config_name == '" + config_name + "':\n"
 			wline += "    section_map = {\n"
-		
+
 		elif UCI_DATA_SUFFIX in line:
 			wline += "    }\n"
 			wline += "    return section_map\n\n"

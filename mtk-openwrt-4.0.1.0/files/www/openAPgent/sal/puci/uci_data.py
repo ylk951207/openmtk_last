@@ -128,8 +128,8 @@ def uci_get_section_map(config_name, *args):
       'ndp'                    :  [ CONFIG_TYPE_SCALAR  , ".".join(['dhcp', args[0], 'ndp'])           ,' ' ],
       'dhcpv6Mode'             :  [ CONFIG_TYPE_SCALAR  , ".".join(['dhcp', args[0], 'ra_management']) ,' ' ],
       'raDefault'              :  [ CONFIG_TYPE_SCALAR  , ".".join(['dhcp', args[0], 'ra_default'])    ,' ' ],
-      'dnsServer'              :  [ CONFIG_TYPE_SCALAR  , ".".join(['dhcp', args[0], 'dns'])           ,' ' ],
-      'dnsDomain'              :  [ CONFIG_TYPE_SCALAR  , ".".join(['dhcp', args[0], 'domain'])        ,' ' ],
+      'dnsServer'              :  [ CONFIG_TYPE_LIST    , ".".join(['dhcp', args[0], 'dns'])           ,' ' ],
+      'dnsDomain'              :  [ CONFIG_TYPE_LIST    , ".".join(['dhcp', args[0], 'domain'])        ,' ' ],
     }
     return section_map
 

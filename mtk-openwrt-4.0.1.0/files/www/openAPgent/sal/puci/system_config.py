@@ -1,7 +1,7 @@
 from puci import *
 from common.log import *
 from common.env import *
-from common.error import *
+from common.response import *
 
 UCI_SYSTEM_CONFIG_FILE = "system"
 UCI_SYSTEM_CONFIG_LOGGING_CONFIG = "system_config_logging"
