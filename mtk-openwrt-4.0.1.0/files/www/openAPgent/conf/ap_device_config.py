@@ -51,5 +51,6 @@ AP_USER_PASSWD   = ''
 AP_STATUS        = 1
 AP_MAP_X         = 37.401531
 AP_MAP_Y         = 126.967673
+AP_CAPABILITIES  = ["docker", "system", "interface"]
 
 

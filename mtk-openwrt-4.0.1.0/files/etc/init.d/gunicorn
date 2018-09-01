@@ -14,5 +14,5 @@ start() {
 
 stop() {
 	echo "stop gunicorn..."
-  killall gunicorn
+	killall gunicorn
 }

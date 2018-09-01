@@ -10,10 +10,13 @@ import socket
 from common.log import *
 from common.env import *
 
-class SendRequest(object):
+class APgentSendRequest(object):
     def __init__(self, method):
         self.method = method
 
+    '''
+     Django restframework only can support HTTP protocol by request module.
+    '''
     def send_request(self, url):
         log_info(LOG_MODULE_REQUEST, '<Send Request>')
         log_info(LOG_MODULE_REQUEST, 'method=', self.method, 'URL=', url)
@@ -48,32 +51,70 @@ class SendRequest(object):
         
         log_info(LOG_MODULE_REQUEST, '=' * 80)
 
+    '''
+    This function can support HTTPS protocol.
+    '''
+    def send_secure_request(url, port):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect((url, 443))
+        sock = ssl.wrap_socket(sock, keyfile=None, certfile=None, server_side=False, cert_reqs=ssl.CERT_NONE,
+                            ssl_version=ssl.PROTOCOL_SSLv23)
+        sock.sendall("GET / HTTP/1.1\r\nHost: github.com\r\nConnection: close\r\n\r\n")
 
-def sendHttpsRequest():
-
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect((url, 443))
-    sock = ssl.wrap_socket(sock, keyfile=None, certfile=None, server_side=False, cert_reqs=ssl.CERT_NONE,
-                        ssl_version=ssl.PROTOCOL_SSLv23)
-    sock.sendall("GET / HTTP/1.1\r\nHost: github.com\r\nConnection: close\r\n\r\n")
-
-    while True:
-
-        new = sock.recv(4096)
-        if not new:
-            sock.close()
-            break
-        print new
+        while True:
+            new = sock.recv(4096)
+            if not new:
+                sock.close()
+                break
+            print new
 
 
-class SendNotification(object):
+class APgentSendNotification(object):
     def __init__(self):
-        pass
+        self.response = dict()
 
     def send_notification(self, url):
         log_info(LOG_MODULE_REQUEST, '<Send Notification>')
+        headers = {'content-type': 'application/json'}
 
-        self.resp = requests.post(url, data=json.dumps(self.data), headers=self.headers)
-        self.resp_json = self.resp.json()
+        try:
+            requests.post(url, data=json.dumps(self.response), headers=headers)
+        except Exception as e:
+            log_error(LOG_MODULE_REQUEST, "*** requests.post() error: " + str(e))
 
-        return self.resp
+    def set_notification_value(self, image_name, status_code, response_msg):
+        if status_code != 200:
+            response = response_msg.response
+            try:
+                explanation = response.json()['message']
+            except ValueError:
+                explanation = (response.content or '').strip()
+        else:
+            explanation = response_msg
+
+        self.response['imageName'] = image_name
+        self.response['resultCode'] = status_code
+        self.response['resultMessage'] = explanation
+        log_info(LOG_MODULE_REQUEST, "Set Response = ", str(self.response))
+
+        return self.response
+
+class ApServerLocalMassage():
+    def __init__(self, port):
+        self.port = port
+
+    def send_request_apclient(self, data):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect(('localhost', self.port))
+        sock.send(str(data))
+        sock.close()
+        log_info(LOG_MODULE_REQUEST, "send_request_apclient() data: " + str(data))
+
+    def send_message_to_apclient(self, command, request):
+        data = {
+            'module' : "DOCKER",
+            'command' : command,
+            'body' : request
+        }
+
+        self.send_request_apclient (data)

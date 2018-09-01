@@ -40,6 +40,7 @@ def init_device_info():
     gDeviceInfo.status = AP_STATUS
     gDeviceInfo.map_x = AP_MAP_X
     gDeviceInfo.map_y = AP_MAP_Y
+    gDeviceInfo.capabilities = AP_CAPABILITIES
 
 class ProcDeviceInfo(object):
     def __init__(self):
@@ -89,7 +90,8 @@ class ProcDeviceInfo(object):
 	                "mapX": gDeviceInfo.map_x,
 	                "mapY": gDeviceInfo.map_y,
 	                "counterfeit": gDeviceInfo.counterfeit,
-                  "uptime" : gDeviceInfo._get_uptime()
+	                "uptime" : gDeviceInfo._get_uptime(),
+	                "capabilities" : gDeviceInfo.capabilities
                  }
 
         log_info(LOG_MODULE_APCLIENT,  "\n<Send Request>")
@@ -100,7 +102,7 @@ class ProcDeviceInfo(object):
 
     def request_post_device_info(self, url):
         try:                   
-            post_req = SendRequest('POST')
+            post_req = APgentSendRequest('POST')
                                    
             post_req.data = self._make_request_data()
             post_req.headers = {'content-type': 'application/json'}

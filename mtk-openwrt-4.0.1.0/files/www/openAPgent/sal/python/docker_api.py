@@ -7,39 +7,6 @@ from common.env import *
 from common.request import *
 from common.response import *
 
-DOCKER_CREATE     = 1
-DOCKER_DESTROY    = 2
-
-'''
-def send_request_apclient(data):
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect(('localhost', APCLIENT_CMD_PORT))
-    sock.send(str(data))
-    sock.close()
-    log_info(LOG_MODULE_SAL, "send_request_apclient() data: " + str(data))
-def _docker_send_message_to_apclient(command, request):
-    data = {
-        'module' : "DOCKER",
-        'command' : command,
-        'body' : request
-    }
-
-    err = send_request_apclient (data)
-    if err:
-        log_info(LOG_MODULE_SAL, "send_request_apclient() result: " + err)
-
-    data = {
-        'header': {
-            'resultCode': 200,
-            'resultMessage': 'Success.',
-            'isSuccessful': 'true'
-        }
-    }
-    log_info(LOG_MODULE_SAL, "Response = ", str(data))
-
-    return data
-'''
-
 
 def _get_docker_image_name(image_name, image_tag, registry):
     if registry:
@@ -175,10 +142,16 @@ def py_docker_images_retrieve(image_name, add_header):
 
 
 def py_docker_images_create(request):
+    server_msg = ApServerLocalMassage(APNOTIFIER_CMD_PORT)
+    server_msg.send_message_to_apclient(SAL_PYTHON_DOCKER_IMAGE_CREATE, request)
+    return response_make_simple_success_body()
+
+    '''
     log_info(LOG_MODULE_SAL, "request: " + str(request))
     docker_image = DockerImageProc()
     docker_image.req_image_list = request["docker-image-list"]
     return docker_image._docker_image_create ()
+    '''
 
 def py_docker_images_detail_create(request, pk):
     log_info(LOG_MODULE_SAL, "request: " + str(request))

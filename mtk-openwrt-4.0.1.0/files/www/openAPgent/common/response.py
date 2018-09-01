@@ -51,3 +51,9 @@ class APgentResponseMessgae(object):
         }
         log_info(LOG_MODULE_RESPONSE, "Response Body = ", str(body_data))
         return body_data
+
+def response_make_simple_success_body():
+    response = APgentResponseMessgae()
+    response.set_response_value(200, "Successful", True)
+    data = response.make_response_body(None)
+    return data

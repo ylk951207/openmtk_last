@@ -77,7 +77,6 @@ def puci_interface_config_detail_update(request, ifname):
 
 
 def interface_config_common_set(request):
-
     log_info(LOG_MODULE_SAL, "request data = ", str(request))
 
     interface_list = request[UCI_INTERFACE_LIST_STR]
@@ -142,8 +141,10 @@ def interface_config_common_uci_set(req_data, ifname):
     if uci_config == None:
         raise RespNotFound("UCI Config")
 
-    uci_config.set_uci_config(req_data)
+    uci_config.ifname = ifname
 
+    uci_config.set_uci_config(req_data)
+    uci_config.commit_uci_config()
 
 def puci_interface_v4addr_config_list(ifname):
     if not ifname:
@@ -206,8 +207,9 @@ def interface_config_v4addr_uci_set(req_data, ifname):
     if uci_config == None:
         raise RespNotFound("UCI Config")
 
+    uci_config.ifname = ifname
     uci_config.set_uci_config(req_data)
-
+    uci_config.commit_uci_config()
 
 
 '''

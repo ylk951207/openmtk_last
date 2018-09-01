@@ -10,8 +10,10 @@ class GetLogger():
         formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
         if name == "apServerLog":
             log_file = APSERVER_LOG_PATH
-        else:
+        elif name == "apClientLog":
             log_file = APCLIENT_LOG_PATH
+        else:
+            log_file = APNOTIFIER_LOG_PATH
 
         self.handler = logging.FileHandler(log_file)
         self.handler.setFormatter(formatter)

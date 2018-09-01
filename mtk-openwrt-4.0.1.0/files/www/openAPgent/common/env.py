@@ -46,16 +46,19 @@ Logging
 LOG_MODULE_SAL='sal'
 LOG_MODULE_APSERVER='apServer'
 LOG_MODULE_APCLIENT='apClient'
+LOG_MODULE_APNOTIFIER='apNotifier'
 LOG_MODULE_REQUEST='Request'
 LOG_MODULE_RESPONSE='Response'
 
 APSERVER_LOG_PATH="/var/log/apServer.log"
 APCLIENT_LOG_PATH="/var/log/apClient.log"
+APNOTIFIER_LOG_PATH="/var/log/apNotifier.log"
 
 '''
 Client
 '''
 APCLIENT_CMD_PORT=8007
+APNOTIFIER_CMD_PORT=8008
 #APCLIENT_PID_PATH="%s/apClient.pid"%WORKDIR
 APCLIENT_PID_PATH="/var/run/apClient.pid"
 

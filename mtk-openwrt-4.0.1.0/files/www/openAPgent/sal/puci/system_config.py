@@ -140,4 +140,6 @@ def system_config_uci_set(uci_file, req_data, system_data):
         if system_data:
             system_data[map_key] = map_val[2]
 
+    uci_config.commit_uci_config()
+
     return system_data

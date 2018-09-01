@@ -11,6 +11,7 @@ UCI_EXPORT_CMD="uci export "
 UCI_GET_CMD="uci get "
 UCI_SET_CMD="uci set "
 UCI_DELETE_CMD="uci delete "
+UCI_ADD__CMD="uci add "
 UCI_ADD_LIST_CMD="uci add_list "
 UCI_DELETE_LIST_CMD="uci delete_list "
 UCI_COMMIT_CMD="uci commit "
@@ -60,9 +61,32 @@ class ConfigUCI:
         return subprocess_open(command)
                                
     def commit_uci_config(self):
-        log_info(LOG_MODULE_SAL, "===" , UCI_COMMIT_CMD + self.config_file + "===")
-        return subprocess_open(UCI_COMMIT_CMD + self.config_file)
+        log_info(LOG_MODULE_SAL, "=== " , UCI_COMMIT_CMD + self.config_file + " ===")
+        if self.config_file == 'network' and self.ifname:
+            log_info(LOG_MODULE_SAL, "ifdown/ifup for ifname: " + self.ifname)
+            output, error = subprocess_open('ifdown ' + self.ifname)
+            output, error = subprocess_open('ifup ' + self.ifname)
+        else:
+            return subprocess_open(UCI_COMMIT_CMD + self.config_file)
 
+    '''
+      Add uci section
+      Command - uci add <config> <section-type>
+    '''
+    def add_uci_config(self, option):
+        log_info(LOG_MODULE_SAL, UCI_ADD_CMD + self.config_file + option)
+        output, error = subprocess_open(UCI_ADD_CMD + self.config_file + option)
+        if not error:
+            self.commit_uci_config()
+        else:
+            log_error(LOG_MODULE_SAL, "add_uci_config() error:" + error)
+
+        return output, error
+
+    '''
+      Set uci value
+      Command - uci set <config>.<section>[.<option>]=<value>
+    '''
     def set_uci_config_scalar(self, option, value):
         log_info(LOG_MODULE_SAL, UCI_SET_CMD + option + '=' + value)
         output, error = subprocess_open(UCI_SET_CMD + option + '=' + value)
@@ -72,6 +96,10 @@ class ConfigUCI:
             log_error(LOG_MODULE_SAL, "set_uci_config_scalar() error:" + error)
         return output, error
 
+    '''
+      Set uci list value
+      Command - uci add_list <config>.<section>.<option>=<string>
+    '''
     def set_uci_config_list(self, option, values):
         output = None
         error = 0
