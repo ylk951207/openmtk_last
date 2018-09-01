@@ -84,7 +84,7 @@ class DockerImageProc():
     def _docker_image_destroy(self):
         while len(self.req_image_list) > 0:
             req_image = self.req_image_list.pop(0)
-            image_name = _get_docker_image_name(req_image['imageName'], req_image['imageTag'], None)
+            image_name = _get_docker_image_name(req_image['imageName'], req_image['imageTag'], req_image['registry'])
             if req_image['options']:
                 params_dic = req_image['options']
             else:
@@ -238,7 +238,12 @@ class DockerContainerProc():
 
         return self.response.make_response_body(None)
 
-    def _docker_container_mgt_proc(self, mgt_command, container, params_dic):
+    def _docker_container_mgt_proc(self, mgt_command, container, options):
+        if options:
+            params_dic = options
+        else:
+            params_dic = dict()
+
         log_info(LOG_MODULE_SAL, "Container : " + str(container) +
                  " (status:%s, name: %s)" % (str(container.status), str(container.name)))
         try:
@@ -246,17 +251,17 @@ class DockerContainerProc():
                 container.start()
             elif mgt_command == 'stop':
                 if params_dic:
-                    container.stop(params_dic)
+                    container.stop(**params_dic)
                 else:
                     container.stop()
             elif mgt_command == 'restart':
                 if params_dic:
-                    container.restart(params_dic)
+                    container.restart(**params_dic)
                 else:
                     container.restart()
             elif mgt_command == 'remove':
                 if params_dic:
-                    container.remove(params_dic)
+                    container.remove(**params_dic)
                 else:
                     container.remove()
         except docker.errors.DockerException as e:
@@ -281,11 +286,7 @@ class DockerContainerProc():
                 self.response.set_response_value(e.response.status_code, e, False)
                 break
             else:
-                if req_container['options']:
-                    params_dic = container['options']
-                else:
-                    params_dic = None
-                self._docker_container_mgt_proc(mgt_command, container, **params_dic)
+                self._docker_container_mgt_proc(mgt_command, container, req_container['options'])
 
         return self.response.make_response_body(None)
 
