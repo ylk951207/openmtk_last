@@ -1,5 +1,7 @@
 #!/bin/sh
 docker run -d \
+	--name dnsmasq \
+	--restart always \
 	-v /bin:/bin \
 	-v /dev:/dev \
 	-v /etc:/etc \
