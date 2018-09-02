@@ -285,10 +285,18 @@ def dhcp_static_leases_config_set(request):
 
     while len(leases_list) > 0:
         leases_data = leases_list.pop(0)
+        found = False
 
         for host_key, host_name in host_info_list.items():
             if host_name == leases_data['name']:
                 dhcp_static_leases_config_uci_set(leases_data, host_key, host_name)
+                found = True
+
+        if found == False:
+            host_info_list = dhcp_static_leases_config_uci_add('host')
+
+            for host_key, host_name in host_info_list.items():
+                dhcp_static_leases_config_uci_set(request, host_key, host_name)
 
     noti_data = dict()
     noti_data['config_file'] = UCI_DHCP_CONFIG_FILE
@@ -347,6 +355,14 @@ def dhcp_static_leases_config_uci_add(req_data, host_str):
 
     uci_config.add_uci_config(host_str)
 
+    output, error = subprocess_open(UCI_SHOW_CMD + UCI_DHCP_CONFIG_FILE + "| tail -1")
+
+    host_info = dict()
+    host_line = output.splitlines()
+    host_key = host_line.split('.')[0]
+    host_name = host_line.split('=')[1]
+    host_info[host_key] = host_name
+    return host_info
 
 
 def dhcp_static_leases_config_uci_set(req_data, host_key, host_name):

@@ -225,9 +225,9 @@ class DockerContainerProc():
                sub_data = {
                     'bind' : volume['bind'],
                     'mode' : volume['mode']
-                }
-                volume_param_data[volume['dir']] = sub_data
-            params_dic['volumes'] = volume_param_data
+               }
+               volume_param_data[volume['dir']] = sub_data
+           params_dic['volumes'] = volume_param_data
 
         params_dic['detach'] = True
 
