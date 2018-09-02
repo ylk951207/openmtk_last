@@ -32,7 +32,9 @@ endef
 
 define Package/docker/install
 	$(INSTALL_DIR) $(1)/root
+	$(INSTALL_DIR) $(1)/root/buildApp
 	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_DIR) $(1)/etc/docker
 	$(INSTALL_BIN) ./files/Dockerfile $(1)/root
 	$(INSTALL_BIN) ./files/hello-world.sh $(1)/root
@@ -40,6 +42,8 @@ define Package/docker/install
 	$(INSTALL_BIN) ./files/run-hello.sh $(1)/root
 	$(INSTALL_BIN) ./files/docker* $(1)/usr/bin
 	$(INSTALL_BIN) ./files/daemon.json $(1)/etc/docker
+	$(INSTALL_BIN) ./files/buildApp/dnsmasq/run_dnsmasq.sh $(1)/usr/sbin
+	$(INSTALL_BIN) ./files/buildApp/dnsmasq/* $(1)/root/buildApp
 endef
 
 $(eval $(call BuildPackage,docker))
