@@ -6,6 +6,7 @@ URI=v1/infos/usages
 BASENAME=system_usage
 CLASSNAME=SysetmUsage
 SAL_FUNCTION=swigc
+SAL_IMPORT_FILE=swigc.sys_usage
 METHODLIST=list,retrieve
 
 #  v1/configs/system/logging, v1/configs/system/ntp
@@ -14,6 +15,7 @@ URI=v1/configs/system
 BASENAME=system_config
 CLASSNAME=SysetmConfig
 SAL_FUNCTION=puci
+SAL_IMPORT_FILE=puci.system_config
 METHODLIST=list,create,update,retrieve,detail_create,detail_update
 FIELD_NAME_system_config=system_config_logging,system_config_ntp
 
@@ -21,6 +23,7 @@ URI=v1/configs/interfaces
 BASENAME=interface_config
 CLASSNAME=InterfaceConfig
 SAL_FUNCTION=puci
+SAL_IMPORT_FILE=puci.interface
 METHODLIST=list,create,update,retrieve,detail_create,detail_update
 FIELD_NAME_interface=interface_config,interface_v4addr_config
 
@@ -34,6 +37,7 @@ URI=v1/configs/vlans
 BASENAME=vlan_config
 CLASSNAME=VlanConfig
 SAL_FUNCTION=puci
+SAL_IMPORT_FILE=puci.vlan
 METHODLIST=list,create,update,retrieve,detail_create,detail_update
 FIELD_NAME_vlan=vlan_common_config,vlan_config
 
@@ -41,12 +45,14 @@ URI=v1/configs/dhcp/common
 BASENAME=dhcp_common_config
 CLASSNAME=DhcpCommonConfig
 SAL_FUNCTION=puci
+SAL_IMPORT_FILE=puci.dhcp
 METHODLIST=list,create,update
 FIELD_NAME_dhcp=dhcp_common,dhcp_interface_pool,dhcp_interface_v6pool,dhcp_static_leases
 
 URI=v1/configs/dhcp/pools
 BASENAME=dhcp_pool_config
 CLASSNAME=DhcpPoolConfig
+SAL_FUNCTION=puci
 METHODLIST=list,create,update,retrieve,detail_create,detail_update
 
 URI=v1/configs/dhcp/static-leases
@@ -58,15 +64,16 @@ METHODLIST=list,create,update,retrieve,detail_create,detail_update
 URI=v1/management/firmware
 BASENAME=firmware_management
 CLASSNAME=FirmwareMgt
-SAL_FUNCTION=puci
-METHODLIST=create
+SAL_FUNCTION=py
+SAL_IMPORT_FILE=python.firmware
+METHODLIST=list,create
+#FIELD_NAME_firmware=TODO
 
 URI=v1/management/configuration
 BASENAME=config_management
 CLASSNAME=ConfigMgt
-SAL_FUNCTION=puci
+SAL_FUNCTION=py
 METHODLIST=list,create
-#FIELD_NAME=TODO
 
 URI=v1/statistics
 BASENAME=if_statistics
@@ -79,6 +86,7 @@ URI=v1/virtualization/images
 BASENAME=docker_images
 CLASSNAME=DockerImages
 SAL_FUNCTION=py
+SAL_IMPORT_FILE=python.docker_api
 METHODLIST=list,retrieve,create,detail_create,destroy,detail_destroy
 
 URI=v1/virtualization/containers-creation
@@ -108,7 +116,7 @@ METHODLIST=create,detail_create
 DEFINE_FIELD_system_config_logging= {
     'loggingBufferSize'     : CONFIG_TYPE_SCALAR : 'system.@system[0].log_size'
     'loggingServerIpAddr'   : CONFIG_TYPE_SCALAR : 'system.@system[0].log_ip'
-    'loggingServerPort'     : CONFIG_TYPE_SCALAR : 'system.@system[0].log_ip'
+    'loggingServerPort'     : CONFIG_TYPE_SCALAR : 'system.@system[0].log_port'
     'loggingServerProtocol' : CONFIG_TYPE_SCALAR : 'system.@system[0].log_proto'
     'loggingFilename'       : CONFIG_TYPE_SCALAR : 'system.@system[0].log_file'
     'loggingOutputLevel'    : CONFIG_TYPE_SCALAR : ''

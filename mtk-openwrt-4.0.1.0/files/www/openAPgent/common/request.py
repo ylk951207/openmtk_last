@@ -6,6 +6,7 @@ import logging
 import requests
 import ssl
 import socket
+import subprocess
 
 from common.log import *
 from common.env import *
@@ -27,7 +28,6 @@ class APgentSendRequest(object):
             self.resp = requests.put(url + self.device_id, data=json.dumps(self.data), headers=self.headers)
         elif self.method == 'GET':
             self.resp = requests.get(url + self.device_id)
-
         else:
             log_info(LOG_MODULE_REQUEST, "Invalid method\n")
 
@@ -78,11 +78,13 @@ class APgentSendNotification(object):
         headers = {'content-type': 'application/json'}
 
         try:
-            requests.post(url, data=json.dumps(self.response), headers=headers)
+            response = requests.post(url, data=json.dumps(self.response), headers=headers)
         except Exception as e:
             log_error(LOG_MODULE_REQUEST, "*** requests.post() error: " + str(e))
+        else:
+            log_info(LOG_MODULE_REQUEST, "Send notification done..(status: %d)" %response.status_code)
 
-    def set_notification_value(self, image_name, status_code, response_msg):
+    def set_notification_value(self, status_code, response_msg):
         if status_code != 200:
             response = response_msg.response
             try:
@@ -92,10 +94,9 @@ class APgentSendNotification(object):
         else:
             explanation = response_msg
 
-        self.response['imageName'] = image_name
         self.response['resultCode'] = status_code
         self.response['resultMessage'] = explanation
-        log_info(LOG_MODULE_REQUEST, "Set Response = ", str(self.response))
+        log_info(LOG_MODULE_REQUEST, "Set Notification header  = ", str(self.response))
 
         return self.response
 
@@ -103,18 +104,29 @@ class ApServerLocalMassage():
     def __init__(self, port):
         self.port = port
 
-    def send_request_apclient(self, data):
+    def send_request_apnotifier(self, data):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect(('localhost', self.port))
         sock.send(str(data))
         sock.close()
-        log_info(LOG_MODULE_REQUEST, "send_request_apclient() data: " + str(data))
+        log_info(LOG_MODULE_REQUEST, "send_request_apnotifier() data: " + str(data))
 
-    def send_message_to_apclient(self, command, request):
+    def send_message_to_apnotifier(self, module, command, request):
         data = {
-            'module' : "DOCKER",
+            'module' : module,
             'command' : command,
             'body' : request
         }
 
-        self.send_request_apclient (data)
+        self.send_request_apnotifier (data)
+
+    def execute_apnotifier(self, module, command, request):
+        log_info(LOG_MODULE_REQUEST, "Excute apNotifier >> ")
+        args_list = [sys.executable, 'docker_notifier.py']
+        args_list.append('-c')
+        args_list.append(str(command))
+        args_list.append('-r')
+        args_list.append(str(request))
+
+        p = subprocess.Popen(args_list, cwd='/www/openAPgent/sal/python/', stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        return p

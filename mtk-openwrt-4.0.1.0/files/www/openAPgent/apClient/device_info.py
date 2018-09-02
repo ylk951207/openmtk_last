@@ -28,7 +28,7 @@ def init_device_info():
     gDeviceInfo.name = socket.gethostname()
     gDeviceInfo.ip_addr = get_ip_address(WAN_ETHDEV) 
     gDeviceInfo.mac_addr = gDeviceInfo._get_hwaddr(WAN_ETHDEV)
-    gDeviceInfo.serial_num = gDeviceInfo._get_serial_num(gDeviceInfo.mac_addr)
+    gDeviceInfo.serial_num = gDeviceInfo._get_serial_num()
     gDeviceInfo.counterfeit = 0
 
     gDeviceInfo.vendor_id = AP_VENDOR_ID
@@ -51,14 +51,15 @@ class ProcDeviceInfo(object):
         #gDeviceInfo.ip_addr = ni.ifaddresses(WAN_ETHDEV)[ni.AF_INET][0]['addr']
         gDeviceInfo.ip_addr = get_ip_address(WAN_ETHDEV) 
         gDeviceInfo.mac_addr = gDeviceInfo._get_hwaddr(WAN_ETHDEV)
-        gDeviceInfo.serial_num = gDeviceInfo._get_serial_num(gDeviceInfo.mac_addr)
+        gDeviceInfo.serial_num = gDeviceInfo._get_serial_num()
 
     def update_device_id(self, resp_json):
         self.device_id = resp_json['devices']['id']
         log_info(LOG_MODULE_APCLIENT,  "Set ID=", self.device_id)
 
-    def _get_serial_num(self, macaddr):
-        token = macaddr.split(':')
+    def _get_serial_num(self):
+        mac_addr = self._get_hwaddr(WAN_ETHDEV)
+        token = mac_addr.split(':')
         return "AP_SR_NO7777_"+ token[3] + token[4] + token[5]
 
     def _get_hwaddr(self, ifname):
@@ -94,8 +95,8 @@ class ProcDeviceInfo(object):
 	                "capabilities" : gDeviceInfo.capabilities
                  }
 
-        log_info(LOG_MODULE_APCLIENT,  "\n<Send Request>")
         log_info(LOG_MODULE_APCLIENT, "=" * 80)
+        log_info(LOG_MODULE_APCLIENT,  "<Make Request Message>")
         log_info(LOG_MODULE_APCLIENT, json.dumps(self.data, indent=2))
 
         return self.data

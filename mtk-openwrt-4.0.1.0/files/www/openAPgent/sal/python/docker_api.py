@@ -37,7 +37,7 @@ class DockerImageProc():
               image_data['imageName'] = token[0]
               image_data['imageTag'].append(token[1])
            else:
-              image_data['imageName'] = token[0]
+              image_data['imageName'] = name
 
         image_data['imageId'] = image.short_id
         history_dict = image.history()[0]
@@ -143,7 +143,13 @@ def py_docker_images_retrieve(image_name, add_header):
 
 def py_docker_images_create(request):
     server_msg = ApServerLocalMassage(APNOTIFIER_CMD_PORT)
-    server_msg.send_message_to_apclient(SAL_PYTHON_DOCKER_IMAGE_CREATE, request)
+
+    req_image_list = request["docker-image-list"]
+    while len(req_image_list) > 0:
+        req_image = req_image_list.pop(0)
+        #server_msg.execute_apnotifier("DOCKER", SAL_PYTHON_DOCKER_IMAGE_CREATE, req_image)
+        server_msg.send_message_to_apnotifier("DOCKER", SAL_PYTHON_DOCKER_IMAGE_CREATE, req_image)
+
     return response_make_simple_success_body()
 
     '''
@@ -191,7 +197,7 @@ class DockerContainerProc():
               container_data['imageName'] = token[0]
               container_data['imageTag'].append(token[1])
            else:
-               container_data['imageName'] = token[0]
+               container_data['imageName'] = name
         container_data['command'] = ""
         container_data['created'] = ""
         container_data['status'] = container.status
@@ -212,7 +218,16 @@ class DockerContainerProc():
         if container['ports']:
             params_dic['ports'] = container['ports']
         if container['volumes']:
-            params_dic['volumes'] = container['volumes']
+           volumes_list =  container['volumes']
+           volume_param_data = dict()
+           while volumes_list:
+               volume = volumes_list.pop(0)
+               sub_data = {
+                    'bind' : volume['bind'],
+                    'mode' : volume['mode']
+                }
+                volume_param_data[volume['dir']] = sub_data
+            params_dic['volumes'] = volume_param_data
 
         params_dic['detach'] = True
 
@@ -281,7 +296,7 @@ class DockerContainerProc():
                 container_name = req_container['containerName']
                 container = self.client.containers.get(container_name)
             except docker.errors.DockerException as e:
-                log_error(LOG_MODULE_SAL, "*** docker container processing(mgt_command:%s) error ***" %(mgt_command))
+                log_error(LOG_MODULE_SAL, "*** docker container processing(mgt_command:%s) error ***" %(str(mgt_command)))
                 log_error(LOG_MODULE_SAL, "*** error: " + str(e))
                 self.response.set_response_value(e.response.status_code, e, False)
                 break

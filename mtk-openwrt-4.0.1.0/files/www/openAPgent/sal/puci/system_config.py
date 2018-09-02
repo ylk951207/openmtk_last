@@ -1,6 +1,7 @@
 from puci import *
 from common.log import *
 from common.env import *
+from common.request import *
 from common.response import *
 
 UCI_SYSTEM_CONFIG_FILE = "system"
@@ -82,6 +83,10 @@ def system_config_set(request):
     system_log_data = system_config_uci_set(UCI_SYSTEM_CONFIG_LOGGING_CONFIG, request['logging'], system_log_data)
     system_ntp_data = system_config_uci_set(UCI_SYSTEM_CONFIG_NTP_CONFIG, request['ntp'], system_ntp_data)
 
+    noti_data = dict()
+    noti_data['config_file'] = UCI_SYSTEM_CONFIG_FILE
+    puci_send_message_to_apnotifier(SAL_PUCI_MODULE_RESTART, noti_data)
+
     data = {
         'header': {
             'resultCode': 200,
@@ -103,6 +108,10 @@ def system_config_detail_set(request, command):
         system_data = system_config_uci_set(UCI_SYSTEM_CONFIG_NTP_CONFIG, request, system_data)
     else:
         raise RespNotFound("Command")
+
+    noti_data = dict()
+    noti_data['config_file'] = UCI_SYSTEM_CONFIG_FILE
+    puci_send_message_to_apnotifier(SAL_PUCI_MODULE_RESTART, noti_data)
 
     data = {
         'header': {
@@ -139,7 +148,5 @@ def system_config_uci_set(uci_file, req_data, system_data):
         map_val = uci_config.section_map[map_key]
         if system_data:
             system_data[map_key] = map_val[2]
-
-    uci_config.commit_uci_config()
 
     return system_data

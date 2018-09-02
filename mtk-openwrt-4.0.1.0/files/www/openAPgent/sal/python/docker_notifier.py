@@ -1,10 +1,16 @@
 #!/usr/bin/env python
+import sys
+sys.path.append('/www/openAPgent/')
+
 import os
 import docker
+import subprocess
+import getopt
 from common.log import *
 from common.env import *
 from common.request import *
 from apClient.device_info import ProcDeviceInfo
+import time
 
 
 def _get_docker_image_name(image_name, image_tag, registry):
@@ -90,9 +96,11 @@ def docker_image_create(request):
     _docker_image_pull(client, noti_req, request)
 
     log_info(LOG_MODULE_REQUEST, "*** End image pull ***")
+
     log_info(LOG_MODULE_REQUEST, "noti_req : " + str(noti_req.response))
 
     noti_req.send_notification(CAPC_NOTIFICATION_IMAGE_POST_URL)
+
 
 def docker_cmd_proc(command, request):
     log_info(LOG_MODULE_APNOTIFIER, 'Received message: %s [request: %s]' % (command, str(request)))
@@ -101,3 +109,33 @@ def docker_cmd_proc(command, request):
         docker_image_create(request)
     else:
         log_info(LOG_MODULE_APNOTIFIER, 'Invalid Argument')
+
+'''
+Main Routine
+'''
+command=None
+request=None
+
+init_log("apNotifierLog")
+
+log_info(LOG_MODULE_APNOTIFIER, "*** Start docker notification ***")
+
+options, args = getopt.getopt(sys.argv[1:], "c:r:")
+
+for op,p in options:
+    if op == '-c':
+        command = p
+    elif op == '-r':
+        request = p
+    else:
+        log_error(LOG_MODULE_APNOTIFIER, "Invalid Arguments", op)
+
+if not command:
+    log_error(LOG_MODULE_APNOTIFIER, "Input command error")
+
+if not request:
+    log_error(LOG_MODULE_APNOTIFIER, "Input request error")
+
+docker_cmd_proc(command, request)
+
+log_info(LOG_MODULE_APNOTIFIER, "*** End docker notification ***")

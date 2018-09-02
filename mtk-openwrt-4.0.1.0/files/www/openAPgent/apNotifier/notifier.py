@@ -4,6 +4,7 @@ import time
 import logging
 import socket
 from apNotifier.docker_proc import *
+from apNotifier.puci_proc import *
 from common.log import *
 from common.env import *
 
@@ -16,7 +17,7 @@ class CommandSocket():
         self.sock.listen(5)
 
 
-MAX_SOCK_MSG_LENGTH=4096
+MAX_SOCK_MSG_LENGTH=65535
 '''
 apClient Command Handler
 '''
@@ -41,6 +42,8 @@ class NotifierCmdApp():
                 module = data['module']
                 if module == 'DOCKER':
                     docker_cmd_proc(data['command'], data['body'])
+                elif module == 'PUCI':
+                    puci_cmd_proc(data['command'], data['body'])
 
             log_info(LOG_MODULE_APNOTIFIER, '---- Socket close ----')
             sock.close()

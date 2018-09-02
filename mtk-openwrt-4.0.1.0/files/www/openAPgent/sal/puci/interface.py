@@ -90,6 +90,11 @@ def interface_config_common_set(request):
         if UCI_INTERFACE_V4ADDR_STR in ifdata:
             interface_config_v4addr_uci_set(ifdata[UCI_INTERFACE_V4ADDR_STR], ifname)
 
+        noti_data = dict()
+        noti_data['config_file'] = UCI_NETWORK_FILE
+        noti_data['ifname'] = ifdata['portName']
+        puci_send_message_to_apnotifier(SAL_PUCI_MODULE_RESTART, noti_data)
+
     data = {
         'header' : {
             'resultCode': 200,
@@ -108,6 +113,11 @@ def interface_config_common_detail_set(request, ifname):
     interface_config_common_uci_set(request, ifname)
     if UCI_INTERFACE_V4ADDR_STR in request:
         interface_config_v4addr_uci_set(request[UCI_INTERFACE_V4ADDR_STR], ifname)
+
+    noti_data = dict()
+    noti_data['config_file'] = UCI_NETWORK_FILE
+    noti_data['ifname'] = request['portName']
+    puci_send_message_to_apnotifier(SAL_PUCI_MODULE_RESTART, noti_data)
 
     data = {
         'header' : {
@@ -141,10 +151,7 @@ def interface_config_common_uci_set(req_data, ifname):
     if uci_config == None:
         raise RespNotFound("UCI Config")
 
-    uci_config.ifname = ifname
-
     uci_config.set_uci_config(req_data)
-    uci_config.commit_uci_config()
 
 def puci_interface_v4addr_config_list(ifname):
     if not ifname:
@@ -207,10 +214,7 @@ def interface_config_v4addr_uci_set(req_data, ifname):
     if uci_config == None:
         raise RespNotFound("UCI Config")
 
-    uci_config.ifname = ifname
     uci_config.set_uci_config(req_data)
-    uci_config.commit_uci_config()
-
 
 '''
 GenericIfStats

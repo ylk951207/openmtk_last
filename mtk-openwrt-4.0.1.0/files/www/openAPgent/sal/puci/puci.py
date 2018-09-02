@@ -3,6 +3,7 @@ import shlex
 
 from common.log import *
 from common.env import *
+from common.request import *
 from uci_data import *
 
 
@@ -46,6 +47,25 @@ def subprocess_pipe(cmd_list):
     return stdoutdata, stderrdata
 
 
+def restart_uci_config_module(config_file, ifname):
+    if config_file == 'network' and ifname:
+        log_info(LOG_MODULE_SAL, "ifdown/ifup for ifname: " + ifname)
+        output, error = subprocess_open('ifdown ' + ifname)
+        output, error = subprocess_open('ifup ' + ifname)
+    else:
+        log_info(LOG_MODULE_SAL, "Service uci config restart : " + config_file)
+        command = '/etc/init.d/' + config_file + ' restart'
+        log_info(LOG_MODULE_SAL, "===" , command + "===")
+        output, error = subprocess_open(command)
+
+    return output, error
+
+
+def puci_send_message_to_apnotifier(command, noti_data):
+    server_msg = ApServerLocalMassage(APNOTIFIER_CMD_PORT)
+    server_msg.send_message_to_apnotifier("PUCI", command, noti_data)
+
+#
 # TODO: Detail error handling 
 #
 class ConfigUCI:
@@ -54,20 +74,10 @@ class ConfigUCI:
         self.config_name = config_name
         self.section_map = uci_get_section_map(config_name, *args)
         log_info(LOG_MODULE_SAL, "Section_map(" + config_name + "): " + str(self.section_map))
-
-    def restart_module(self):
-        command = '/www/openAPgent/utils/apply_config '+ self.config_file + ' &'
-        log_info(LOG_MODULE_SAL, "===" , command + "===")  
-        return subprocess_open(command)
                                
     def commit_uci_config(self):
         log_info(LOG_MODULE_SAL, "=== " , UCI_COMMIT_CMD + self.config_file + " ===")
-        if self.config_file == 'network' and self.ifname:
-            log_info(LOG_MODULE_SAL, "ifdown/ifup for ifname: " + self.ifname)
-            output, error = subprocess_open('ifdown ' + self.ifname)
-            output, error = subprocess_open('ifup ' + self.ifname)
-        else:
-            return subprocess_open(UCI_COMMIT_CMD + self.config_file)
+        return subprocess_open(UCI_COMMIT_CMD + self.config_file)
 
     '''
       Add uci section
@@ -126,7 +136,7 @@ class ConfigUCI:
             
             # Check dictionary value
             if isinstance(req_val, dict):
-                continue;
+                continue
 
             req_key = req_key
             req_val = req[req_key]
@@ -142,7 +152,11 @@ class ConfigUCI:
         for map_val in self.section_map.values():
             if not 'section_map_value_updated' in map_val: continue
 
-            self.delete_uci_config(map_val[1])
+            # This network.wan code is for testing
+            if 'network.wan' in map_val[1] and map_val[0] == CONFIG_TYPE_SCALAR:
+                log_info(LOG_MODULE_SAL, "Skip delete config for wan interface_" + map_val[1])
+            else:
+                self.delete_uci_config(map_val[1])
 
             if not map_val[2]: continue
 
