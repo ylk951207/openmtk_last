@@ -60,16 +60,12 @@ CONFIGURE_VARS+=CPPFLAGS=-DNDEBUG
 define Package/chrony/install
 	$(INSTALL_DIR) $(1)/usr/bin/
 	$(INSTALL_DIR) $(1)/usr/sbin/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/chronyd $(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/chronyc $(1)/usr/bin
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_DIR) $(1)/etc/chrony
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
 	$(INSTALL_BIN) ./files/chrony.hotplug $(1)/etc/hotplug.d/iface/20-chrony
-	$(INSTALL_BIN) ./files/chronyd.init $(1)/etc/init.d/chronyd
 	$(INSTALL_CONF) ./files/chrony.config $(1)/etc/config/chrony
-	$(INSTALL_CONF) ./files/chrony.conf $(1)/etc/chrony/chrony.conf
 endef
 
 $(eval $(call BuildPackage,chrony))
