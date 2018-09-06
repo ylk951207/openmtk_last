@@ -233,9 +233,8 @@ def puci_dhcp_static_leases_config_list():
     leases_body = list()
     host_info_list = dhcp_static_leases_config_get_info(None)
 
-    while host_info_list:
-        host_info = host_info_list.pop(0)
-        leases_data = dhcp_static_leases_config_uci_get(host_info)
+    for host_key, host_name in host_info_list.items():
+        leases_data = dhcp_static_leases_config_uci_get(host_key)
         leases_body.append(leases_data)
 
     data = {
@@ -251,7 +250,10 @@ def puci_dhcp_static_leases_config_list():
 
 def puci_dhcp_static_leases_config_retrieve(name, add_header):
     host_info_list = dhcp_static_leases_config_get_info(name)
-    leases_data = dhcp_static_leases_config_uci_get(host_info_list[0])
+
+    for host_key, host_name in host_info_list.items():
+        if host_name == name:
+            leases_data = dhcp_static_leases_config_uci_get(host_key)
 
     data = {
         'static-lease': leases_data,
@@ -289,14 +291,14 @@ def dhcp_static_leases_config_set(request):
 
         for host_key, host_name in host_info_list.items():
             if host_name == leases_data['name']:
-                dhcp_static_leases_config_uci_set(leases_data, host_key, host_name)
+                dhcp_static_leases_config_uci_set(leases_data, host_key)
                 found = True
 
         if found == False:
-            host_info_list = dhcp_static_leases_config_uci_add('host')
+            host_info_list = dhcp_static_leases_config_uci_add(' host', leases_data['name'])
 
             for host_key, host_name in host_info_list.items():
-                dhcp_static_leases_config_uci_set(request, host_key, host_name)
+                dhcp_static_leases_config_uci_set(leases_data, host_key)
 
     noti_data = dict()
     noti_data['config_file'] = UCI_DHCP_CONFIG_FILE
@@ -315,10 +317,11 @@ def dhcp_static_leases_config_detail_set(request, name):
     host_info_list = dhcp_static_leases_config_get_info(name)
 
     if len(host_info_list) <= 0:
-        host_info_list = dhcp_static_leases_config_uci_add('host')
+        host_info_list = dhcp_static_leases_config_uci_add(' host', name)
 
     for host_key, host_name in host_info_list.items():
-        dhcp_static_leases_config_uci_set(request, host_key, host_name)
+        if host_name == name:
+            dhcp_static_leases_config_uci_set(request, host_key)
 
     noti_data = dict()
     noti_data['config_file'] = UCI_DHCP_CONFIG_FILE
@@ -334,7 +337,7 @@ def dhcp_static_leases_config_detail_set(request, name):
     return data
 
 
-def dhcp_static_leases_config_uci_get(host_info, leases_data):
+def dhcp_static_leases_config_uci_get(host_info):
     leases_data = dict()
     uci_config = ConfigUCI(UCI_DHCP_CONFIG_FILE, UCI_DHCP_STATIC_LEASE_CONFIG, host_info)
     if uci_config == None:
@@ -348,7 +351,7 @@ def dhcp_static_leases_config_uci_get(host_info, leases_data):
 
     return leases_data
 
-def dhcp_static_leases_config_uci_add(req_data, host_str):
+def dhcp_static_leases_config_uci_add(host_str, name):
     uci_config = ConfigUCI(UCI_DHCP_CONFIG_FILE, UCI_DHCP_STATIC_LEASE_CONFIG, None)
     if uci_config == None:
         raise RespNotFound("UCI Config")
@@ -358,14 +361,14 @@ def dhcp_static_leases_config_uci_add(req_data, host_str):
     output, error = subprocess_open(UCI_SHOW_CMD + UCI_DHCP_CONFIG_FILE + "| tail -1")
 
     host_info = dict()
-    host_line = output.splitlines()
-    host_key = host_line.split('.')[0]
-    host_name = host_line.split('=')[1]
+    host_line = output.splitlines()[0]
+    host_key = host_line.split('.')[1].split('=')[0]
+    host_name = name
     host_info[host_key] = host_name
     return host_info
 
 
-def dhcp_static_leases_config_uci_set(req_data, host_key, host_name):
+def dhcp_static_leases_config_uci_set(req_data, host_key):
     uci_config = ConfigUCI(UCI_DHCP_CONFIG_FILE, UCI_DHCP_STATIC_LEASE_CONFIG, host_key)
     if uci_config == None:
         raise RespNotFound("UCI Config")
@@ -380,24 +383,23 @@ def dhcp_static_leases_config_get_info(name):
     host_info = dict()
     awk_cmd = " | awk '{result=substr($1,6,1000); print result}'"
     if name:
-        name_str = "name='" + name + "'"
-        filter_cmd = " | grep grep '@host'" + " | grep " + name_str + awk_cmd
+        name_str = "\"name='" + name + "'\""
+        filter_cmd = " | grep '@host'" + " | grep " + name_str + awk_cmd
     else:
-        filter_cmd = " | grep grep '@host'" + " | grep name" + awk_cmd
+        filter_cmd = " | grep '@host'" + " | grep name" + awk_cmd
 
     output, error = subprocess_open(UCI_SHOW_CMD + UCI_DHCP_CONFIG_FILE + filter_cmd)
     if error:
-        return None
+        return host_info
 
     if output :
         host_line = output.splitlines()
-        host_key =  host_line.split('.')[0]
-        host_name = host_line.split('=')[1]
-        host_info[host_key] = host_name
+        for token in host_line:
+            host_key = token.split('.')[0]
+            host_name = token.split('=')[1].strip("'")
+            host_info[host_key] = host_name
+
+        return host_info
+
     else:
-        return None
-
-
-
-
-
+        return host_info
