@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 import os, sys
-import time
 import json
-import logging
 import requests
 import ssl
 import socket
@@ -19,35 +17,43 @@ class APgentSendRequest(object):
      Django restframework only can support HTTP protocol by request module.
     '''
     def send_request(self, url):
-        log_info(LOG_MODULE_REQUEST, '<Send Request>')
+        log_info(LOG_MODULE_REQUEST, '<Send Request: %s>' %str(url))
         log_info(LOG_MODULE_REQUEST, 'method=', self.method, 'URL=', url)
-        
-        if self.method == 'POST':
-            self.resp = requests.post(url, data=json.dumps(self.data), headers=self.headers)
-        elif self.method == 'PUT':
-            self.resp = requests.put(url + self.device_id, data=json.dumps(self.data), headers=self.headers)
-        elif self.method == 'GET':
-            self.resp = requests.get(url + self.device_id)
+
+        try:
+            if self.method == 'POST':
+                response = requests.post(url, data=json.dumps(self.data), headers=self.headers)
+            elif self.method == 'PUT':
+                response = requests.put(url + self.device_id, data=json.dumps(self.data), headers=self.headers)
+            elif self.method == 'GET':
+                response = requests.get(url + self.device_id)
+            else:
+                log_info(LOG_MODULE_REQUEST, "Invalid method")
+        except Exception as e:
+            log_error(LOG_MODULE_REQUEST, "*** requests.post() error: %s" %str(e))
+            if e.response:
+                log_error(LOG_MODULE_REQUEST, "*** requests.post() error response: %s" % str(e.response))
+                return e.response.status_code
+            else:
+                return 600
         else:
-            log_info(LOG_MODULE_REQUEST, "Invalid method\n")
+            log_info(LOG_MODULE_REQUEST, "Send request success (status: %d)" %response.status_code)
+            self.response_debug(response)
+            return response.status_code
 
-        self.resp_json = self.resp.json()
-        self.response_debug()
-
-        return self.resp
-
-    def response_debug(self):
+    def response_debug(self, response):
         log_info(LOG_MODULE_REQUEST, '=' * 80)
         log_info(LOG_MODULE_REQUEST, '<Get Response>')
-        log_info(LOG_MODULE_REQUEST, 'status_code:', self.resp.status_code)
+        log_info(LOG_MODULE_REQUEST, 'status_code:', response.status_code)
         log_info(LOG_MODULE_REQUEST, 'self.resp.url:')
-        log_info(LOG_MODULE_REQUEST, self.resp.url)
+        log_info(LOG_MODULE_REQUEST, response.url)
         log_info(LOG_MODULE_REQUEST, 'self.resp.header:')
-        log_info(LOG_MODULE_REQUEST, self.resp.headers)
+        log_info(LOG_MODULE_REQUEST, response.headers)
         log_info(LOG_MODULE_REQUEST, 'self.resp.content:')
-        log_info(LOG_MODULE_REQUEST, self.resp.content)
+        log_info(LOG_MODULE_REQUEST, response.content)
+        resp_json = response.json()
         log_info(LOG_MODULE_REQUEST, 'self.resp.json():')
-        log_info(LOG_MODULE_REQUEST, self.resp_json)
+        log_info(LOG_MODULE_REQUEST, resp_json)
         
         log_info(LOG_MODULE_REQUEST, '=' * 80)
 
@@ -74,15 +80,21 @@ class APgentSendNotification(object):
         self.response = dict()
 
     def send_notification(self, url):
-        log_info(LOG_MODULE_REQUEST, '<Send Notification>')
+        log_info(LOG_MODULE_REQUEST, '<Send Notification: %s>' %str(url))
         headers = {'content-type': 'application/json'}
 
         try:
             response = requests.post(url, data=json.dumps(self.response), headers=headers)
         except Exception as e:
-            log_error(LOG_MODULE_REQUEST, "*** requests.post() error: " + str(e))
+            log_error(LOG_MODULE_REQUEST, "*** requests.post() error: %s" %str(e))
+            if e.response:
+                log_error(LOG_MODULE_REQUEST, "*** requests.post() error response: %s" % str(e.response))
+                return e.response.status_code
+            else:
+                return 600
         else:
-            log_info(LOG_MODULE_REQUEST, "Send notification done..(status: %d)" %response.status_code)
+            log_info(LOG_MODULE_REQUEST, "Send notification success (status: %d)" %response.status_code)
+            return response.status_code
 
     def set_notification_value(self, status_code, response_msg):
         if status_code != 200:

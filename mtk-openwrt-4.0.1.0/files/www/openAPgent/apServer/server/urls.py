@@ -9,6 +9,7 @@ from common.classes import CustomRouter
 
 custom_router = CustomRouter()
 
+custom_router.register(r'v1/configs/provisioning-done', views.ProvisioningDoneViewSet, base_name='provisioning_done')
 custom_router.register(r'v1/infos/usages', views.SysetmUsageViewSet, base_name='system_usage')
 custom_router.register(r'v1/configs/system', views.SysetmConfigViewSet, base_name='system_config')
 custom_router.register(r'v1/configs/interfaces', views.InterfaceConfigViewSet, base_name='interface_config')

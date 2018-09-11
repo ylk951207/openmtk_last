@@ -29,9 +29,15 @@ class DockerImageProc():
 
     def _get_resp_data_from_image(self, image):
         image_data = dict()
+        registry = dict()
+
         image_data['imageTag'] = list()
         tags = image.tags
         for name in tags:
+            token = name.split('/')
+            if '/' in name:
+                registry['registryAddr'] = token[0]
+                name = token[1]
            if ':' in name:
               token = name.split(':')
               image_data['imageName'] = token[0]
@@ -48,8 +54,7 @@ class DockerImageProc():
         image_data['options'] = ""
         image_data['trigger'] = ""
 
-        registry = dict()
-        registry['registryAddr'] = ""
+
         registry['registrySSLKey'] = ""
         registry['registrySSLUser'] = ""
         registry['registrySSLPasswd'] = ""
@@ -106,18 +111,16 @@ def py_docker_images_list():
     try:
         image_list = docker_image.client.images.list()
     except docker.errors.DockerException as e:
-        log_error(LOG_MODULE_SAL, "*** containers.get() error: " + str(e))
+        log_error(LOG_MODULE_SAL, "*** images.get() error: " + str(e))
         docker_image.response.set_response_value(e.response.status_code, e, False)
-        data = docker_image.response.make_response_body(None)
+        return docker_image.response.make_response_body(None)
     else:
         while image_list:
             image = image_list.pop()
             image_data = docker_image._get_resp_data_from_image(image)
             image_data_list.append(image_data)
         data = {'docker-image-list' : image_data_list}
-        data = docker_image.response.make_response_body(data)
-    finally:
-        return data
+        return docker_image.response.make_response_body(data)
 
 '''
 image_name : image_name:tag_name or 
@@ -131,15 +134,12 @@ def py_docker_images_retrieve(image_name, add_header):
     except docker.errors.DockerException as e:
         log_error(LOG_MODULE_SAL, "*** containers.get() error: " + str(e))
         docker_image.response.set_response_value(e.response.status_code, e, False)
-        data = docker_image.response.make_response_body(None)
+        return docker_image.response.make_response_body(None)
     else:
         image_data = docker_image._get_resp_data_from_image(image)
-        image_data_list.append(rc)
+        image_data_list.append(image_data)
         data = {'docker-image' : image_data_list}
-        data = docker_image.response.make_response_body(data)
-    finally:
-        return data
-
+        return docker_image.response.make_response_body(data)
 
 def py_docker_images_create(request):
     server_msg = ApServerLocalMassage(APNOTIFIER_CMD_PORT)
@@ -147,17 +147,9 @@ def py_docker_images_create(request):
     req_image_list = request["docker-image-list"]
     while len(req_image_list) > 0:
         req_image = req_image_list.pop(0)
-        #server_msg.execute_apnotifier("DOCKER", SAL_PYTHON_DOCKER_IMAGE_CREATE, req_image)
         server_msg.send_message_to_apnotifier("DOCKER", SAL_PYTHON_DOCKER_IMAGE_CREATE, req_image)
 
     return response_make_simple_success_body()
-
-    '''
-    log_info(LOG_MODULE_SAL, "request: " + str(request))
-    docker_image = DockerImageProc()
-    docker_image.req_image_list = request["docker-image-list"]
-    return docker_image._docker_image_create ()
-    '''
 
 def py_docker_images_detail_create(request, pk):
     log_info(LOG_MODULE_SAL, "request: " + str(request))
@@ -184,6 +176,7 @@ class DockerContainerProc():
         self.client = docker.from_env()
         self.response = APgentResponseMessgae()
         self.response.set_response_value(200, "Successful", True)
+        self.prev_container_name=None
 
     def _get_resp_data_from_container(self, container):
         container_data = dict()
@@ -191,12 +184,20 @@ class DockerContainerProc():
         container_data['containerName'] = container.name
         container_data['imageTag'] = list()
         tags = container.image.tags
+        registryAddr = ""
         for name in tags:
+           token = name.split('/')
+           if '/' in name:
+               registryAddr = token[0]
+               name = token[1]
            if ':' in name:
               token = name.split(':')
-              container_data['imageName'] = token[0]
+              #image_name = registryAddr + "/" + token[0]
+              image_name = token[0]
+              container_data['imageName']= image_name
               container_data['imageTag'].append(token[1])
            else:
+               # image_name = registryAddr + "/" + name
                container_data['imageName'] = name
         container_data['command'] = ""
         container_data['created'] = ""
@@ -234,21 +235,76 @@ class DockerContainerProc():
         log_info(LOG_MODULE_SAL, "container params_dic: " + str(params_dic))
         return params_dic
 
+    def _docker_container_get_image_name(self, container_name):
+        name_prefix = container_name.strip('_')[0]
+        cmd_str = "docker ps -a --filter 'name=" + name_prefix + "' | grep " + name_prefix + " | awk '{print $NF}'"
+        output, error = subprocess_open(cmd_str)
+        output = output.split()
+        log_info(LOG_MODULE_SAL, "Execute command(%s) output(%s) error(%s)***" % (str(cmd_str), str(output), str(error)))
+        if not error:
+            return output
+        return None
+
+    def _docker_container_stop_previous(self, req_container):
+        if not "containerName" in req_container: return None
+
+        prev_container_list = self._docker_container_get_image_name(req_container['containerName'])
+        if prev_container_list == None: return None
+
+        self.prev_containers = prev_container_list
+
+        for i in range(0, len(prev_container_list)):
+            prev_container_name = prev_container_list[i]
+            prev_container_name.strip()
+
+            log_info(LOG_MODULE_SAL, "*** Previous container name %s Stop ***" %(str(prev_container_name)))
+            mgt_command = "stop"
+            try:
+                prev_container = self.client.containers.get(prev_container_name)
+            except docker.errors.DockerException as e:
+                log_error(LOG_MODULE_SAL, "*** docker container processing(mgt_command:%s) error ***" % (str(mgt_command)))
+                log_error(LOG_MODULE_SAL, "*** error: " + str(e))
+            else:
+                self._docker_container_mgt_proc(mgt_command, prev_container, None)
+
+    def _docker_container_rollback_previous(self):
+        log_info(LOG_MODULE_SAL, "*** Previous container Restart  ***")
+        if not self.prev_containers: return None
+        log_info(LOG_MODULE_SAL, "*** Previous container Restart list exist  ***")
+        prev_container_name = self.prev_containers[0]
+        prev_container_name.strip()
+
+        log_info(LOG_MODULE_SAL, "Previous container name %s Restart" % (str(prev_container_name)))
+        mgt_command = "restart"
+        try:
+            prev_container = self.client.containers.get(prev_container_name)
+        except docker.errors.DockerException as e:
+            log_error(LOG_MODULE_SAL, "*** docker container processing(mgt_command:%s) error ***" % (str(mgt_command)))
+            log_error(LOG_MODULE_SAL, "*** error: " + str(e))
+        else:
+            self._docker_container_mgt_proc(mgt_command, prev_container, None)
+            return prev_container
+
     def _docker_container_create(self):
         while len(self.req_container_list) > 0:
             req_container = self.req_container_list.pop(0)
+
+            self._docker_container_stop_previous(req_container)
+
             try:
                 image_name = _get_docker_image_name(req_container['imageName'], req_container['imageTag'], req_container['registry'])
                 if req_container['command']:
                     command_str = req_container['command']
                 else:
-                    command_str = None
+                    command_str = "echo hello"
+
                 params_dic = self._docker_container_get_parameter_parse(req_container)
-                self.client.containers.run(image_name, command_str, **params_dic)
+                self.client.containers.run(image_name, command=command_str, **params_dic)
             except docker.errors.DockerException as e:
                 log_error(LOG_MODULE_SAL, "*** docker container processing error ***")
                 log_error(LOG_MODULE_SAL, "*** error: " + str(e))
                 self.response.set_response_value(e.response.status_code, e, False)
+                self._docker_container_rollback_previous()
                 break
 
         return self.response.make_response_body(None)
@@ -291,6 +347,8 @@ class DockerContainerProc():
         while len(self.req_container_list) > 0:
             req_container = self.req_container_list.pop(0)
 
+            # TODO : docker container exist check and remove
+
             try:
                 mgt_command = req_container['command']
                 container_name = req_container['containerName']
@@ -314,16 +372,14 @@ def py_container_get_list():
     except docker.errors.DockerException as e:
         log_error(LOG_MODULE_SAL, "*** containers.list() error: " + str(e))
         docker_container.response.set_response_value(e.response.status_code, e, False)
-        data = docker_container.response.make_response_body(None)
+        return docker_container.response.make_response_body(None)
     else:
         while container_list:
             container = container_list.pop()
             container_data = docker_container._get_resp_data_from_container(container)
             container_data_list.append(container_data)
         data = {'docker-container-list' : container_data_list}
-        data = docker_container.response.make_response_body(data)
-    finally:
-        return data
+        return docker_container.response.make_response_body(data)
 
 def py_container_get_retrieve(container_name, add_header):
     container_data_list = list()
@@ -333,14 +389,12 @@ def py_container_get_retrieve(container_name, add_header):
     except docker.errors.DockerException as e:
         log_error(LOG_MODULE_SAL, "*** containers.get() error: " + str(e))
         docker_container.response.set_response_value(e.response.status_code, e, False)
-        data = docker_container.response.make_response_body(None)
+        return docker_container.response.make_response_body(None)
     else:
         container_data = docker_container._get_resp_data_from_container(container)
         container_data_list.append(container_data)
         data = {'docker-container' : container_data_list}
-        data = docker_container.response.make_response_body(data)
-    finally:
-        return data
+        return docker_container.response.make_response_body(data)
 
 def py_container_creation_create(request):
     log_info(LOG_MODULE_SAL, "request: " + str(request))

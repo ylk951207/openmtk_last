@@ -4,18 +4,7 @@ import docker
 from common.log import *
 from common.env import *
 from common.request import *
-
-def _get_serial_num(self):
-    mac_addr = self._get_hwaddr(WAN_ETHDEV)
-    token = mac_addr.split(':')
-    return "AP_SR_NO7777_"+ token[3] + token[4] + token[5]
-
-def _get_hwaddr(self, ifname):
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    info = fcntl.ioctl(s.fileno(), 0x8927,  struct.pack('256s', ifname[:15]))
-    return ':'.join(['%02x' % ord(char) for char in info[18:24]])
-#        info = fcntl.ioctl(s.fileno(), 0x8927, struct.pack('256s', bytes(ifname[:15], 'utf-8')))
-#        return ''.join(['%02x:' % b for b in info[18:24]])[:-1]
+from apClient.device_info import device_info_get_serial_num
 
 def _get_docker_image_name(image_name, image_tag, registry):
     if registry:
@@ -68,7 +57,7 @@ def _docker_image_pull(client, noti_req, req_image):
     noti_req.response['imageDigest'] = req_image['imageDigest']
     noti_req.response['registryAddr'] = registry['registryAddr']
     device_identify = dict()
-    device_identify['serialNumber'] = _get_serial_num()
+    device_identify['serialNumber'] = device_info_get_serial_num()
     noti_req.response['deviceIdentity'] = device_identify
 
     log_info(LOG_MODULE_REQUEST, "Set Notification body  = ", str(noti_req.response))
@@ -87,7 +76,6 @@ def _docker_image_pull(client, noti_req, req_image):
     except docker.errors.DockerException as e:
         log_error(LOG_MODULE_REQUEST, "*** client.images.pull() error: " + str(e))
         noti_req.set_notification_value(e.response.status_code, e)
-
 
 def docker_image_create(request):
     noti_image_list = list()

@@ -2,6 +2,13 @@
 This file is REST Management Information Database(RMIB) that...
 '''
 
+URI=v1/configs/provisioning-done
+BASENAME=provisioning_done
+CLASSNAME=ProvisioningDone
+SAL_FUNCTION=py
+SAL_IMPORT_FILE=python.provisioning
+METHODLIST=create
+
 URI=v1/infos/usages
 BASENAME=system_usage
 CLASSNAME=SysetmUsage

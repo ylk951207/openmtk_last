@@ -12,6 +12,16 @@ from common.log import *
 
 
 '''
+ Define Class ProvisioningDone
+'''
+class ProvisioningDoneViewSet(viewsets.ViewSet):
+  def create(self, request):
+    log_info(LOG_MODULE_APSERVER, "*** ProvisioningDone create() ***")
+    data = sal_provisioning_done(SAL_METHOD_CREATE, request.data, None)
+    return Response(data, content_type='application/json')
+
+
+'''
  Define Class SysetmUsage
 '''
 class SysetmUsageViewSet(viewsets.ViewSet):

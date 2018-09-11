@@ -1,0 +1,42 @@
+#!/usr/bin/python
+import sys
+sys.path.append('/www/openAPgent/')
+
+import docker
+from common.log import *
+
+
+LOG_MODULE_DOCKER_INIT="InitDocker"
+
+init_log("apDockerINIT")
+
+
+client = docker.from_env()
+container_list = client.containers.list(all=True)
+while container_list:
+    container = container_list.pop()
+
+    log_info(LOG_MODULE_DOCKER_INIT, "*** Docker container (%s) ***" % (container.name))
+
+    try:
+        container.stop()
+    except docker.errors.DockerException as e:
+        log_info(LOG_MODULE_DOCKER_INIT, "*** docker container '%s' stop error ***" %(container.name))
+        log_info(LOG_MODULE_DOCKER_INIT, "*** error: " + str(e))
+
+    log_info(LOG_MODULE_DOCKER_INIT, "*** Docker container (%s) stop done  ***" % (container.name))
+    try:
+        container.remove()
+    except docker.errors.DockerException as e:
+        log_info(LOG_MODULE_DOCKER_INIT, "*** docker container '%s' stop error ***" % (container.name))
+        log_info(LOG_MODULE_DOCKER_INIT, "*** error: " + str(e))
+
+    log_info(LOG_MODULE_DOCKER_INIT, "*** Docker container (%s) remove done  ***" % (container.name))
+
+
+log_info(LOG_MODULE_DOCKER_INIT, "*** Check container list  ***")
+container_list = client.containers.list(all=True)
+while container_list:
+    container = container_list.pop()
+    log_info(LOG_MODULE_DOCKER_INIT, "*** Docker container (%s) ***" % (container.name))
+

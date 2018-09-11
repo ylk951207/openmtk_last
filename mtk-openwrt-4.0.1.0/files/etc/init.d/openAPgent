@@ -4,38 +4,32 @@ START=99
 
 APGENT_PATH=/www/openAPgent
 APCLIENT=apClient
-APNOTIFIER=apNotifier
 
 APCLIENT_LOG_FILE="/var/log/apClient.log"
-APNOTIFIER_LOG_FILE="/var/log/apNotifier.log"
 
 
 check_log_file() {
 	if [ ! -f "$APCLIENT_LOG_FILE" ]; then
 	    touch $APCLIENT_LOG_FILE
 	fi
-	if [ ! -f "$APNOTIFIER_LOG_FILE" ]; then
-	    touch $APNOTIFIER_LOG_FILE
-	fi
 }
 
 client_start() {
+	cd $APGENT_PATH
 	echo "run apClient service......"
 	python -m $APCLIENT &
 }
 
-notifier_start() {
-	echo "run apNotifier service......"
-	python -m $APNOTIFIER &
+clear_docker_container() {
+	cd $APGENT_PATH/utils
+	python -m docker_container_init.py &
 }
 
 start() {
-	cd $APGENT_PATH
-	
 	client_start
-	notifier_start
-
 	check_log_file
+
+	clear_docker_container
 }
 
 stop() {
