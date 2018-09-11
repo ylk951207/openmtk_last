@@ -1,0 +1,4 @@
+FROM	scratch
+COPY	/start.sh /start.sh
+COPY	/snmpd* /
+CMD	["/start.sh"]
