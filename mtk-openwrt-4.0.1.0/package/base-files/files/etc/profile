@@ -17,6 +17,19 @@ export PS1='\u@\h:\w\$ '
 [ -x /usr/bin/vim ] && alias vi=vim || alias vim=vi
 
 alias ll='ls -alF --color=auto'
+alias la='ls -alv --color=auto'
+alias l='ls -CF'
+alias findn='find . -name $1'
+alias findd='find . -type d | grep $1'
+alias findf='find . -type f | grep $1'
+
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias .....='cd ../../../..'
+alias ......='cd ../../../../..'
+alias .......='cd ../../../../../..'
+alias ........='cd ../../../../../../..'
 
 [ -z "$KSH_VERSION" -o \! -s /etc/mkshrc ] || . /etc/mkshrc
 
