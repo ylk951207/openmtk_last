@@ -90,6 +90,7 @@ def get_django_header(filename):
 		header += "SAL_METHOD_DETAIL_UPDATE  = 6\n"
 		header += "SAL_METHOD_PARTIAL_UPDATE = 7\n"
 		header += "SAL_METHOD_DESTROY        = 8\n\n\n"
+		header += "SAL_METHOD_DETAIL_DESTROY = 9\n\n\n"
 	elif filename == uci_data_file:
 		header += "from common.log import *\n\n"
 		header += "CONFIG_TYPE_SCALAR=1\n"
