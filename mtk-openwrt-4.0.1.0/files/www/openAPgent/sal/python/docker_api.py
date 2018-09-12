@@ -1,12 +1,15 @@
-import sys
-import socket
-import time
 import docker
+import subprocess
+
 from common.log import *
 from common.env import *
 from common.request import *
 from common.response import *
 
+def subprocess_open(command):
+	popen = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+	(stdoutdata, stderrdata) = popen.communicate()
+	return stdoutdata, stderrdata
 
 def _get_docker_image_name(image_name, image_tag, registry):
     if registry:
@@ -38,11 +41,11 @@ class DockerImageProc():
             if '/' in name:
                 registry['registryAddr'] = token[0]
                 name = token[1]
-           if ':' in name:
+            if ':' in name:
               token = name.split(':')
               image_data['imageName'] = token[0]
               image_data['imageTag'].append(token[1])
-           else:
+            else:
               image_data['imageName'] = name
 
         image_data['imageId'] = image.short_id
@@ -61,11 +64,6 @@ class DockerImageProc():
         image_data['registry'] = registry
 
         return image_data
-
-    def _docker_registry_login(self, username, password):
-        tls_config = docker.tls.TLSConfig(ca_cert='/root/docker/ca.pem')
-        client = docker.DockerClient(base_url='unix://var/run/docker.sock', tls=tls_config)
-        client.login(username='withusp', password='withusp', registry='https://192.168.1.191/v2/')
 
     def _docker_image_create(self):
         while len(self.req_image_list) > 0:
@@ -231,11 +229,15 @@ class DockerContainerProc():
            params_dic['volumes'] = volume_param_data
 
         params_dic['detach'] = True
+        if container['command']:
+            params_dic['command'] = container['command']
+        else:
+            params_dic['command'] = "/start.sh"
 
         log_info(LOG_MODULE_SAL, "container params_dic: " + str(params_dic))
         return params_dic
 
-    def _docker_container_get_image_name(self, container_name):
+    def _docker_container_get_by_image_name(self, container_name):
         name_prefix = container_name.strip('_')[0]
         cmd_str = "docker ps -a --filter 'name=" + name_prefix + "' | grep " + name_prefix + " | awk '{print $NF}'"
         output, error = subprocess_open(cmd_str)
@@ -248,42 +250,72 @@ class DockerContainerProc():
     def _docker_container_stop_previous(self, req_container):
         if not "containerName" in req_container: return None
 
-        prev_container_list = self._docker_container_get_image_name(req_container['containerName'])
+        prev_container_list = self._docker_container_get_by_image_name(req_container['containerName'])
         if prev_container_list == None: return None
-
-        self.prev_containers = prev_container_list
 
         for i in range(0, len(prev_container_list)):
             prev_container_name = prev_container_list[i]
             prev_container_name.strip()
 
-            log_info(LOG_MODULE_SAL, "*** Previous container name %s Stop ***" %(str(prev_container_name)))
-            mgt_command = "stop"
+            log_info(LOG_MODULE_SAL, "Previous container name %s Stop " %(str(prev_container_name)))
+
             try:
                 prev_container = self.client.containers.get(prev_container_name)
             except docker.errors.DockerException as e:
-                log_error(LOG_MODULE_SAL, "*** docker container processing(mgt_command:%s) error ***" % (str(mgt_command)))
+                log_error(LOG_MODULE_SAL, "*** docker previous container stop() error ***")
                 log_error(LOG_MODULE_SAL, "*** error: " + str(e))
+                return e.response.status_code
             else:
+                mgt_command = "stop"
                 self._docker_container_mgt_proc(mgt_command, prev_container, None)
+                self.prev_container_name = prev_container.name
+
+                '''
+                if prev_container.name == req_container['containerName']:
+                    if req_container['replaceField']:
+                        log_error(LOG_MODULE_SAL, "Remove the duplicated container")
+                        mgt_command = "rename"
+                        params = {"rename" : prev_container.name + ".old"}
+                        log_info(LOG_MODULE_SAL, "Rename container %s --> %s" % prev_container.name, prev_container.name + ".old")
+                        self._docker_container_mgt_proc(mgt_command, prev_container, params)
+                        self.prev_container_name = prev_container.name + ".old"
+                '''
+
+                log_info(LOG_MODULE_SAL, "Current - previous container - is %s" %self.prev_container_name)
+
+    def _docker_container_get_previous(self):
+        if not self.prev_container_name: return None
+        log_info(LOG_MODULE_SAL, "Previous container Restart, prev_container_name:" + self.prev_container_name)
+        self.prev_container_name.strip()
+
+        try:
+            prev_container = self.client.containers.get(self.prev_container_name)
+        except docker.errors.DockerException as e:
+            log_error(LOG_MODULE_SAL, "*** docker container rollback() error")
+            log_error(LOG_MODULE_SAL, "*** error: " + str(e))
+            return None
+
+        return prev_container
 
     def _docker_container_rollback_previous(self):
-        log_info(LOG_MODULE_SAL, "*** Previous container Restart  ***")
-        if not self.prev_containers: return None
-        log_info(LOG_MODULE_SAL, "*** Previous container Restart list exist  ***")
-        prev_container_name = self.prev_containers[0]
-        prev_container_name.strip()
-
-        log_info(LOG_MODULE_SAL, "Previous container name %s Restart" % (str(prev_container_name)))
-        mgt_command = "restart"
-        try:
-            prev_container = self.client.containers.get(prev_container_name)
-        except docker.errors.DockerException as e:
-            log_error(LOG_MODULE_SAL, "*** docker container processing(mgt_command:%s) error ***" % (str(mgt_command)))
-            log_error(LOG_MODULE_SAL, "*** error: " + str(e))
-        else:
+        prev_container = self._docker_container_get_previous()
+        if prev_container:
+            mgt_command = "rename"
+            token = prev_container.name.split('.')
+            params = {"rename": token[0]}
+            log_info(LOG_MODULE_SAL, "Rename container %s --> %s" %prev_container.name, token[0])
+            self._docker_container_mgt_proc(mgt_command, prev_container, params)
+            mgt_command = "restart"
             self._docker_container_mgt_proc(mgt_command, prev_container, None)
-            return prev_container
+
+    def _docker_container_remove_previous(self):
+        prev_container = self._docker_container_get_previous()
+        if prev_container:
+            log_info(LOG_MODULE_SAL, "Remove previous container %s" % prev_container.name)
+            mgt_command = "stop"
+            self._docker_container_mgt_proc(mgt_command, prev_container, None)
+            mgt_command = "remove"
+            self._docker_container_mgt_proc(mgt_command, prev_container, None)
 
     def _docker_container_create(self):
         while len(self.req_container_list) > 0:
@@ -293,19 +325,18 @@ class DockerContainerProc():
 
             try:
                 image_name = _get_docker_image_name(req_container['imageName'], req_container['imageTag'], req_container['registry'])
-                if req_container['command']:
-                    command_str = req_container['command']
-                else:
-                    command_str = "echo hello"
-
                 params_dic = self._docker_container_get_parameter_parse(req_container)
-                self.client.containers.run(image_name, command=command_str, **params_dic)
+
+                self.client.containers.run(image_name, **params_dic)
             except docker.errors.DockerException as e:
                 log_error(LOG_MODULE_SAL, "*** docker container processing error ***")
                 log_error(LOG_MODULE_SAL, "*** error: " + str(e))
                 self.response.set_response_value(e.response.status_code, e, False)
                 self._docker_container_rollback_previous()
                 break
+            else:
+                log_info(LOG_MODULE_SAL, "containers.run() success for %s" %image_name)
+                self._docker_container_remove_previous()
 
         return self.response.make_response_body(None)
 
@@ -335,6 +366,8 @@ class DockerContainerProc():
                     container.remove(**params_dic)
                 else:
                     container.remove()
+            elif mgt_command == 'rename':
+                container.remove(params_dic['rename'])
         except docker.errors.DockerException as e:
             log_error(LOG_MODULE_SAL, "*** docker container processing error(%s) ***" %mgt_command)
             log_error(LOG_MODULE_SAL, "*** error: " + str(e))

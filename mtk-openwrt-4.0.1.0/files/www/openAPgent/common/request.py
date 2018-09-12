@@ -81,6 +81,7 @@ class APgentSendNotification(object):
 
     def send_notification(self, url):
         log_info(LOG_MODULE_REQUEST, '<Send Notification: %s>' %str(url))
+        log_info(LOG_MODULE_REQUEST, "<Send Data> %s" %self.response)
         headers = {'content-type': 'application/json'}
 
         try:
@@ -108,7 +109,6 @@ class APgentSendNotification(object):
 
         self.response['resultCode'] = status_code
         self.response['resultMessage'] = explanation
-        log_info(LOG_MODULE_REQUEST, "Set Notification header  = ", str(self.response))
 
         return self.response
 

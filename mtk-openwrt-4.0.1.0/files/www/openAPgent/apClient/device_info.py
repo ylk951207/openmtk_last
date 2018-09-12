@@ -1,11 +1,6 @@
 #!/usr/bin/pyhton
-import os 
-import sys
+import os
 import json
-import socket
-import requests
-import sqlite3
-#import netifaces as ni
 import fcntl, socket, struct
 from common.request import *
 from common.log import *

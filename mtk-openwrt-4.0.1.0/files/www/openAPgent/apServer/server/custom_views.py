@@ -22,6 +22,16 @@ class ProvisioningDoneViewSet(viewsets.ViewSet):
 
 
 '''
+ Define Class KeepaliveCheck
+'''
+class KeepaliveCheckViewSet(viewsets.ViewSet):
+  def list(self, request):
+    log_info(LOG_MODULE_APSERVER, "*** KeepaliveCheck list() ***")
+    data = sal_keepalive_check(SAL_METHOD_LIST, request.data, None)
+    return Response(data, content_type='application/json')
+
+
+'''
  Define Class SysetmUsage
 '''
 class SysetmUsageViewSet(viewsets.ViewSet):
@@ -228,6 +238,41 @@ class DhcpStaticLeasesConfigViewSet(viewsets.ViewSet):
   def detail_update(self, request, pk):
     log_info(LOG_MODULE_APSERVER, "*** DhcpStaticLeasesConfig detail_update(), pk = " + pk + " ***")
     data = sal_dhcp_static_leases_config(SAL_METHOD_DETAIL_UPDATE, request.data, pk)
+    return Response(data, content_type='application/json')
+
+
+'''
+ Define Class SNMPConfig
+'''
+class SNMPConfigViewSet(viewsets.ViewSet):
+  def list(self, request):
+    log_info(LOG_MODULE_APSERVER, "*** SNMPConfig list() ***")
+    data = sal_snmp_config(SAL_METHOD_LIST, request.data, None)
+    return Response(data, content_type='application/json')
+
+  def create(self, request):
+    log_info(LOG_MODULE_APSERVER, "*** SNMPConfig create() ***")
+    data = sal_snmp_config(SAL_METHOD_CREATE, request.data, None)
+    return Response(data, content_type='application/json')
+
+  def update(self, request):
+    log_info(LOG_MODULE_APSERVER, "*** SNMPConfig update() ***")
+    data = sal_snmp_config(SAL_METHOD_UPDATE, request.data, None)
+    return Response(data, content_type='application/json')
+
+  def retrieve(self, request, pk):
+    log_info(LOG_MODULE_APSERVER, "*** SNMPConfig retrieve(), pk = " + pk + " ***")
+    data = sal_snmp_config(SAL_METHOD_RETRIEVE, request.data, pk)
+    return Response(data, content_type='application/json')
+
+  def detail_create(self, request, pk):
+    log_info(LOG_MODULE_APSERVER, "*** SNMPConfig detail_create(), pk = " + pk + " ***")
+    data = sal_snmp_config(SAL_METHOD_DETAIL_CREATE, request.data, pk)
+    return Response(data, content_type='application/json')
+
+  def detail_update(self, request, pk):
+    log_info(LOG_MODULE_APSERVER, "*** SNMPConfig detail_update(), pk = " + pk + " ***")
+    data = sal_snmp_config(SAL_METHOD_DETAIL_UPDATE, request.data, pk)
     return Response(data, content_type='application/json')
 
 

@@ -20,16 +20,9 @@ client_start() {
 	python -m $APCLIENT &
 }
 
-clear_docker_container() {
-	cd $APGENT_PATH/utils
-	python -m docker_container_init.py &
-}
-
 start() {
 	client_start
 	check_log_file
-
-	clear_docker_container
 }
 
 stop() {

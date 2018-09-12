@@ -36,7 +36,7 @@ apClient
 APCLIENT_PID_PATH="/var/run/apClient.pid"
 APNOTIFIER_CMD_PORT=8008
 
-PROVISIONING_DONE_FILE="/var/tmp/provisioning-done"
+PROVISIONING_DONE_FILE="/www/openAPgent/conf/provisioning-done"
 
 
 '''

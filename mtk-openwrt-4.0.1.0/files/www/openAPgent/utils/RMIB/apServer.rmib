@@ -6,8 +6,14 @@ URI=v1/configs/provisioning-done
 BASENAME=provisioning_done
 CLASSNAME=ProvisioningDone
 SAL_FUNCTION=py
-SAL_IMPORT_FILE=python.provisioning
+SAL_IMPORT_FILE=python.system
 METHODLIST=create
+
+URI=v1/keepalive-check
+BASENAME=keepalive_check
+CLASSNAME=KeepaliveCheck
+SAL_FUNCTION=py
+METHODLIST=list
 
 URI=v1/infos/usages
 BASENAME=system_usage
@@ -67,6 +73,14 @@ BASENAME=dhcp_static_leases_config
 CLASSNAME=DhcpStaticLeasesConfig
 SAL_FUNCTION=puci
 METHODLIST=list,create,update,retrieve,detail_create,detail_update
+
+URI=v1/configs/snmp
+BASENAME=snmp_config
+CLASSNAME=SNMPConfig
+SAL_FUNCTION=puci
+SAL_IMPORT_FILE=puci.snmp
+METHODLIST=list,create,update,retrieve,detail_create,detail_update
+FIELD_NAME_snmp_config=snmp_config
 
 URI=v1/management/firmware
 BASENAME=firmware_management
@@ -234,4 +248,9 @@ DEFINE_FIELD_dhcp_static_leases={
     'ipv4Addr'                : CONFIG_TYPE_SCALAR : ".".join(['dhcp', args[0], 'ip'])
     'leasetime'               : CONFIG_TYPE_SCALAR : ".".join(['dhcp', args[0], 'leasetime'])
     'ipv6Suffix'              : CONFIG_TYPE_SCALAR : ".".join(['dhcp', args[0], 'hostid'])
+};
+
+DEFINE_FIELD_snmp_config={
+    'enable'                  : CONFIG_TYPE_SCALAR : 'snmp.@dnsmasq[0].enabled'
+    'community'               : CONFIG_TYPE_SCALAR : 'snmp.@dnsmasq[0].community'
 };

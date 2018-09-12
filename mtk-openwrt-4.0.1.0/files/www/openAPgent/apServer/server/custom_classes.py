@@ -1,5 +1,4 @@
 from rest_framework import routers
-from apServer.server import views
 
 # If you need '/' as last character, refer to the below.
 #			url=r'^{prefix}{trailing_slash}$',
@@ -46,5 +45,3 @@ class CustomRouter(routers.SimpleRouter):
 			initkwargs={}
 		),
 	]
-		 
-

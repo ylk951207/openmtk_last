@@ -2,11 +2,14 @@ import os
 from common.env import *
 from common.log import *
 from apClient.device_info import *
+from apClient.docker_container_init import *
 from apClient.client import *
 
 
-def init_start_config():
+def apclient_initialize():
     init_device_info()
+
+    init_docker_docker_container()
 
 
 '''
@@ -17,9 +20,9 @@ init_log("apClientLog")
 pid = str(os.getpid())
 file(APCLIENT_PID_PATH, 'w').write(pid)
 
-init_start_config()
-
 log_info (LOG_MODULE_APCLIENT, '----- Start Client Command Application  ----')
+
+apclient_initialize()
 
 register_device_info()
 

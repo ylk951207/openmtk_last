@@ -70,7 +70,7 @@ def get_django_header(filename):
 
 	if filename == url_file:
 		header += "from apServer.server import views\n"
-		header += "from common.classes import CustomRouter\n"
+		header += "from apServer.server.custom_classes import CustomRouter\n"
 		header += "\ncustom_router = CustomRouter()\n\n"
 	elif filename == view_file:
 		header += "import json\n"

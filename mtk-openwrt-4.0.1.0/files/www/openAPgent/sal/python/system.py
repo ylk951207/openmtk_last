@@ -4,6 +4,7 @@ from common.log import *
 from common.request import *
 from common.response import *
 
+
 def py_provisioning_done_create(request):
     '''
     TODO: Celery Tasks
@@ -16,3 +17,6 @@ def py_provisioning_done_create(request):
 
     return response_make_simple_success_body()
 
+
+def py_keepalive_check_list():
+    return response_make_simple_success_body()

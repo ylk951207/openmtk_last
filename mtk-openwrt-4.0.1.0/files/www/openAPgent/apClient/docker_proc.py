@@ -25,7 +25,7 @@ def docker_registry_proc(registry, params_dic):
         registry_addr = registry['registryAddr']
         certs_path = '/etc/docker/certs.d/' + registry_addr
 
-        log_info(LOG_MODULE_REQUEST, "*** Create certs_path " + str(certs_path) + " ***")
+        log_info(LOG_MODULE_APNOTIFIER, "*** Create certs_path " + str(certs_path) + " ***")
 
         if not os.path.exists(certs_path):
             os.makedirs(certs_path)
@@ -44,13 +44,8 @@ def docker_registry_proc(registry, params_dic):
     params_dic['auth_config'] = auth_config
     return params_dic
 
-
-def _docker_image_pull(client, noti_req, req_image):
+def _docker_image_set_notification_value(noti_req, req_image):
     registry = req_image['registry']
-
-    image_name = _get_docker_image_name(req_image['imageName'], req_image['imageTag'], registry)
-
-    noti_req.set_notification_value(200, "Successful")
 
     noti_req.response['imageName'] = req_image['imageName']
     noti_req.response['imageTag'] = req_image['imageTag']
@@ -60,7 +55,14 @@ def _docker_image_pull(client, noti_req, req_image):
     device_identify['serialNumber'] = device_info_get_serial_num()
     noti_req.response['deviceIdentity'] = device_identify
 
-    log_info(LOG_MODULE_REQUEST, "Set Notification body  = ", str(noti_req.response))
+    log_info(LOG_MODULE_APNOTIFIER, "Set Notification body  = ", str(noti_req.response))
+
+
+def _docker_image_pull(client, noti_req, req_image):
+    registry = req_image['registry']
+    image_name = _get_docker_image_name(req_image['imageName'], req_image['imageTag'], registry)
+
+    _docker_image_set_notification_value (noti_req, req_image)
 
     if req_image['options']:
         params_dic = req_image['options']
@@ -70,30 +72,46 @@ def _docker_image_pull(client, noti_req, req_image):
     if registry:
         params_dic = docker_registry_proc(registry, params_dic)
 
-        log_info(LOG_MODULE_REQUEST, "*** Parameters dictionary " + str(params_dic) + " ***")
+        log_info(LOG_MODULE_APNOTIFIER, "*** Parameters dictionary " + str(params_dic) + " ***")
     try:
         client.images.pull(image_name, **params_dic)
     except docker.errors.DockerException as e:
-        log_error(LOG_MODULE_REQUEST, "*** client.images.pull() error: " + str(e))
+        log_error(LOG_MODULE_APNOTIFIER, "*** client.images.pull() error: " + str(e))
+        noti_req.set_notification_value(e.response.status_code, e)
+
+
+def _docker_image_remove(client, noti_req, req_image):
+    params_dic = dict()
+    registry = req_image['registry']
+    image_name = _get_docker_image_name(req_image['imageName'], req_image['imageTag'], registry)
+    log_info(LOG_MODULE_APNOTIFIER, "Remove the previous image(%s)" % image_name)
+
+    try:
+        client.images.remove(image_name, **params_dic)
+    except docker.errors.DockerException as e:
+        log_error(LOG_MODULE_APNOTIFIER, "*** docker images.remove() error ***")
+        log_error(LOG_MODULE_APNOTIFIER, "*** error: " + str(e))
         noti_req.set_notification_value(e.response.status_code, e)
 
 def docker_image_create(request):
-    noti_image_list = list()
-    noti_req = APgentSendNotification()
-
     client = docker.from_env()
-    log_info(LOG_MODULE_APNOTIFIER, "request: " + str(request))
 
+    noti_req = APgentSendNotification()
+    noti_req.set_notification_value(200, "Successful")
+
+    '''
+    if request['overwriteFlag'] == True:
+        _docker_image_remove(client, noti_req, request)
+
+    if noti_req.response['resultCode'] == 200:
+    '''
     _docker_image_pull(client, noti_req, request)
 
-    log_info(LOG_MODULE_REQUEST, "*** End image pull ***")
-    log_info(LOG_MODULE_REQUEST, "noti_req : " + str(noti_req.response))
+    log_info(LOG_MODULE_APNOTIFIER, "*** End image pull ***")
 
     noti_req.send_notification(CAPC_NOTIFICATION_IMAGE_POST_URL)
 
 def docker_cmd_proc(command, request):
-    log_info(LOG_MODULE_APNOTIFIER, 'Received message: %s [request: %s]' % (command, str(request)))
-
     if command == SAL_PYTHON_DOCKER_IMAGE_CREATE:
         docker_image_create(request)
     else:

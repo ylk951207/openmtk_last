@@ -1,7 +1,6 @@
+import os
 import subprocess
 import shlex
-import os
-
 from common.log import *
 from common.env import *
 from common.request import *
@@ -13,39 +12,37 @@ UCI_EXPORT_CMD="uci export "
 UCI_GET_CMD="uci get "
 UCI_SET_CMD="uci set "
 UCI_DELETE_CMD="uci delete "
-UCI_ADD_CMD="uci add "
+UCI_ADD__CMD="uci add "
 UCI_ADD_LIST_CMD="uci add_list "
 UCI_DELETE_LIST_CMD="uci delete_list "
 UCI_COMMIT_CMD="uci commit "
 
-
-
 def subprocess_open(command):
-    popen = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-    (stdoutdata, stderrdata) = popen.communicate()
-    return stdoutdata, stderrdata
+	popen = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+	(stdoutdata, stderrdata) = popen.communicate()
+	return stdoutdata, stderrdata
 
 def subprocess_open_when_shell_false(command):
-    popen = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    (stdoutdata, stderrdata) = popen.communicate()
-    return stdoutdata, stderrdata
+	popen = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	(stdoutdata, stderrdata) = popen.communicate()
+	return stdoutdata, stderrdata
 
 def subprocess_open_when_shell_false_with_shelx(command):
-    popen = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    (stdoutdata, stderrdata) = popen.communicate()
-    return stdoutdata, stderrdata
+	popen = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	(stdoutdata, stderrdata) = popen.communicate()
+	return stdoutdata, stderrdata
 
 def subprocess_pipe(cmd_list):
-    prev_stdin = None
-    last_p = None
-    
-    for str_cmd in cmd_list:
-        cmd = str_cmd.split()
-        last_p = subprocess.Popen(cmd, stdin=prev_stdin, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        prev_stdin = last_p.stdout
-    
-    (stdoutdata, stderrdata) = last_p.communicate()
-    return stdoutdata, stderrdata
+	prev_stdin = None
+	last_p = None
+
+	for str_cmd in cmd_list:
+		cmd = str_cmd.split()
+		last_p = subprocess.Popen(cmd, stdin=prev_stdin, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		prev_stdin = last_p.stdout
+
+	(stdoutdata, stderrdata) = last_p.communicate()
+	return stdoutdata, stderrdata
 
 
 def restart_uci_config_module(config_file, ifname):
