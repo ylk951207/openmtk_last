@@ -50,20 +50,21 @@ def snmp_config_set(request):
     log_info(UCI_SNMP_CONFIG_FILE, "request data = ", request)
 
     community_list = request['community']
+    version_list = request['snmpVersion']
     traphost_list = request['traphost']
 
     snmp_config_initialize()
 
     for i in range(0, len(community_list)):
         community = community_list[i]
-        community = snmp_community_config_set_default_value(community)
-        snmp_config_uci_set(community, UCI_SNNP_COMMUNITY_CONFIG, community['community'])
+        community = snmp_community_config_set_default_value(community, version_list)
+        snmp_config_uci_set(community, UCI_SNNP_COMMUNITY_CONFIG, community['community'], version_list)
 
     for i in range(0, len(traphost_list)):
         traphost = traphost_list[i]
         traphost_name = "traphost_" + str(randint(1, 100000))
         traphost = snmp_traphost_config_set_default_value(traphost)
-        snmp_config_uci_set(traphost, UCI_SNNP_TRAPHOST_CONFIG, traphost_name)
+        snmp_config_uci_set(traphost, UCI_SNNP_TRAPHOST_CONFIG, traphost_name, None)
 
     noti_data = dict()
     noti_data['config_file'] = UCI_SNMP_CONFIG_FILE
@@ -79,7 +80,7 @@ def snmp_config_set(request):
     return data
 
 
-def snmp_community_config_set_default_value (request):
+def snmp_community_config_set_default_value (request, version_list):
     community_data = dict()
 
     community_str = request['community']
@@ -91,19 +92,22 @@ def snmp_community_config_set_default_value (request):
     community_data['source'] = "default"
 
     #community_data['v1Group'] = "group"
-    community_data['v1GroupName'] = community_str
-    community_data['v1Version'] = "v1"
-    community_data['v1Secname'] = community_type
+    if "v1" or "v2c" or "usm" in version_list:
+        community_data['v1GroupName'] = community_str
+        community_data['v1Version'] = "v1"
+        community_data['v1Secname'] = community_type
 
     #community_data['v2Group'] = "group"
-    community_data['v2GroupName'] = community_str
-    community_data['v2Version'] = "v2c"
-    community_data['v2Secname'] = community_type
+    if "v2c" or "usm" in version_list:
+        community_data['v2GroupName'] = community_str
+        community_data['v2Version'] = "v2c"
+        community_data['v2Secname'] = community_type
 
     #community_data['usmGroup'] = "group"
-    community_data['usmGroupName'] = community_str
-    community_data['usmVersion'] = "usm"
-    community_data['usmSecname'] = community_type
+    if "usm" in version_list:
+        community_data['usmGroupName'] = community_str
+        community_data['usmVersion'] = "usm"
+        community_data['usmSecname'] = community_type
 
     #community_data['access'] = "access"
     community_data['accessGroup'] = community_str
@@ -171,20 +175,28 @@ def snmp_config_initialize():
 
     for i in range(0, len(community_list)):
         uci_config.delete_uci_config("snmpd." + community_list[i])
+        uci_config.delete_uci_config("snmpd." + community_list[i] + "_v1")
+        uci_config.delete_uci_config("snmpd." + community_list[i] + "_v2c")
+        uci_config.delete_uci_config("snmpd." + community_list[i] + "_usm")
+        uci_config.delete_uci_config("snmpd." + community_list[i] + "_access")
 
     for i in range(0, len(traphost_list)):
         uci_config.delete_uci_config("snmpd." + traphost_list[i])
 
 
-def snmp_config_uci_set(req_data, config_name, value):
+def snmp_config_uci_set(req_data, config_name, value, version_list):
     uci_config = ConfigUCI(UCI_SNMP_CONFIG_FILE, config_name, value)
     if uci_config == None:
         raise RespNotFound("UCI Config")
 
     if config_name == UCI_SNNP_COMMUNITY_CONFIG:
         uci_config.set_uci_config_scalar("snmpd."+value, "com2sec")
-        uci_config.set_uci_config_scalar("snmpd." + value + "_v1", "group")
-        uci_config.set_uci_config_scalar("snmpd." + value + "_v2c", "group")
+        if "v1" in version_list:
+            uci_config.set_uci_config_scalar("snmpd." + value + "_v1", "group")
+        if "v2c" in version_list:
+            uci_config.set_uci_config_scalar("snmpd." + value + "_v2c", "group")
+        if "usm" in version_list:
+            uci_config.set_uci_config_scalar("snmpd." + value + "_usm", "group")
         uci_config.set_uci_config_scalar("snmpd." + value + "_access", "access")
     else:
         uci_config.set_uci_config_scalar("snmpd." + value, "trap_HostName")

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-import os
 import subprocess
+import docker
 
 from common.log import *
 from common.env import *
@@ -19,6 +19,29 @@ def puci_provisioning_done_file_create():
     f.close()
     log_info(LOG_MODULE_APCLIENT, "** Create %s file **" %PROVISIONING_DONE_FILE)
 
+
+def _docker_container_get_by_prefix(name_prefix):
+    cmd_str = "docker ps -a --filter 'name=" + name_prefix + "' | grep " + name_prefix + " | awk '{print $NF}'"
+    output, error = subprocess_open(cmd_str)
+    output = output.split()
+    log_info(LOG_MODULE_APCLIENT, "Execute command(%s) output(%s) error(%s)***" % (str(cmd_str), str(output), str(error)))
+    if not error:
+        return output
+    return None
+
+def _docker_container_restart(client, container_list):
+    log_info(LOG_MODULE_APCLIENT, "container_list : " + str(container_list))
+    for i in range(0, len(container_list)):
+        try:
+            container = client.containers.get(container_list[i])
+        except docker.errors.DockerException as e:
+            log_error(LOG_MODULE_APCLIENT, "*** docker  container get() error ***")
+            log_error(LOG_MODULE_APCLIENT, "*** error: " + str(e))
+            continue
+        log_info(LOG_MODULE_APCLIENT, "container_status: " + str(container.status))
+        if container.status == "running":
+            container.restart()
+
 def puci_module_restart(request):
     config_file = request['config_file']
     if 'ifname' in request.keys():
@@ -26,13 +49,13 @@ def puci_module_restart(request):
     else:
         ifname = None
 
-    log_info(LOG_MODULE_APNOTIFIER, "Restart UCI config module: " + config_file)
+    log_info(LOG_MODULE_APCLIENT, "Restart UCI config module: " + config_file)
 
     if config_file == "all":
         output, error = subprocess_open("/etc/init.d/system restart")
         output, error = subprocess_open("ifdown wan;ifup wan")
         output, error = subprocess_open("ifdown lan;ifup lan")
-        log_info(LOG_MODULE_APNOTIFIER, "================= Service module restart for provisioning  ==============")
+        log_info(LOG_MODULE_APCLIENT, "================= Service module restart for provisioning  ==============")
 
         # Notification
         noti_req = APgentSendNotification()
@@ -46,22 +69,27 @@ def puci_module_restart(request):
 
                 puci_provisioning_done_file_create()
                 break
-
     elif config_file == 'network' and ifname:
-        log_info(LOG_MODULE_APNOTIFIER, "ifdown/ifup for ifname: " + ifname)
+        log_info(LOG_MODULE_APCLIENT, "ifdown/ifup for ifname: " + ifname)
         output, error = subprocess_open('ifdown ' + ifname)
         output, error = subprocess_open('ifup ' + ifname)
+    elif config_file == 'snmpd':
+        log_info(LOG_MODULE_APCLIENT, "<snmpd container restart>")
+        client = docker.from_env()
+        container_list = _docker_container_get_by_prefix("net-snmp")
+        if container_list:
+            _docker_container_restart(client, container_list)
     else:
         command = '/etc/init.d/' + config_file + ' restart'
-        log_info(LOG_MODULE_SAL, "===" , command + "===")
+        log_info(LOG_MODULE_APCLIENT, "===" , command + "===")
         output, error = subprocess_open(command)
 
     return output, error
 
 def puci_cmd_proc(command, request):
-    log_info(LOG_MODULE_APNOTIFIER, 'Received message: command(%s), request(%s)' % (command, str(request)))
+    log_info(LOG_MODULE_APCLIENT, 'Received message: command(%s), request(%s)' % (command, str(request)))
 
     if command == SAL_PUCI_MODULE_RESTART:
         puci_module_restart(request)
     else:
-        log_info(LOG_MODULE_APNOTIFIER, 'Invalid Argument')
+        log_info(LOG_MODULE_APCLIENT, 'Invalid Argument')

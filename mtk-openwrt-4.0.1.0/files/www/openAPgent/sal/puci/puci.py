@@ -81,7 +81,7 @@ class ConfigUCI:
         log_info(LOG_MODULE_PUCI, "Section_map(" + config_name + "): " + str(self.section_map))
                                
     def commit_uci_config(self):
-        log_info(LOG_MODULE_PUCI, "=== " , UCI_COMMIT_CMD + self.config_file + " ===")
+        #log_info(LOG_MODULE_PUCI, "=== " , UCI_COMMIT_CMD + self.config_file + " ===")
         return subprocess_open(UCI_COMMIT_CMD + self.config_file)
 
     '''
@@ -149,19 +149,15 @@ class ConfigUCI:
             if req_key in self.section_map:
                 map_val = self.section_map[req_key]
                 map_val[2] = self.convert_config_value(req_val)
-                map_val.append('section_map_value_updated')
+                if req_key != "macAddr":
+                    map_val.append('section_map_value_updated')
 
         log_info(LOG_MODULE_PUCI, "After SET Check:: Section_map(" + self.config_name + "): " + str(self.section_map))
         
         for map_val in self.section_map.values():
             if not 'section_map_value_updated' in map_val: continue
 
-            '''
-            if 'network.wan' in map_val[1] and map_val[0] == CONFIG_TYPE_SCALAR:
-                log_info(LOG_MODULE_PUCI, "Skip delete config for wan interface_" + map_val[1])
-            else:
-            '''
-                self.delete_uci_config(map_val[1])
+            self.delete_uci_config(map_val[1])
 
             if not map_val[2]: continue
 

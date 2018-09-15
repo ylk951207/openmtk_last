@@ -7,6 +7,7 @@ from common.request import *
 from common.response import *
 
 LOG_MODULE_DOCKER="docker"
+CONTAINER_BACKUP_STR=".old_cont"
 
 def subprocess_open(command):
 	popen = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
@@ -277,10 +278,10 @@ class DockerContainerProc():
                     if req_container['replaceField']:
                         log_error(LOG_MODULE_SAL, "Remove the duplicated container")
                         mgt_command = "rename"
-                        params = {"rename" : prev_container.name + ".old"}
-                        log_info(LOG_MODULE_DOCKER, "Rename container %s --> %s" % prev_container.name, prev_container.name + ".old")
+                        params = {"rename" : prev_container.name + CONTAINER_BACKUP_STR}
+                        log_info(LOG_MODULE_DOCKER, "Rename container %s --> %s" % prev_container.name, prev_container.name + CONTAINER_BACKUP_STR)
                         self._docker_container_mgt_proc(mgt_command, prev_container, params)
-                        self.prev_container_name = prev_container.name + ".old"
+                        self.prev_container_name = prev_container.name + CONTAINER_BACKUP_STR
                 '''
 
                 log_info(LOG_MODULE_DOCKER, "Current - previous container - is %s" %self.prev_container_name)
@@ -302,11 +303,13 @@ class DockerContainerProc():
     def _docker_container_rollback_previous(self):
         prev_container = self._docker_container_get_previous()
         if prev_container:
-            mgt_command = "rename"
-            token = prev_container.name.split('.')
-            params = {"rename": token[0]}
-            log_info(LOG_MODULE_DOCKER, "Rename container %s --> %s" %prev_container.name, token[0])
-            self._docker_container_mgt_proc(mgt_command, prev_container, params)
+            if CONTAINER_BACKUP_STR in prev_container.name:
+                mgt_command = "rename"
+                token = prev_container.name.split('.')
+                params = {"rename": token[0]}
+                log_info(LOG_MODULE_DOCKER, "Rename container %s --> %s" %prev_container.name, token[0])
+                self._docker_container_mgt_proc(mgt_command, prev_container, params)
+
             mgt_command = "restart"
             self._docker_container_mgt_proc(mgt_command, prev_container, None)
 
@@ -316,14 +319,15 @@ class DockerContainerProc():
             log_info(LOG_MODULE_DOCKER, "Remove previous container %s" % prev_container.name)
             mgt_command = "stop"
             self._docker_container_mgt_proc(mgt_command, prev_container, None)
-            mgt_command = "remove"
-            self._docker_container_mgt_proc(mgt_command, prev_container, None)
+            if CONTAINER_BACKUP_STR in prev_container.name:
+                mgt_command = "remove"
+                self._docker_container_mgt_proc(mgt_command, prev_container, None)
 
     def _docker_container_create(self):
         while len(self.req_container_list) > 0:
             req_container = self.req_container_list.pop(0)
 
-            self._docker_container_stop_previous(req_container)
+            #self._docker_container_stop_previous(req_container)
 
             try:
                 image_name = _get_docker_image_name(req_container['imageName'], req_container['imageTag'], req_container['registry'])
@@ -331,14 +335,14 @@ class DockerContainerProc():
 
                 self.client.containers.run(image_name, **params_dic)
             except docker.errors.DockerException as e:
-                log_error(LOG_MODULE_SAL, "*** docker container processing error ***")
+                log_error(LOG_MODULE_SAL, "*** docker containers.run() error ***")
                 log_error(LOG_MODULE_SAL, "*** error: " + str(e))
                 self.response.set_response_value(e.response.status_code, e, False)
-                self._docker_container_rollback_previous()
+                #self._docker_container_rollback_previous()
                 break
             else:
                 log_info(LOG_MODULE_DOCKER, "containers.run() success for %s" %image_name)
-                self._docker_container_remove_previous()
+                #self._docker_container_remove_previous()
 
         return self.response.make_response_body(None)
 
