@@ -40,6 +40,10 @@ define Package/docker/install
 	$(INSTALL_DIR) $(1)/root/makeContainer/net-snmp/net-snmp-5.7.3/bin
 	$(INSTALL_DIR) $(1)/root/makeContainer/net-snmp/net-snmp-5.7.3/sbin
 	$(INSTALL_DIR) $(1)/root/makeContainer/net-snmp/net-snmp-5.7.3/mibs
+	$(INSTALL_DIR) $(1)/root/makeContainer/net-snmp/net-snmp-5.8
+	$(INSTALL_DIR) $(1)/root/makeContainer/net-snmp/net-snmp-5.8/bin
+	$(INSTALL_DIR) $(1)/root/makeContainer/net-snmp/net-snmp-5.8/sbin
+	$(INSTALL_DIR) $(1)/root/makeContainer/net-snmp/net-snmp-5.8/mibs
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_DIR) $(1)/etc/docker
@@ -60,6 +64,9 @@ define Package/docker/install
 	$(INSTALL_BIN) ./files/makeContainer/net-snmp/net-snmp-5.7.3/snmp* $(1)/root/makeContainer/net-snmp/net-snmp-5.7.3/bin
 	$(INSTALL_BIN) ./files/makeContainer/net-snmp/net-snmp-5.7.3/mibs/* $(1)/root/makeContainer/net-snmp/net-snmp-5.7.3/mibs
 	$(INSTALL_BIN) ./files/makeContainer/net-snmp/net-snmp-5.7.3/sbin/* $(1)/root/makeContainer/net-snmp/net-snmp-5.7.3/sbin
+	$(INSTALL_BIN) ./files/makeContainer/net-snmp/net-snmp-5.8/snmp* $(1)/root/makeContainer/net-snmp/net-snmp-5.8/bin
+	$(INSTALL_BIN) ./files/makeContainer/net-snmp/net-snmp-5.8/mibs/* $(1)/root/makeContainer/net-snmp/net-snmp-5.8/mibs
+	$(INSTALL_BIN) ./files/makeContainer/net-snmp/net-snmp-5.8/sbin/* $(1)/root/makeContainer/net-snmp/net-snmp-5.8/sbin
 endef
 
 $(eval $(call BuildPackage,docker))
