@@ -78,7 +78,7 @@ class ConfigUCI:
         self.config_file = config_file
         self.config_name = config_name
         self.section_map = uci_get_section_map(config_name, *args)
-        log_info(LOG_MODULE_PUCI, "Section_map(" + config_name + "): " + str(self.section_map))
+        log_debug(LOG_MODULE_PUCI, "Section_map(" + config_name + "): " + str(self.section_map))
                                
     def commit_uci_config(self):
         #log_info(LOG_MODULE_PUCI, "=== " , UCI_COMMIT_CMD + self.config_file + " ===")
@@ -165,7 +165,7 @@ class ConfigUCI:
                 map_val[2] = map_val[2].strip()
                 if not map_val[2]: continue
 
-            log_info(LOG_MODULE_PUCI, "Set uci config for '" +
+            log_debug(LOG_MODULE_PUCI, "Set uci config for '" +
                      self.config_name + "', uci values[key,value]: " + str(map_val[1]) + ", " + str(map_val[2]))
 
             if map_val[0] == CONFIG_TYPE_SCALAR:

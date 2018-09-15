@@ -24,7 +24,7 @@ class APgentResponseMessgae(object):
         self.response['status_code'] = status_code
         self.response['error_msg'] = explanation
         self.response['isSuccessful'] = is_successful
-        log_info(LOG_MODULE_RESPONSE, "Set Response = ", str(self.response))
+        log_debug(LOG_MODULE_RESPONSE, "Set Response = ", str(self.response))
 
         return self.response
 
@@ -49,7 +49,7 @@ class APgentResponseMessgae(object):
             'resultMessage': self.error_msg,
             'isSuccessful': self.is_successful
         }
-        log_info(LOG_MODULE_RESPONSE, "Response Body = ", str(body_data))
+        log_debug(LOG_MODULE_RESPONSE, "Response Body = ", str(body_data))
         return body_data
 
 def response_make_simple_success_body():

@@ -7,7 +7,7 @@ from common.request import *
 from common.response import *
 
 LOG_MODULE_DOCKER="docker"
-CONTAINER_BACKUP_STR=".old_cont"
+CONTAINER_BACKUP_STR=".old_container"
 
 def subprocess_open(command):
 	popen = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
@@ -80,8 +80,8 @@ class DockerImageProc():
             try:
                 self.client.images.pull(image_name)
             except docker.errors.DockerException as e:
-                log_error(LOG_MODULE_SAL, "*** docker image processing(create) error ***")
-                log_error(LOG_MODULE_SAL, "*** error: " + str(e))
+                log_error(LOG_MODULE_DOCKER, "*** docker image processing(create) error ***")
+                log_error(LOG_MODULE_DOCKER, "*** error: " + str(e))
                 self.response.set_response_value(e.response.status_code, e, False)
                 break
 
@@ -99,8 +99,8 @@ class DockerImageProc():
             try:
                 self.client.images.remove(image_name, **params_dic)
             except docker.errors.DockerException as e:
-                log_error(LOG_MODULE_SAL, "*** docker image processing(destroy) error ***")
-                log_error(LOG_MODULE_SAL, "*** error: " + str(e))
+                log_error(LOG_MODULE_DOCKER, "*** docker image processing(destroy) error ***")
+                log_error(LOG_MODULE_DOCKER, "*** error: " + str(e))
                 self.response.set_response_value(e.response.status_code, e, False)
                 break
 
@@ -112,7 +112,7 @@ def py_docker_images_list():
     try:
         image_list = docker_image.client.images.list()
     except docker.errors.DockerException as e:
-        log_error(LOG_MODULE_SAL, "*** images.get() error: " + str(e))
+        log_error(LOG_MODULE_DOCKER, "*** images.get() error: " + str(e))
         docker_image.response.set_response_value(e.response.status_code, e, False)
         return docker_image.response.make_response_body(None)
     else:
@@ -133,7 +133,7 @@ def py_docker_images_retrieve(image_name, add_header):
     try:
         image = docker_image.client.images.get(image_name)
     except docker.errors.DockerException as e:
-        log_error(LOG_MODULE_SAL, "*** containers.get() error: " + str(e))
+        log_error(LOG_MODULE_DOCKER, "*** containers.get() error: " + str(e))
         docker_image.response.set_response_value(e.response.status_code, e, False)
         return docker_image.response.make_response_body(None)
     else:
@@ -237,7 +237,7 @@ class DockerContainerProc():
         else:
             params_dic['command'] = "/start.sh"
 
-        log_info(LOG_MODULE_DOCKER, "container params_dic: " + str(params_dic))
+        log_debug(LOG_MODULE_DOCKER, "container params_dic: " + str(params_dic))
         return params_dic
 
     def _docker_container_get_by_image_name(self, container_name):
@@ -260,63 +260,64 @@ class DockerContainerProc():
             prev_container_name = prev_container_list[i]
             prev_container_name.strip()
 
-            log_info(LOG_MODULE_DOCKER, "Previous container name %s Stop " %(str(prev_container_name)))
+            log_info(LOG_MODULE_DOCKER, "Stop the previous container '%s'" %(str(prev_container_name)))
 
             try:
                 prev_container = self.client.containers.get(prev_container_name)
             except docker.errors.DockerException as e:
-                log_error(LOG_MODULE_SAL, "*** docker previous container stop() error ***")
-                log_error(LOG_MODULE_SAL, "*** error: " + str(e))
+                log_error(LOG_MODULE_DOCKER, "*** docker previous container stop() error ***")
+                log_error(LOG_MODULE_DOCKER, "*** error: " + str(e))
                 return e.response.status_code
             else:
                 mgt_command = "stop"
                 self._docker_container_mgt_proc(mgt_command, prev_container, None)
                 self.prev_container_name = prev_container.name
 
-                '''
                 if prev_container.name == req_container['containerName']:
-                    if req_container['replaceField']:
-                        log_error(LOG_MODULE_SAL, "Remove the duplicated container")
+                    if req_container['replaceFlag']:
                         mgt_command = "rename"
                         params = {"rename" : prev_container.name + CONTAINER_BACKUP_STR}
-                        log_info(LOG_MODULE_DOCKER, "Rename container %s --> %s" % prev_container.name, prev_container.name + CONTAINER_BACKUP_STR)
+                        log_info(LOG_MODULE_DOCKER, "Rename the duplicated container %s --> %s%s" %(prev_container.name, prev_container.name, CONTAINER_BACKUP_STR))
                         self._docker_container_mgt_proc(mgt_command, prev_container, params)
                         self.prev_container_name = prev_container.name + CONTAINER_BACKUP_STR
-                '''
 
-                log_info(LOG_MODULE_DOCKER, "Current - previous container - is %s" %self.prev_container_name)
+                log_info(LOG_MODULE_DOCKER, "self.prev_container_name is '%s'" %self.prev_container_name)
 
-    def _docker_container_get_previous(self):
-        if not self.prev_container_name: return None
-        log_info(LOG_MODULE_DOCKER, "Previous container Restart, prev_container_name:" + self.prev_container_name)
-        self.prev_container_name.strip()
+    def _docker_container_get_by_name(self, container_name):
+        if not container_name: return None
+        log_info(LOG_MODULE_DOCKER, "Get container by container_name: " + container_name)
+        container_name.strip()
 
         try:
-            prev_container = self.client.containers.get(self.prev_container_name)
+            container = self.client.containers.get(container_name)
         except docker.errors.DockerException as e:
-            log_error(LOG_MODULE_SAL, "*** docker container rollback() error")
-            log_error(LOG_MODULE_SAL, "*** error: " + str(e))
+            log_error(LOG_MODULE_DOCKER, "*** docker container rollback() error")
+            log_error(LOG_MODULE_DOCKER, "*** error: " + str(e))
             return None
 
-        return prev_container
+        return container
 
-    def _docker_container_rollback_previous(self):
-        prev_container = self._docker_container_get_previous()
+    def _docker_container_rollback_previous(self, container_name):
+        prev_container = self._docker_container_get_by_name(self.prev_container_name)
         if prev_container:
             if CONTAINER_BACKUP_STR in prev_container.name:
+                current_container = self._docker_container_get_by_name(container_name)
+                if current_container:
+                    mgt_command = "stop"
+                    self._docker_container_mgt_proc(mgt_command, current_container, None)
                 mgt_command = "rename"
-                token = prev_container.name.split('.')
-                params = {"rename": token[0]}
-                log_info(LOG_MODULE_DOCKER, "Rename container %s --> %s" %prev_container.name, token[0])
+                new_name = prev_container.name.replace('.old_container', "")
+                params = {"rename": new_name}
+                log_info(LOG_MODULE_DOCKER, "Rename container '%s' --> '%s'" %(prev_container.name, new_name))
                 self._docker_container_mgt_proc(mgt_command, prev_container, params)
 
             mgt_command = "restart"
             self._docker_container_mgt_proc(mgt_command, prev_container, None)
 
     def _docker_container_remove_previous(self):
-        prev_container = self._docker_container_get_previous()
+        prev_container = self._docker_container_get_by_name(self.prev_container_name)
         if prev_container:
-            log_info(LOG_MODULE_DOCKER, "Remove previous container %s" % prev_container.name)
+            log_info(LOG_MODULE_DOCKER, "Remove previous container '%s'" % prev_container.name)
             mgt_command = "stop"
             self._docker_container_mgt_proc(mgt_command, prev_container, None)
             if CONTAINER_BACKUP_STR in prev_container.name:
@@ -335,10 +336,10 @@ class DockerContainerProc():
 
                 self.client.containers.run(image_name, **params_dic)
             except docker.errors.DockerException as e:
-                log_error(LOG_MODULE_SAL, "*** docker containers.run() error ***")
-                log_error(LOG_MODULE_SAL, "*** error: " + str(e))
+                log_error(LOG_MODULE_DOCKER, "*** docker containers.run() error ***")
+                log_error(LOG_MODULE_DOCKER, "*** error: " + str(e))
                 self.response.set_response_value(e.response.status_code, e, False)
-                #self._docker_container_rollback_previous()
+                #self._docker_container_rollback_previous(req_container['containerName'])
                 break
             else:
                 log_info(LOG_MODULE_DOCKER, "containers.run() success for %s" %image_name)
@@ -373,10 +374,10 @@ class DockerContainerProc():
                 else:
                     container.remove()
             elif mgt_command == 'rename':
-                container.remove(params_dic['rename'])
+                container.rename(params_dic['rename'])
         except docker.errors.DockerException as e:
-            log_error(LOG_MODULE_SAL, "*** docker container processing error(%s) ***" %mgt_command)
-            log_error(LOG_MODULE_SAL, "*** error: " + str(e))
+            log_error(LOG_MODULE_DOCKER, "*** docker container processing error(%s) ***" %mgt_command)
+            log_error(LOG_MODULE_DOCKER, "*** error: " + str(e))
             self.response.set_response_value(e.response.status_code, e, False)
         finally:
             log_info(LOG_MODULE_DOCKER, "_docker_container_mgt_proc() : " + mgt_command + " Done..")
@@ -393,8 +394,8 @@ class DockerContainerProc():
                 container_name = req_container['containerName']
                 container = self.client.containers.get(container_name)
             except docker.errors.DockerException as e:
-                log_error(LOG_MODULE_SAL, "*** docker container processing(mgt_command:%s) error ***" %(str(mgt_command)))
-                log_error(LOG_MODULE_SAL, "*** error: " + str(e))
+                log_error(LOG_MODULE_DOCKER, "*** docker container processing(mgt_command:%s) error ***" %(str(mgt_command)))
+                log_error(LOG_MODULE_DOCKER, "*** error: " + str(e))
                 self.response.set_response_value(e.response.status_code, e, False)
                 break
             else:
@@ -409,7 +410,7 @@ def py_container_get_list():
     try:
             container_list = docker_container.client.containers.list(all=True)
     except docker.errors.DockerException as e:
-        log_error(LOG_MODULE_SAL, "*** containers.list() error: " + str(e))
+        log_error(LOG_MODULE_DOCKER, "*** containers.list() error: " + str(e))
         docker_container.response.set_response_value(e.response.status_code, e, False)
         return docker_container.response.make_response_body(None)
     else:
@@ -426,7 +427,7 @@ def py_container_get_retrieve(container_name, add_header):
     try:
         container = docker_container.client.containers.get(container_name)
     except docker.errors.DockerException as e:
-        log_error(LOG_MODULE_SAL, "*** containers.get() error: " + str(e))
+        log_error(LOG_MODULE_DOCKER, "*** containers.get() error: " + str(e))
         docker_container.response.set_response_value(e.response.status_code, e, False)
         return docker_container.response.make_response_body(None)
     else:
