@@ -53,11 +53,11 @@ define Package/docker/install
 	$(INSTALL_BIN) ./files/run-hello.sh $(1)/root
 	$(INSTALL_BIN) ./files/docker* $(1)/usr/bin
 	$(INSTALL_BIN) ./files/daemon.json $(1)/etc/docker
-#$(INSTALL_BIN) ./files/makeContainer/chrony/run_chrony.sh $(1)/usr/sbin
-#$(INSTALL_BIN) ./files/makeContainer/dnsmasq/run_dnsmasq.sh $(1)/usr/sbin
-#$(INSTALL_BIN) ./files/makeContainer/chrony/* $(1)/root/makeContainer/chrony
-#$(INSTALL_BIN) ./files/makeContainer/dnsmasq/* $(1)/root/makeContainer/dnsmasq
-#$(INSTALL_BIN) ./files/makeContainer/net-snmp/run_snmpd.sh $(1)/usr/sbin
+	$(INSTALL_BIN) ./files/makeContainer/chrony/run_chrony.sh $(1)/usr/sbin
+	$(INSTALL_BIN) ./files/makeContainer/dnsmasq/run_dnsmasq.sh $(1)/usr/sbin
+	$(INSTALL_BIN) ./files/makeContainer/chrony/* $(1)/root/makeContainer/chrony
+	$(INSTALL_BIN) ./files/makeContainer/dnsmasq/* $(1)/root/makeContainer/dnsmasq
+	$(INSTALL_BIN) ./files/makeContainer/net-snmp/run_snmpd.sh $(1)/usr/sbin
 #$(INSTALL_BIN) ./files/makeContainer/net-snmp/*.sh $(1)/root/makeContainer/net-snmp
 #$(INSTALL_BIN) ./files/makeContainer/net-snmp/dockerfile* $(1)/root/makeContainer/net-snmp
 #$(INSTALL_BIN) ./files/makeContainer/net-snmp/snmpd.* $(1)/root/makeContainer/net-snmp
