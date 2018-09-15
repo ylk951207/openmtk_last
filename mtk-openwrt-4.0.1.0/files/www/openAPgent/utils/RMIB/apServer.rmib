@@ -151,7 +151,7 @@ DEFINE_FIELD_system_config_ntp= {
 };
 
 # args[0] is ifname(logical ifname)
-DEFINE_FIELD_interface_config= {
+DEFINE_FIELD_ARGS_interface_config= {
   'portName'            : CONFIG_TYPE_SCALAR : ".".join(['network', args[0], 'ifname'])
 	'protocol'            : CONFIG_TYPE_SCALAR : ".".join(['network', args[0], 'proto'])
 	'type'                : CONFIG_TYPE_SCALAR : ".".join(['network', args[0], 'type'])
@@ -163,7 +163,7 @@ DEFINE_FIELD_interface_config= {
 };
 
 # args[0] is ifname
-DEFINE_FIELD_interface_v4addr_config= {
+DEFINE_FIELD_ARGS_interface_v4addr_config= {
 	'ipv4Address'         : CONFIG_TYPE_SCALAR : ".".join(['network', args[0], 'ipaddr'])
 	'ipv4Netmask'         : CONFIG_TYPE_SCALAR : ".".join(['network', args[0], 'netmask'])
 	'ipv4Gateway'         : CONFIG_TYPE_SCALAR : ".".join(['network', args[0], 'gateway'])
@@ -176,7 +176,7 @@ DEFINE_FIELD_vlan_common_config= {
 };
 
 # if 'VLAN 1', uci show network.@switch_vlan[1]  (args[0] : switch_vlan[1])
-DEFINE_FIELD_vlan_config= {
+DEFINE_FIELD_ARGS_vlan_config= {
     'vlanId'           : CONFIG_TYPE_SCALAR : ".".join(['network', args[0], 'vlan'])
     'ports'            : CONFIG_TYPE_LIST   : ".".join(['network', args[0], 'ports'])
 };
@@ -218,7 +218,7 @@ DEFINE_FIELD_dhcp_common= {
 };
 
 # args[0] is ifname
-DEFINE_FIELD_dhcp_interface_pool= {
+DEFINE_FIELD_ARGS_dhcp_interface_pool= {
     'ignore'                  : CONFIG_TYPE_SCALAR : ".".join(['dhcp', args[0], 'ignore'])
     'addrStart'               : CONFIG_TYPE_SCALAR : ".".join(['dhcp', args[0], 'start'])
     'addrLimit'               : CONFIG_TYPE_SCALAR : ".".join(['dhcp', args[0], 'limit'])
@@ -230,7 +230,7 @@ DEFINE_FIELD_dhcp_interface_pool= {
 };
 
 # args[0] is ifname
-DEFINE_FIELD_dhcp_interface_v6pool= {
+DEFINE_FIELD_ARGS_dhcp_interface_v6pool= {
     'ra'                      : CONFIG_TYPE_SCALAR : ".".join(['dhcp', args[0], 'ra'])
     'dhcpv6'                  : CONFIG_TYPE_SCALAR : ".".join(['dhcp', args[0], 'dhcpv6'])
     'ndp'                     : CONFIG_TYPE_SCALAR : ".".join(['dhcp', args[0], 'ndp'])
@@ -241,7 +241,7 @@ DEFINE_FIELD_dhcp_interface_v6pool= {
 };
 
 # args[0] is 'name'
-DEFINE_FIELD_dhcp_static_leases={
+DEFINE_FIELD_ARGS_dhcp_static_leases={
     'name'                    : CONFIG_TYPE_SCALAR : ".".join(['dhcp', args[0], 'name'])
     'dns'                     : CONFIG_TYPE_SCALAR : ".".join(['dhcp', args[0], 'dns'])
     'mac'                     : CONFIG_TYPE_SCALAR : ".".join(['dhcp', args[0], 'mac'])
@@ -250,7 +250,36 @@ DEFINE_FIELD_dhcp_static_leases={
     'ipv6Suffix'              : CONFIG_TYPE_SCALAR : ".".join(['dhcp', args[0], 'hostid'])
 };
 
-DEFINE_FIELD_snmp_config={
-    'enable'                  : CONFIG_TYPE_SCALAR : 'snmp.@dnsmasq[0].enabled'
-    'community'               : CONFIG_TYPE_SCALAR : 'snmp.@dnsmasq[0].community'
+DEFINE_FIELD_ARGS_snmp_community_config={
+    'community'                : CONFIG_TYPE_SCALAR : ".".join(['snmpd', args[0], 'community'])
+    'communityType'            : CONFIG_TYPE_SCALAR : ".".join(['snmpd', args[0], 'secname'])
+    'source'                   : CONFIG_TYPE_SCALAR : ".".join(['snmpd', args[0], 'source'])
+
+    'v1GroupName'              : CONFIG_TYPE_SCALAR : ".".join(['snmpd', args[0] + "_v1", 'group'])
+    'v1Version'                : CONFIG_TYPE_SCALAR : ".".join(['snmpd', args[0] + "_v1", 'version'])
+    'v1Secname'                : CONFIG_TYPE_SCALAR : ".".join(['snmpd', args[0] + "_v1", 'secname'])
+
+    'v2GroupName'             : CONFIG_TYPE_SCALAR : ".".join(['snmpd', args[0] + "_v2c", 'group'])
+    'v2Version'               : CONFIG_TYPE_SCALAR : ".".join(['snmpd', args[0] + "_v2c", 'version'])
+    'v2Secname'               : CONFIG_TYPE_SCALAR : ".".join(['snmpd', args[0] + "_v2c", 'secname'])
+
+    'usmGroupName'             : CONFIG_TYPE_SCALAR : ".".join(['snmpd', args[0] + "_usm", 'group'])
+    'usmVersion'               : CONFIG_TYPE_SCALAR : ".".join(['snmpd', args[0] + "_usm", 'version'])
+    'usmSecname'               : CONFIG_TYPE_SCALAR : ".".join(['snmpd', args[0] + "_usm", 'secname'])
+
+    'access'                  : CONFIG_TYPE_SCALAR : ".".join(['snmpd', args[0] + "_access"])
+    'accessGroup'             : CONFIG_TYPE_SCALAR : ".".join(['snmpd', args[0] + "_access", 'group'])
+    'context'                 : CONFIG_TYPE_SCALAR : ".".join(['snmpd', args[0] + "_access", 'context'])
+    'version'                 : CONFIG_TYPE_SCALAR : ".".join(['snmpd', args[0] + "_access", 'version'])
+    'level'                   : CONFIG_TYPE_SCALAR : ".".join(['snmpd', args[0] + "_access", 'level'])
+    'prefix'                  : CONFIG_TYPE_SCALAR : ".".join(['snmpd', args[0] + "_access", 'prefix'])
+    'read'                    : CONFIG_TYPE_SCALAR : ".".join(['snmpd', args[0] + "_access", 'read'])
+    'write'                   : CONFIG_TYPE_SCALAR : ".".join(['snmpd', args[0] + "_access", 'write'])
+    'notify'                  : CONFIG_TYPE_SCALAR : ".".join(['snmpd', args[0] + "_access", 'notify'])
+};
+
+DEFINE_FIELD_ARGS_snmp_traphost_config={
+    'trapHost'                 : CONFIG_TYPE_SCALAR : ".".join(['snmpd', args[0], 'HostName'])
+    'trapVersion'              : CONFIG_TYPE_SCALAR : ".".join(['snmpd', args[0], 'Type'])
+    'trapCommunity'            : CONFIG_TYPE_SCALAR : ".".join(['snmpd', args[0], 'Community'])
 };

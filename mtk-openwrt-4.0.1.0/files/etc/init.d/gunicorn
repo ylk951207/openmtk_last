@@ -7,7 +7,7 @@ APSERVER_DIR=/www/openAPgent
 
 start() {
 	cd $APSERVER_DIR
-	$GUNICORN --workers 3 --error-logfile /var/log/gunicorn.log --daemon --reload    \
+	$GUNICORN --workers 1 --error-logfile /var/log/gunicorn.log --daemon --reload    \
             --bind unix:/www/openAPgent/apServer.sock apServer.wsgi:application
 	echo "run gunicorn..."
 }

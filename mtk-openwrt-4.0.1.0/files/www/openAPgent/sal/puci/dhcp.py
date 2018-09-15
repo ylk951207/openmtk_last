@@ -37,7 +37,7 @@ def puci_dhcp_common_config_update(request):
     return dhcp_common_config_set(request)
 
 def dhcp_common_config_set(request):
-    log_info(LOG_MODULE_SAL, "request data = ", request)
+    log_info(UCI_DHCP_CONFIG_FILE, "request data = ", request)
 
     dhcp_common_config_uci_set(request, UCI_DHCP_COMMON_CONFIG)
 
@@ -67,7 +67,7 @@ def dhcp_config_common_uci_get(uci_file, dhcp_data):
     return dhcp_data
 
 def dhcp_common_config_uci_set(req_data, uci_file):
-    log_info(LOG_MODULE_SAL, "request data = ", req_data)
+    log_info(UCI_DHCP_CONFIG_FILE, "request data = ", req_data)
 
     uci_config = ConfigUCI(UCI_DHCP_CONFIG_FILE, uci_file)
     if uci_config == None:
@@ -83,7 +83,7 @@ def puci_dhcp_pool_config_list():
     iflist = ['lan', 'wan']
 
     for i in range(0, len(iflist)):
-        log_info(LOG_MODULE_SAL, "[ifname] : " + iflist[i])
+        log_info(UCI_DHCP_CONFIG_FILE, "[ifname] : " + iflist[i])
         rc = puci_dhcp_pool_config_retrieve(iflist[i], 0)
         if i == 0:
             iflist_body = [rc]
@@ -105,7 +105,7 @@ def puci_dhcp_pool_config_retrieve(ifname, add_header):
     if not ifname:
         raise RespNotFound("dhcp")
 
-    log_info(LOG_MODULE_SAL, "[ifname] : " + ifname)
+    log_info(UCI_DHCP_CONFIG_FILE, "[ifname] : " + ifname)
 
     dhcp_data = dict()
 
@@ -214,7 +214,7 @@ def dhcp_pool_v6pool_config_uci_get(ifname, dhcp_data):
 
     dhcp_data[UCI_DHCP_V6POOL_STR] = pool_data
 
-    log_info(LOG_MODULE_SAL, dhcp_data)
+    log_info(UCI_DHCP_CONFIG_FILE, dhcp_data)
 
     return dhcp_data
 

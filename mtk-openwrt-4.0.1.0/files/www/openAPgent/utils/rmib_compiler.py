@@ -259,10 +259,16 @@ def make_django_uci_data_pyfile(filename, header):
 		line = line.splitlines()[0]
 
 		if UCI_DATA_PREFIX in line:
+			if "ARGS_" in line:
+				str = UCI_DATA_PREFIX + "ARGS_"
+				config_name = line.split(str)[1]
+			else:
 			config_name = line.split(UCI_DATA_PREFIX)[1]
 			config_name = config_name.split('=')[0]
 
 			wline += "  if config_name == '" + config_name + "':\n"
+			if "_ARGS" in line:
+				wline += "    if args and args[0]:\n"
 			wline += "    section_map = {\n"
 
 		elif UCI_DATA_SUFFIX in line:

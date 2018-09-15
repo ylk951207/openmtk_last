@@ -17,6 +17,9 @@ UCI_ADD_LIST_CMD="uci add_list "
 UCI_DELETE_LIST_CMD="uci delete_list "
 UCI_COMMIT_CMD="uci commit "
 
+
+LOG_MODULE_PUCI="puci"
+
 def subprocess_open(command):
 	popen = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 	(stdoutdata, stderrdata) = popen.communicate()
@@ -47,13 +50,13 @@ def subprocess_pipe(cmd_list):
 
 def restart_uci_config_module(config_file, ifname):
     if config_file == 'network' and ifname:
-        log_info(LOG_MODULE_SAL, "ifdown/ifup for ifname: " + ifname)
+        log_info(LOG_MODULE_PUCI, "ifdown/ifup for ifname: " + ifname)
         output, error = subprocess_open('ifdown ' + ifname)
         output, error = subprocess_open('ifup ' + ifname)
     else:
-        log_info(LOG_MODULE_SAL, "Service uci config restart : " + config_file)
+        log_info(LOG_MODULE_PUCI, "Service uci config restart : " + config_file)
         command = '/etc/init.d/' + config_file + ' restart'
-        log_info(LOG_MODULE_SAL, "===" , command + "===")
+        log_info(LOG_MODULE_PUCI, "===" , command + "===")
         output, error = subprocess_open(command)
 
     return output, error
@@ -63,9 +66,9 @@ def puci_send_message_to_apnotifier(command, noti_data):
     if os.path.exists(PROVISIONING_DONE_FILE):
         server_msg = ApServerLocalMassage(APNOTIFIER_CMD_PORT)
         server_msg.send_message_to_apnotifier("PUCI", command, noti_data)
-        log_info(LOG_MODULE_REQUEST, "** Send service module restart message to apClient **")
+        log_info(LOG_MODULE_PUCI, "** Send service module restart message to apClient **")
     else:
-        log_info(LOG_MODULE_SAL, "Cannot find provisioining file(%s)" %PROVISIONING_DONE_FILE)
+        log_info(LOG_MODULE_PUCI, "Cannot find provisioining file(%s)" %PROVISIONING_DONE_FILE)
 
 #
 # TODO: Detail error handling 
@@ -75,10 +78,10 @@ class ConfigUCI:
         self.config_file = config_file
         self.config_name = config_name
         self.section_map = uci_get_section_map(config_name, *args)
-        log_info(LOG_MODULE_SAL, "Section_map(" + config_name + "): " + str(self.section_map))
+        log_info(LOG_MODULE_PUCI, "Section_map(" + config_name + "): " + str(self.section_map))
                                
     def commit_uci_config(self):
-        log_info(LOG_MODULE_SAL, "=== " , UCI_COMMIT_CMD + self.config_file + " ===")
+        log_info(LOG_MODULE_PUCI, "=== " , UCI_COMMIT_CMD + self.config_file + " ===")
         return subprocess_open(UCI_COMMIT_CMD + self.config_file)
 
     '''
@@ -86,12 +89,12 @@ class ConfigUCI:
       Command - uci add <config> <section-type>
     '''
     def add_uci_config(self, option):
-        log_info(LOG_MODULE_SAL, UCI_ADD_CMD + self.config_file + option)
+        log_info(LOG_MODULE_PUCI, UCI_ADD_CMD + self.config_file + option)
         output, error = subprocess_open(UCI_ADD_CMD + self.config_file + option)
         if not error:
             self.commit_uci_config()
         else:
-            log_error(LOG_MODULE_SAL, "add_uci_config() error:" + error)
+            log_error(LOG_MODULE_PUCI, "add_uci_config() error:" + error)
 
         return output, error
 
@@ -100,12 +103,12 @@ class ConfigUCI:
       Command - uci set <config>.<section>[.<option>]=<value>
     '''
     def set_uci_config_scalar(self, option, value):
-        log_info(LOG_MODULE_SAL, UCI_SET_CMD + option + '=' + value)
+        log_info(LOG_MODULE_PUCI, UCI_SET_CMD + option + '=' + value)
         output, error = subprocess_open(UCI_SET_CMD + option + '=' + value)
         if not error:
             self.commit_uci_config()
         else:
-            log_error(LOG_MODULE_SAL, "set_uci_config_scalar() error:" + error)
+            log_error(LOG_MODULE_PUCI, "set_uci_config_scalar() error:" + error)
         return output, error
 
     '''
@@ -124,12 +127,12 @@ class ConfigUCI:
                 value = value.strip()
                 if not value: continue
 
-            log_info(LOG_MODULE_SAL, UCI_ADD_LIST_CMD + option + '=' + str(value))
+            log_info(LOG_MODULE_PUCI, UCI_ADD_LIST_CMD + option + '=' + str(value))
             output, error = subprocess_open(UCI_ADD_LIST_CMD + option + '=' + value)
             if not error:
                 self.commit_uci_config()
             else:
-                log_error(LOG_MODULE_SAL, "set_uci_config_list() error:" + error)
+                log_error(LOG_MODULE_PUCI, "set_uci_config_list() error:" + error)
         return output, error
 
     def set_uci_config(self, req):
@@ -140,7 +143,6 @@ class ConfigUCI:
             if isinstance(req_val, dict):
                 continue
 
-            req_key = req_key
             req_val = req[req_key]
 
             # Update the requested SET Value to section_map
@@ -149,15 +151,16 @@ class ConfigUCI:
                 map_val[2] = self.convert_config_value(req_val)
                 map_val.append('section_map_value_updated')
 
-        log_info(LOG_MODULE_SAL, "After SET Check:: Section_map(" + self.config_name + "): " + str(self.section_map))
+        log_info(LOG_MODULE_PUCI, "After SET Check:: Section_map(" + self.config_name + "): " + str(self.section_map))
         
         for map_val in self.section_map.values():
             if not 'section_map_value_updated' in map_val: continue
 
-            # This network.wan code is for testing
+            '''
             if 'network.wan' in map_val[1] and map_val[0] == CONFIG_TYPE_SCALAR:
-                log_info(LOG_MODULE_SAL, "Skip delete config for wan interface_" + map_val[1])
+                log_info(LOG_MODULE_PUCI, "Skip delete config for wan interface_" + map_val[1])
             else:
+            '''
                 self.delete_uci_config(map_val[1])
 
             if not map_val[2]: continue
@@ -166,8 +169,8 @@ class ConfigUCI:
                 map_val[2] = map_val[2].strip()
                 if not map_val[2]: continue
 
-            log_info(LOG_MODULE_SAL, "Set uci config for '" + 
-                     req_key + "', uci values[key,value]: " + str(map_val[1]) + ", " + str(map_val[2]))
+            log_info(LOG_MODULE_PUCI, "Set uci config for '" +
+                     self.config_name + "', uci values[key,value]: " + str(map_val[1]) + ", " + str(map_val[2]))
 
             if map_val[0] == CONFIG_TYPE_SCALAR:
                 self.set_uci_config_scalar(map_val[1], str(map_val[2]))
@@ -175,21 +178,21 @@ class ConfigUCI:
                 self.set_uci_config_list(map_val[1], map_val[2])
 
     def delete_uci_list_config(self, option, value):
-        log_info(LOG_MODULE_SAL, UCI_DELETE_LIST_CMD + option + '=' + value)  
+        log_info(LOG_MODULE_PUCI, UCI_DELETE_LIST_CMD + option + '=' + value)
         output, error = subprocess_open(UCI_DELETE_LIST_CMD + option + '=' + value)
         if not error:
             self.commit_uci_config()
         return output, error
         
     def delete_uci_config(self, option):
-        log_info(LOG_MODULE_SAL, UCI_DELETE_CMD + option)  
+        log_info(LOG_MODULE_PUCI, UCI_DELETE_CMD + option)
         output, error = subprocess_open(UCI_DELETE_CMD + option)
         if not error:
             self.commit_uci_config()
         return output, error
         
     def show_uci_config(self):
-        log_info(LOG_MODULE_SAL, UCI_SHOW_CMD + self.config_file)
+        log_info(LOG_MODULE_PUCI, UCI_SHOW_CMD + self.config_file)
         output, error = subprocess_open(UCI_SHOW_CMD + self.config_file)
         
         if error: return None
@@ -218,7 +221,7 @@ class ConfigUCI:
 
                         map_val[2].append(value)
 
-        log_info(LOG_MODULE_SAL, "self.section_map = ", self.section_map)
+        log_info(LOG_MODULE_PUCI, "self.section_map = ", self.section_map)
 
     def convert_config_value(self, val):
         if val == True: return 1

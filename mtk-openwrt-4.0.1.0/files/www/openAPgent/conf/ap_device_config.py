@@ -49,8 +49,8 @@ AP_MODEL_NUMBER  = DeviesModelCode_WIFI_AC_4P1G
 AP_USER_ID       = ''
 AP_USER_PASSWD   = ''
 AP_STATUS        = 1
-AP_MAP_X         = 37.401531
-AP_MAP_Y         = 126.967673
-AP_CAPABILITIES  = ["docker", "system", "interface"]
+AP_MAP_X         = 37.3998313
+AP_MAP_Y         = 126.97020099999997
+AP_CAPABILITIES  = ["docker", "system", "interface", "snmp"]
 
 

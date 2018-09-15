@@ -150,3 +150,39 @@ def uci_get_section_map(config_name, *args):
       }
       return section_map
 
+  if config_name == 'snmp_community_config':
+    if args and args[0]:
+      section_map = {
+        'community'              :  [ CONFIG_TYPE_SCALAR  , ".".join(['snmpd', args[0], 'community'])    ,' ' ],
+        'communityType'          :  [ CONFIG_TYPE_SCALAR  , ".".join(['snmpd', args[0], 'secname'])      ,' ' ],
+        'source'                 :  [ CONFIG_TYPE_SCALAR  , ".".join(['snmpd', args[0], 'source'])       ,' ' ],
+        'v1GroupName'            :  [ CONFIG_TYPE_SCALAR  , ".".join(['snmpd', args[0] + "_v1", 'group']),' ' ],
+        'v1Version'              :  [ CONFIG_TYPE_SCALAR  , ".".join(['snmpd', args[0] + "_v1", 'version']),' ' ],
+        'v1Secname'              :  [ CONFIG_TYPE_SCALAR  , ".".join(['snmpd', args[0] + "_v1", 'secname']),' ' ],
+        'v2GroupName'            :  [ CONFIG_TYPE_SCALAR  , ".".join(['snmpd', args[0] + "_v2c", 'group']),' ' ],
+        'v2Version'              :  [ CONFIG_TYPE_SCALAR  , ".".join(['snmpd', args[0] + "_v2c", 'version']),' ' ],
+        'v2Secname'              :  [ CONFIG_TYPE_SCALAR  , ".".join(['snmpd', args[0] + "_v2c", 'secname']),' ' ],
+        'usmGroupName'           :  [ CONFIG_TYPE_SCALAR  , ".".join(['snmpd', args[0] + "_usm", 'group']),' ' ],
+        'usmVersion'             :  [ CONFIG_TYPE_SCALAR  , ".".join(['snmpd', args[0] + "_usm", 'version']),' ' ],
+        'usmSecname'             :  [ CONFIG_TYPE_SCALAR  , ".".join(['snmpd', args[0] + "_usm", 'secname']),' ' ],
+        'access'                 :  [ CONFIG_TYPE_SCALAR  , ".".join(['snmpd', args[0] + "_access"])     ,' ' ],
+        'accessGroup'            :  [ CONFIG_TYPE_SCALAR  , ".".join(['snmpd', args[0] + "_access", 'group']),' ' ],
+        'context'                :  [ CONFIG_TYPE_SCALAR  , ".".join(['snmpd', args[0] + "_access", 'context']),' ' ],
+        'version'                :  [ CONFIG_TYPE_SCALAR  , ".".join(['snmpd', args[0] + "_access", 'version']),' ' ],
+        'level'                  :  [ CONFIG_TYPE_SCALAR  , ".".join(['snmpd', args[0] + "_access", 'level']),' ' ],
+        'prefix'                 :  [ CONFIG_TYPE_SCALAR  , ".".join(['snmpd', args[0] + "_access", 'prefix']),' ' ],
+        'read'                   :  [ CONFIG_TYPE_SCALAR  , ".".join(['snmpd', args[0] + "_access", 'read']),' ' ],
+        'write'                  :  [ CONFIG_TYPE_SCALAR  , ".".join(['snmpd', args[0] + "_access", 'write']),' ' ],
+        'notify'                 :  [ CONFIG_TYPE_SCALAR  , ".".join(['snmpd', args[0] + "_access", 'notify']),' ' ],
+      }
+      return section_map
+
+  if config_name == 'snmp_traphost_config':
+    if args and args[0]:
+      section_map = {
+        'trapHost'               :  [ CONFIG_TYPE_SCALAR  , ".".join(['snmpd', args[0], 'HostName'])     ,' ' ],
+        'trapVersion'            :  [ CONFIG_TYPE_SCALAR  , ".".join(['snmpd', args[0], 'Type'])         ,' ' ],
+        'trapCommunity'          :  [ CONFIG_TYPE_SCALAR  , ".".join(['snmpd', args[0], 'Community'])    ,' ' ],
+      }
+      return section_map
+

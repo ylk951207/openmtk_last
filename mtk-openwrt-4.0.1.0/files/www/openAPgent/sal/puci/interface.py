@@ -21,7 +21,7 @@ def puci_interface_config_list():
     iflist=['lan', 'wan', 'wan6']
 
     for i in range (0, len(iflist)):
-        log_info(LOG_MODULE_SAL, "[ifname] : " + iflist[i])
+        log_info(UCI_NETWORK_FILE, "[ifname] : " + iflist[i])
         rc = puci_interface_config_retrieve(iflist[i], 0)
         if i == 0:
             iflist_body = [rc]
@@ -42,7 +42,7 @@ def puci_interface_config_retrieve(ifname, add_header):
     if not ifname:
         raise RespNotFound("Interface")
 
-    log_info(LOG_MODULE_SAL, "[ifname] : " + ifname)
+    log_info(UCI_NETWORK_FILE, "[ifname] : " + ifname)
 
     interface_data = dict()
 
@@ -77,7 +77,7 @@ def puci_interface_config_detail_update(request, ifname):
 
 
 def interface_config_common_set(request):
-    log_info(LOG_MODULE_SAL, "request data = ", str(request))
+    log_info(UCI_NETWORK_FILE, "request data = ", str(request))
 
     interface_list = request[UCI_INTERFACE_LIST_STR]
 
@@ -108,7 +108,7 @@ def interface_config_common_detail_set(request, ifname):
     if not ifname:
         raise RespNotFound("Interface")
 
-    log_info(LOG_MODULE_SAL, "ifname[" + ifname + "], " + "request data = ", str(request))
+    log_info(UCI_NETWORK_FILE, "ifname[" + ifname + "], " + "request data = ", str(request))
 
     interface_config_common_uci_set(request, ifname)
     if UCI_INTERFACE_V4ADDR_STR in request:
@@ -204,7 +204,7 @@ def interface_config_v4addr_uci_get(ifname, interface_data):
 
     interface_data[UCI_INTERFACE_V4ADDR_STR] = addr_data
 
-    log_info(LOG_MODULE_SAL, interface_data)
+    log_info(UCI_NETWORK_FILE, interface_data)
 
     return interface_data
 
@@ -280,7 +280,7 @@ def puci_if_statistics_retrieve(ifname, add_header):
     if not ifname:
         raise RespNotFound("Interface")
 
-    log_info(LOG_MODULE_SAL, "[ifname] : " + ifname)
+    log_info(UCI_NETWORK_FILE, "[ifname] : " + ifname)
 
     stats, port_count = generic_ifstats_get(ifname)
     if not stats: return None

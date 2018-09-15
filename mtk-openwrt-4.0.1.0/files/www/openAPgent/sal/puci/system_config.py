@@ -37,7 +37,7 @@ def puci_system_config_list():
 def puci_system_config_retrieve(command, add_header):
     system_data = dict()
 
-    log_info(LOG_MODULE_SAL, "command = ", command)
+    log_info(UCI_SYSTEM_CONFIG_FILE, "command = ", command)
 
     if command == 'logging':
         system_data = system_config_uci_get(UCI_SYSTEM_CONFIG_LOGGING_CONFIG, system_data)
@@ -54,7 +54,7 @@ def puci_system_config_retrieve(command, add_header):
             'isSuccessful': 'true'
         }
     }
-    log_info(LOG_MODULE_SAL, "Response = ", str(data))
+    log_info(UCI_SYSTEM_CONFIG_FILE, "Response = ", str(data))
 
     return data
 
@@ -78,7 +78,7 @@ def system_config_set(request):
     system_log_data = dict()
     system_ntp_data = dict()
 
-    log_info(LOG_MODULE_SAL, "request data = ", request)
+    log_info(UCI_SYSTEM_CONFIG_FILE, "request data = ", request)
 
     system_log_data = system_config_uci_set(UCI_SYSTEM_CONFIG_LOGGING_CONFIG, request['logging'], system_log_data)
     system_ntp_data = system_config_uci_set(UCI_SYSTEM_CONFIG_NTP_CONFIG, request['ntp'], system_ntp_data)
@@ -99,8 +99,8 @@ def system_config_set(request):
 def system_config_detail_set(request, command):
     system_data = dict()
 
-    log_info(LOG_MODULE_SAL, "command = ", command)
-    log_info(LOG_MODULE_SAL, "request data = ", request)
+    log_info(UCI_SYSTEM_CONFIG_FILE, "command = ", command)
+    log_info(UCI_SYSTEM_CONFIG_FILE, "request data = ", request)
 
     if command == 'logging':
         system_data = system_config_uci_set(UCI_SYSTEM_CONFIG_LOGGING_CONFIG, request, system_data)
@@ -137,7 +137,7 @@ def system_config_uci_get(uci_file, system_data):
 
 
 def system_config_uci_set(uci_file, req_data, system_data):
-    log_info(LOG_MODULE_SAL, "request data = ", req_data)
+    log_info(UCI_SYSTEM_CONFIG_FILE, "request data = ", req_data)
     uci_config = ConfigUCI(UCI_SYSTEM_CONFIG_FILE, uci_file)
     if uci_config == None:
         raise RespNotFound("UCI Config")
