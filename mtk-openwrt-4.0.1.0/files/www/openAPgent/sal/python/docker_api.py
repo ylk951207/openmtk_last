@@ -51,8 +51,8 @@ class DockerImageProc():
             else:
               image_data['imageName'] = name
 
-        #image_data['imageId'] = image.attrs['Id'].split(':')[1][0:10]
-        image_data['imageId'] = image.attrs['Id'][7:17]
+        #image_data['imageId'] = image.attrs['Id'].split(':')[1][0:12]
+        image_data['imageId'] = image.attrs['Id'][7:19]
         history_dict = image.history()[0]
         image_data['createDate'] = history_dict['Created']
         image_data['size'] = image.attrs['Size']
