@@ -51,10 +51,12 @@ class DockerImageProc():
             else:
               image_data['imageName'] = name
 
-        image_data['imageId'] = image.short_id
+        #image_data['imageId'] = image.attrs['Id'].split(':')[1][0:10]
+        image_data['imageId'] = image.attrs['Id'][7:17]
         history_dict = image.history()[0]
         image_data['createDate'] = history_dict['Created']
-        image_data['size'] = history_dict['Size']
+        image_data['size'] = image.attrs['Size']
+        log_info(LOG_MODULE_DOCKER, image_data['imageId'] + " : " + str(image_data['size']))
 
         image_data['imageDigest'] = ""
         image_data['options'] = ""
@@ -201,7 +203,7 @@ class DockerContainerProc():
                # image_name = registryAddr + "/" + name
                container_data['imageName'] = name
         container_data['command'] = ""
-        container_data['created'] = container.logs(timestamps=True).split(".")[0]
+        container_data['created'] = container.attrs['Created'].split(".")[0]
         container_data['status'] = container.status
         container_data['ports'] = list()
         return container_data
