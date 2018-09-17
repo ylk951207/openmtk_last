@@ -350,7 +350,7 @@ class DockerContainerProc():
         rollback_data = rollback_body['rollback']
         if rollback_data['rollbackFlag'] == True:
             current_container_name = rollback_data['rollbackContainer']
-            error == False
+            error = False
         else:
             current_container_name = req_container_name
 
