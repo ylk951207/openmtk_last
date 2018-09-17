@@ -266,7 +266,7 @@ def puci_if_statistics_list():
         index = index + 1
 
     data = {
-            'if-statistics': ifstats_body,
+            'generic-ifstats': ifstats_body,
             'header':{
             'resultCode':200,
             'resultMessage':'Success.',
@@ -295,7 +295,7 @@ def puci_if_statistics_retrieve(ifname, add_header):
     }
 
     data = {
-            'if-statistics': ifstats_body,
+            'generic-ifstats': ifstats_body,
             'header':{
             'resultCode':200,
             'resultMessage':'Success.',
