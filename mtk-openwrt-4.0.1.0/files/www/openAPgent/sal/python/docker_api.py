@@ -249,13 +249,13 @@ class DockerContainerProc():
         if container['command']:
             params_dic['command'] = container['command']
         else:
-            params_dic['command'] = "/start.sh"
+            params_dic['command'] = None
 
         log_debug(LOG_MODULE_DOCKER, "container params_dic: " + str(params_dic))
         return params_dic
 
     def _docker_container_get_by_image_name(self, container_name):
-        name_prefix = container_name.strip('_')[0]
+        name_prefix = container_name.split('_')[0]
         cmd_str = "docker ps -a --filter 'name=" + name_prefix + "' | grep " + name_prefix + " | awk '{print $NF}'"
         output, error = subprocess_open(cmd_str)
         output = output.split()
@@ -308,8 +308,8 @@ class DockerContainerProc():
 
     def _docker_container_get_by_name(self, container_name):
         if not container_name: return None
-        log_info(LOG_MODULE_DOCKER, "Get container by container_name: " + container_name)
         container_name = container_name.strip()
+        log_info(LOG_MODULE_DOCKER, "Get container by container_name: " + container_name)
 
         try:
             container = self.client.containers.get(container_name)
@@ -350,6 +350,7 @@ class DockerContainerProc():
         rollback_data = rollback_body['rollback']
         if rollback_data['rollbackFlag'] == True:
             current_container_name = rollback_data['rollbackContainer']
+            error == True
         else:
             current_container_name = req_container_name
 
@@ -403,7 +404,9 @@ class DockerContainerProc():
                 log_error(LOG_MODULE_DOCKER, "*** docker containers.run() error ***")
                 log_error(LOG_MODULE_DOCKER, "*** error: " + str(e))
                 self.response.set_response_value(e.response.status_code, e, False)
-                error = True
+                # Skip the conflict name error
+                if e.response.status_code != 409:
+                    error = True
                 rollback_body = self._docker_container_rollback_previous(req_container['containerName'], rollback_body)
                 break
             else:
