@@ -271,11 +271,10 @@ class DockerContainerProc():
         if prev_container_list == None: return None
 
         for i in range(0, len(prev_container_list)):
-            prev_container_name = prev_container_list[i]
-            prev_container_name.strip()
+            prev_container_name = prev_container_list[i].strip()
 
             if req_container['containerName'] == prev_container_name:
-                log_info(LOG_MODULE_DOCKER, "Skip the same name container %s" %(prev_container_name))
+                log_info(LOG_MODULE_DOCKER, "Skip the same container %s" %(prev_container_name))
                 continue
 
             log_info(LOG_MODULE_DOCKER, "Stop the previous container '%s'" %(str(prev_container_name)))
@@ -310,7 +309,7 @@ class DockerContainerProc():
     def _docker_container_get_by_name(self, container_name):
         if not container_name: return None
         log_info(LOG_MODULE_DOCKER, "Get container by container_name: " + container_name)
-        container_name.strip()
+        container_name = container_name.strip()
 
         try:
             container = self.client.containers.get(container_name)
@@ -347,19 +346,45 @@ class DockerContainerProc():
                 }
         return rollback_data
 
-    def _docker_container_remove_previous(self):
-        prev_container = self._docker_container_get_by_name(self.prev_container_name)
-        if prev_container:
-            log_info(LOG_MODULE_DOCKER, "Remove previous container '%s'" % prev_container.name)
-            mgt_command = "stop"
-            self._docker_container_mgt_proc(mgt_command, prev_container, None)
-            if CONTAINER_BACKUP_STR in prev_container.name:
-                mgt_command = "remove"
-                self._docker_container_mgt_proc(mgt_command, prev_container, None)
+    def _docker_container_remove_others(self, rollback_body, error, req_container_name):
+        rollback_data = rollback_body['rollback']
+        if rollback_data['rollbackFlag'] == True:
+            current_container_name = rollback_data['rollbackContainer']
+        else:
+            current_container_name = req_container_name
+
+        log_info(LOG_MODULE_DOCKER, "** Remove the deprecated containers for '%s', error: %s **" %(current_container_name, str(error)))
+
+        container_list = self._docker_container_get_by_image_name(current_container_name)
+        if container_list == None: return None
+
+        for i in range(0, len(container_list)):
+            container_name = container_list[i].strip()
+
+            if current_container_name == container_name and error == False:
+                log_info(LOG_MODULE_DOCKER, "Skip the same container %s" %(current_container_name))
+                continue
+
+            try:
+                container = self.client.containers.get(container_name)
+            except docker.errors.DockerException as e:
+                log_error(LOG_MODULE_DOCKER, "*** docker previous container stop() error ***")
+                log_error(LOG_MODULE_DOCKER, "*** error: " + str(e))
+                continue
+
+            if container.status != "stop":
+                mgt_command = "stop"
+            self._docker_container_mgt_proc(mgt_command, container, None)
+
+            mgt_command = "remove"
+            self._docker_container_mgt_proc(mgt_command, container, None)
+            log_info(LOG_MODULE_DOCKER, "Remove the deprecated containers for %s" % container_name)
+
 
     def _docker_container_create(self):
-        rollback_data = dict()
-        rollback_data['rollback'] = {
+        error = False
+        rollback_body = dict()
+        rollback_body['rollback'] = {
             'rollbackFlag' : False,
             'rollbackContainer' : ""
         }
@@ -378,14 +403,16 @@ class DockerContainerProc():
                 log_error(LOG_MODULE_DOCKER, "*** docker containers.run() error ***")
                 log_error(LOG_MODULE_DOCKER, "*** error: " + str(e))
                 self.response.set_response_value(e.response.status_code, e, False)
-                rollback_data = self._docker_container_rollback_previous(req_container['containerName'], rollback_data)
+                error = True
+                rollback_body = self._docker_container_rollback_previous(req_container['containerName'], rollback_body)
                 break
             else:
                 log_info(LOG_MODULE_DOCKER, "containers.run() success for %s" %image_name)
-                #self._docker_container_remove_previous()
 
-        log_info(LOG_MODULE_DOCKER, "rollback data : " + str(rollback_data))
-        return self.response.make_response_body(rollback_data)
+        self._docker_container_remove_others(rollback_body, error, req_container['containerName'])
+
+        log_info(LOG_MODULE_DOCKER, "rollback data : " + str(rollback_body))
+        return self.response.make_response_body(rollback_body)
 
     def _docker_container_mgt_proc(self, mgt_command, container, options):
         if options:
