@@ -56,7 +56,7 @@ class DockerImageProc():
         history_dict = image.history()[0]
         image_data['createDate'] = history_dict['Created']
         image_data['size'] = image.attrs['Size']
-        log_info(LOG_MODULE_DOCKER, image_data['imageId'] + " : " + str(image_data['size']))
+        log_debug(LOG_MODULE_DOCKER, "Image Id : %s, size : %s" %(str(image_data['imageId']), str(image_data['size'])))
 
         image_data['imageDigest'] = ""
         image_data['options'] = ""
@@ -294,7 +294,7 @@ class DockerContainerProc():
                 mgt_command = "stop"
                 self._docker_container_mgt_proc(mgt_command, prev_container, None)
                 if prev_container.status == "running":
-                self.prev_container_name = prev_container.name
+                    self.prev_container_name = prev_container.name
                     log_info(LOG_MODULE_DOCKER, "Set prev.container_name to '%s'" %self.prev_container_name)
 
                 '''

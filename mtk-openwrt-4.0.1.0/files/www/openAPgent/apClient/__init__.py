@@ -9,7 +9,8 @@ from apClient.client import *
 def apclient_initialize():
     init_device_info()
 
-    init_docker_docker_container()
+    # TODO : Check
+    #init_docker_docker_container()
 
 
 '''

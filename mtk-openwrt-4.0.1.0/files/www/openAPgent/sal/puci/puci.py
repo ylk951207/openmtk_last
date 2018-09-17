@@ -220,7 +220,9 @@ class ConfigUCI:
         log_info(LOG_MODULE_PUCI, "self.section_map = ", self.section_map)
 
     def convert_config_value(self, val):
-        if val == True: return 1
-        elif val == False: return 2
-        else: return val
+        if isinstance(val, bool):
+            if val == True: return 1
+            elif val == False: return 2
+        else:
+            return val
 
