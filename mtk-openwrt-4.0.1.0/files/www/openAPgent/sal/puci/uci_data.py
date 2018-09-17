@@ -15,24 +15,24 @@ def uci_get_section_map(config_name, *args):
   log_info(LOG_MODULE_SAL, "ARGS: " + str(args))
 
   if config_name == 'system_config_logging':
-    section_map = {
-      'loggingBufferSize'      :  [ CONFIG_TYPE_SCALAR  , 'system.@system[0].log_size'                 ,' ' ],
-      'loggingServerIpAddr'    :  [ CONFIG_TYPE_SCALAR  , 'system.@system[0].log_ip'                   ,' ' ],
-      'loggingServerPort'      :  [ CONFIG_TYPE_SCALAR  , 'system.@system[0].log_port'                 ,' ' ],
-      'loggingServerProtocol'  :  [ CONFIG_TYPE_SCALAR  , 'system.@system[0].log_proto'                ,' ' ],
-      'loggingFilename'        :  [ CONFIG_TYPE_SCALAR  , 'system.@system[0].log_file'                 ,' ' ],
-      'loggingOutputLevel'     :  [ CONFIG_TYPE_SCALAR  , ''                                           ,' ' ],
-      'loggingCronLogLevel'    :  [ CONFIG_TYPE_SCALAR  , ''                                           ,' ' ],
-    }
-    return section_map
+      section_map = {
+        'loggingBufferSize'      :  [ CONFIG_TYPE_SCALAR  , 'system.@system[0].log_size'                 ,' ' ],
+        'loggingServerIpAddr'    :  [ CONFIG_TYPE_SCALAR  , 'system.@system[0].log_ip'                   ,' ' ],
+        'loggingServerPort'      :  [ CONFIG_TYPE_SCALAR  , 'system.@system[0].log_port'                 ,' ' ],
+        'loggingServerProtocol'  :  [ CONFIG_TYPE_SCALAR  , 'system.@system[0].log_proto'                ,' ' ],
+        'loggingFilename'        :  [ CONFIG_TYPE_SCALAR  , 'system.@system[0].log_file'                 ,' ' ],
+        'loggingOutputLevel'     :  [ CONFIG_TYPE_SCALAR  , ''                                           ,' ' ],
+        'loggingCronLogLevel'    :  [ CONFIG_TYPE_SCALAR  , ''                                           ,' ' ],
+      }
+      return section_map
 
   if config_name == 'system_config_ntp':
-    section_map = {
-      'enableNtpClient'        :  [ CONFIG_TYPE_SCALAR  , 'system.ntp.enabled'                         ,' ' ],
-      'provideNtpServer'       :  [ CONFIG_TYPE_SCALAR  , 'system.ntp.enable_server'                   ,' ' ],
-      'ntpServerCandidates'    :  [ CONFIG_TYPE_LIST    , 'system.ntp.server'                          ,' ' ],
-    }
-    return section_map
+      section_map = {
+        'enableNtpClient'        :  [ CONFIG_TYPE_SCALAR  , 'system.ntp.enabled'                         ,' ' ],
+        'provideNtpServer'       :  [ CONFIG_TYPE_SCALAR  , 'system.ntp.enable_server'                   ,' ' ],
+        'ntpServerCandidates'    :  [ CONFIG_TYPE_LIST    , 'system.ntp.server'                          ,' ' ],
+      }
+      return section_map
 
   if config_name == 'interface_config':
     if args and args[0]:
@@ -60,10 +60,10 @@ def uci_get_section_map(config_name, *args):
       return section_map
 
   if config_name == 'vlan_common_config':
-    section_map = {
-      'enableVlan'             :  [ CONFIG_TYPE_SCALAR  , 'show network.@switch[0].enable_vlan'        ,' ' ],
-    }
-    return section_map
+      section_map = {
+        'enableVlan'             :  [ CONFIG_TYPE_SCALAR  , 'show network.@switch[0].enable_vlan'        ,' ' ],
+      }
+      return section_map
 
   if config_name == 'vlan_config':
     if args and args[0]:
@@ -74,42 +74,42 @@ def uci_get_section_map(config_name, *args):
       return section_map
 
   if config_name == 'dhcp_common':
-    section_map = {
-      'domainRequired'         :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].domainneeded'              ,' ' ],
-      'authoritative'          :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].authoritative'             ,' ' ],
-      'localServer'            :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].local'                     ,' ' ],
-      'localDomain'            :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].domain'                    ,' ' ],
-      'logQueries'             :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].logqueries'                ,' ' ],
-      'dnsForwardings'         :  [ CONFIG_TYPE_LIST    , 'dhcp.@dnsmasq[0].server'                    ,' ' ],
-      'rebindProtection'       :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].rebind_protection'         ,' ' ],
-      'rebindLocalhost'        :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].rebind_localhost'          ,' ' ],
-      'rebindDomain'           :  [ CONFIG_TYPE_LIST    , 'dhcp.@dnsmasq[0].rebind_domain'             ,' ' ],
-      'localServiceOnly'       :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].localservice'              ,' ' ],
-      'nonWildcard'            :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].nonwildcard'               ,' ' ],
-      'listenInterfaces'       :  [ CONFIG_TYPE_LIST    , 'dhcp.@dnsmasq[0].interface'                 ,' ' ],
-      'excludeInterfaces'      :  [ CONFIG_TYPE_LIST    , 'dhcp.@dnsmasq[0].notinterface'              ,' ' ],
-      'readEthers'             :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].readethers'                ,' ' ],
-      'leaseFile'              :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].leasefile'                 ,' ' ],
-      'ignoreResolveFile'      :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].noresolv'                  ,' ' ],
-      'resolveFile'            :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].resolvfile'                ,' ' ],
-      'ignoreHosts'            :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].nohosts'                   ,' ' ],
-      'addHostFiles'           :  [ CONFIG_TYPE_LIST    , 'dhcp.@dnsmasq[0].addnhosts'                 ,' ' ],
-      'suppressLogging'        :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].quietdhcp'                 ,' ' ],
-      'allocIpSequential'      :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].sequential_ip'             ,' ' ],
-      'filterPrivate'          :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].boguspriv'                 ,' ' ],
-      'filterUseless'          :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].filterwin2k'               ,' ' ],
-      'localiseQueries'        :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].localise_queries'          ,' ' ],
-      'expandHosts'            :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].expandhosts'               ,' ' ],
-      'addServerFile'          :  [ CONFIG_TYPE_SCALAR  , ''                                           ,' ' ],
-      'strictOrder'            :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].strictorder'               ,' ' ],
-      'bogusNXDomain'          :  [ CONFIG_TYPE_LIST    , 'dhcp.@dnsmasq[0].bogusnxdomain'             ,' ' ],
-      'dnsServerPort'          :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].port'                      ,' ' ],
-      'dnsQueryPort'           :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].queryport'                 ,' ' ],
-      'dhcpLeaseMax'           :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].dhcpleasemax'              ,' ' ],
-      'dnsPacketSizeMax'       :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].ednspacket_max'            ,' ' ],
-      'dnsForwardMax'          :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].dnsforwardmax'             ,' ' ],
-    }
-    return section_map
+      section_map = {
+        'domainRequired'         :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].domainneeded'              ,' ' ],
+        'authoritative'          :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].authoritative'             ,' ' ],
+        'localServer'            :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].local'                     ,' ' ],
+        'localDomain'            :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].domain'                    ,' ' ],
+        'logQueries'             :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].logqueries'                ,' ' ],
+        'dnsForwardings'         :  [ CONFIG_TYPE_LIST    , 'dhcp.@dnsmasq[0].server'                    ,' ' ],
+        'rebindProtection'       :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].rebind_protection'         ,' ' ],
+        'rebindLocalhost'        :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].rebind_localhost'          ,' ' ],
+        'rebindDomain'           :  [ CONFIG_TYPE_LIST    , 'dhcp.@dnsmasq[0].rebind_domain'             ,' ' ],
+        'localServiceOnly'       :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].localservice'              ,' ' ],
+        'nonWildcard'            :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].nonwildcard'               ,' ' ],
+        'listenInterfaces'       :  [ CONFIG_TYPE_LIST    , 'dhcp.@dnsmasq[0].interface'                 ,' ' ],
+        'excludeInterfaces'      :  [ CONFIG_TYPE_LIST    , 'dhcp.@dnsmasq[0].notinterface'              ,' ' ],
+        'readEthers'             :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].readethers'                ,' ' ],
+        'leaseFile'              :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].leasefile'                 ,' ' ],
+        'ignoreResolveFile'      :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].noresolv'                  ,' ' ],
+        'resolveFile'            :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].resolvfile'                ,' ' ],
+        'ignoreHosts'            :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].nohosts'                   ,' ' ],
+        'addHostFiles'           :  [ CONFIG_TYPE_LIST    , 'dhcp.@dnsmasq[0].addnhosts'                 ,' ' ],
+        'suppressLogging'        :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].quietdhcp'                 ,' ' ],
+        'allocIpSequential'      :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].sequential_ip'             ,' ' ],
+        'filterPrivate'          :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].boguspriv'                 ,' ' ],
+        'filterUseless'          :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].filterwin2k'               ,' ' ],
+        'localiseQueries'        :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].localise_queries'          ,' ' ],
+        'expandHosts'            :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].expandhosts'               ,' ' ],
+        'addServerFile'          :  [ CONFIG_TYPE_SCALAR  , ''                                           ,' ' ],
+        'strictOrder'            :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].strictorder'               ,' ' ],
+        'bogusNXDomain'          :  [ CONFIG_TYPE_LIST    , 'dhcp.@dnsmasq[0].bogusnxdomain'             ,' ' ],
+        'dnsServerPort'          :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].port'                      ,' ' ],
+        'dnsQueryPort'           :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].queryport'                 ,' ' ],
+        'dhcpLeaseMax'           :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].dhcpleasemax'              ,' ' ],
+        'dnsPacketSizeMax'       :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].ednspacket_max'            ,' ' ],
+        'dnsForwardMax'          :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].dnsforwardmax'             ,' ' ],
+      }
+      return section_map
 
   if config_name == 'dhcp_interface_pool':
     if args and args[0]:

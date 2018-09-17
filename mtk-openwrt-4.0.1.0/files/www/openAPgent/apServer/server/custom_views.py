@@ -330,11 +330,6 @@ class DockerImagesViewSet(viewsets.ViewSet):
     data = sal_docker_images(SAL_METHOD_LIST, request.data, None)
     return Response(data, content_type='application/json')
 
-  def retrieve(self, request, pk):
-    log_info(LOG_MODULE_APSERVER, "*** DockerImages retrieve(), pk = " + pk + " ***")
-    data = sal_docker_images(SAL_METHOD_RETRIEVE, request.data, pk)
-    return Response(data, content_type='application/json')
-
   def create(self, request):
     log_info(LOG_MODULE_APSERVER, "*** DockerImages create() ***")
     data = sal_docker_images(SAL_METHOD_CREATE, request.data, None)
@@ -343,16 +338,6 @@ class DockerImagesViewSet(viewsets.ViewSet):
   def detail_create(self, request, pk):
     log_info(LOG_MODULE_APSERVER, "*** DockerImages detail_create(), pk = " + pk + " ***")
     data = sal_docker_images(SAL_METHOD_DETAIL_CREATE, request.data, pk)
-    return Response(data, content_type='application/json')
-
-  def destroy(self, request):
-    log_info(LOG_MODULE_APSERVER, "*** DockerImages destroy() ***")
-    data = sal_docker_images(SAL_METHOD_DESTROY, request.data, None)
-    return Response(data, content_type='application/json')
-
-  def detail_destroy(self, request, pk):
-    log_info(LOG_MODULE_APSERVER, "*** DockerImages detail_destroy(), pk = " + pk + " ***")
-    data = sal_docker_images(SAL_METHOD_DETAIL_DESTROY, request.data, pk)
     return Response(data, content_type='application/json')
 
 

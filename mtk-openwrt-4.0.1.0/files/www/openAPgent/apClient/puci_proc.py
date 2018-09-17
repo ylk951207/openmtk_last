@@ -38,9 +38,17 @@ def _docker_container_restart(client, container_list):
             log_error(LOG_MODULE_APCLIENT, "*** docker  container get() error ***")
             log_error(LOG_MODULE_APCLIENT, "*** error: " + str(e))
             continue
+
         log_info(LOG_MODULE_APCLIENT, "container_status: " + str(container.status))
-        if container.status == "running":
+        if container.status != "running":
+            continue
+
+        log_info(LOG_MODULE_APCLIENT, "Restart container %s" %container.name)
+        try:
             container.restart()
+        except docker.errors.DockerException as e:
+            log_error(LOG_MODULE_APCLIENT, "*** docker  container restart() error ***")
+            log_error(LOG_MODULE_APCLIENT, "*** error: " + str(e))
 
 def puci_module_restart(request):
     config_file = request['config_file']
@@ -83,8 +91,7 @@ def puci_module_restart(request):
         command = '/etc/init.d/' + config_file + ' restart'
         log_info(LOG_MODULE_APCLIENT, "===" , command + "===")
         output, error = subprocess_open(command)
-
-    return output, error
+        log_info(LOG_MODULE_APCLIENT, "== command %s, output(%s), error(%s) ==" %(command, output, error))
 
 def puci_cmd_proc(command, request):
     log_info(LOG_MODULE_APCLIENT, 'Received message: command(%s), request(%s)' % (command, str(request)))

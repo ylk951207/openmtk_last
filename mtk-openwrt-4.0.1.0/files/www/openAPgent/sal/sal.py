@@ -23,6 +23,8 @@ SAL_METHOD_DETAIL_CREATE  = 5
 SAL_METHOD_DETAIL_UPDATE  = 6
 SAL_METHOD_PARTIAL_UPDATE = 7
 SAL_METHOD_DESTROY        = 8
+
+
 SAL_METHOD_DETAIL_DESTROY = 9
 
 
@@ -275,20 +277,11 @@ def sal_docker_images(method, request, pk):
   if method == SAL_METHOD_LIST:
     return py_docker_images_list()
 
-  if method == SAL_METHOD_RETRIEVE:
-    return py_docker_images_retrieve(pk, 1)
-
   if method == SAL_METHOD_CREATE:
     return py_docker_images_create(request)
 
   if method == SAL_METHOD_DETAIL_CREATE:
     return py_docker_images_detail_create(request, pk)
-
-  if method == SAL_METHOD_DESTROY:
-    return py_docker_images_destroy(request)
-
-  if method == SAL_METHOD_DETAIL_DESTROY:
-    return py_docker_images_detail_destroy(request, pk)
 
 
 '''

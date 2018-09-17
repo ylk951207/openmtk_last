@@ -21,4 +21,11 @@ start() {
 
 	uci commit network
 #/etc/init.d/network restart
+
+
+	uci set snmpd.@system[0].sysLocation=''
+	uci set snmpd.@system[0].sysContact='hepark@withusp.com'
+	uci set snmpd.@system[0].sysName='cAP'
+	uci set snmpd.@system[0].sysDescr='lede-mediatek-mt7622-MTK-AC4300-RFB1-squashfs-linux_4.4.124'
+	uci commit snmpd
 }

@@ -108,7 +108,7 @@ BASENAME=docker_images
 CLASSNAME=DockerImages
 SAL_FUNCTION=py
 SAL_IMPORT_FILE=python.docker_api
-METHODLIST=list,retrieve,create,detail_create,destroy,detail_destroy
+METHODLIST=list,create,detail_create
 
 URI=v1/virtualization/containers-creation
 BASENAME=container_creation

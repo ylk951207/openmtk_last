@@ -22,9 +22,13 @@ file(APCLIENT_PID_PATH, 'w').write(pid)
 
 log_info (LOG_MODULE_APCLIENT, '----- Start Client Command Application  ----')
 
-apclient_initialize()
+if not os.path.exists(PROVISIONING_DONE_FILE):
+    apclient_initialize()
 
-register_device_info()
+    register_device_info()
 
+'''
+ Main Loop
+'''
 client = ClientCmdApp()
 client.run()

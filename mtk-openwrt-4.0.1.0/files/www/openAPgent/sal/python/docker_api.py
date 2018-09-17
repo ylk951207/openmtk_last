@@ -154,12 +154,24 @@ def py_docker_images_create(request):
 
     return response_make_simple_success_body()
 
+'''
+TODO: Temporary processing 
+If pk is 'delete', call destroy function.
+'''
 def py_docker_images_detail_create(request, pk):
     log_info(LOG_MODULE_DOCKER, "request: " + str(request))
+
+    if pk == 'delete':
+        docker_image = DockerImageProc()
+        docker_image.req_image_list = request["docker-image-list"]
+        return docker_image._docker_image_destroy()
+
+    '''
     docker_image = DockerImageProc()
     docker_image.req_image_list = list()
     docker_image.req_image_list.append(request)
     return docker_image._docker_image_create()
+    '''
 
 def py_docker_images_destroy(request):
     log_info(LOG_MODULE_DOCKER, "request: " + str(request))
@@ -262,6 +274,10 @@ class DockerContainerProc():
             prev_container_name = prev_container_list[i]
             prev_container_name.strip()
 
+            if req_container['containerName'] == prev_container_name:
+                log_info(LOG_MODULE_DOCKER, "Skip the same name container %s" %(prev_container_name))
+                continue
+
             log_info(LOG_MODULE_DOCKER, "Stop the previous container '%s'" %(str(prev_container_name)))
 
             try:
@@ -271,10 +287,17 @@ class DockerContainerProc():
                 log_error(LOG_MODULE_DOCKER, "*** error: " + str(e))
                 return e.response.status_code
             else:
+                if prev_container.status == "stop":
+                    log_info(LOG_MODULE_DOCKER, "Skip the already stopped container %s" %prev_container.name)
+                    continue
+
                 mgt_command = "stop"
                 self._docker_container_mgt_proc(mgt_command, prev_container, None)
+                if prev_container.status == "running":
                 self.prev_container_name = prev_container.name
+                    log_info(LOG_MODULE_DOCKER, "Set prev.container_name to '%s'" %self.prev_container_name)
 
+                '''
                 if prev_container.name == req_container['containerName']:
                     if req_container['replaceFlag']:
                         mgt_command = "rename"
@@ -282,8 +305,7 @@ class DockerContainerProc():
                         log_info(LOG_MODULE_DOCKER, "Rename the duplicated container %s --> %s%s" %(prev_container.name, prev_container.name, CONTAINER_BACKUP_STR))
                         self._docker_container_mgt_proc(mgt_command, prev_container, params)
                         self.prev_container_name = prev_container.name + CONTAINER_BACKUP_STR
-
-                log_info(LOG_MODULE_DOCKER, "self.prev_container_name is '%s'" %self.prev_container_name)
+                '''
 
     def _docker_container_get_by_name(self, container_name):
         if not container_name: return None
@@ -299,9 +321,10 @@ class DockerContainerProc():
 
         return container
 
-    def _docker_container_rollback_previous(self, container_name):
+    def _docker_container_rollback_previous(self, container_name, rollback_data):
         prev_container = self._docker_container_get_by_name(self.prev_container_name)
         if prev_container:
+            '''
             if CONTAINER_BACKUP_STR in prev_container.name:
                 current_container = self._docker_container_get_by_name(container_name)
                 if current_container:
@@ -312,9 +335,17 @@ class DockerContainerProc():
                 params = {"rename": new_name}
                 log_info(LOG_MODULE_DOCKER, "Rename container '%s' --> '%s'" %(prev_container.name, new_name))
                 self._docker_container_mgt_proc(mgt_command, prev_container, params)
+            '''
 
             mgt_command = "restart"
-            self._docker_container_mgt_proc(mgt_command, prev_container, None)
+            status_code = self._docker_container_mgt_proc(mgt_command, prev_container, None)
+            log_info(LOG_MODULE_DOCKER, "_docker_container_mgt_proc() return %d for container(%s)" %(status_code, prev_container.name))
+            if status_code == 200:
+                rollback_data['rollback'] = {
+                    'rollbackFlag': True,
+                    'rollbackContainer': prev_container.name
+                }
+        return rollback_data
 
     def _docker_container_remove_previous(self):
         prev_container = self._docker_container_get_by_name(self.prev_container_name)
@@ -327,10 +358,16 @@ class DockerContainerProc():
                 self._docker_container_mgt_proc(mgt_command, prev_container, None)
 
     def _docker_container_create(self):
+        rollback_data = dict()
+        rollback_data['rollback'] = {
+            'rollbackFlag' : False,
+            'rollbackContainer' : ""
+        }
+
         while len(self.req_container_list) > 0:
             req_container = self.req_container_list.pop(0)
 
-            #self._docker_container_stop_previous(req_container)
+            self._docker_container_stop_previous(req_container)
 
             try:
                 image_name = _get_docker_image_name(req_container['imageName'], req_container['imageTag'], req_container['registry'])
@@ -341,13 +378,14 @@ class DockerContainerProc():
                 log_error(LOG_MODULE_DOCKER, "*** docker containers.run() error ***")
                 log_error(LOG_MODULE_DOCKER, "*** error: " + str(e))
                 self.response.set_response_value(e.response.status_code, e, False)
-                #self._docker_container_rollback_previous(req_container['containerName'])
+                rollback_data = self._docker_container_rollback_previous(req_container['containerName'], rollback_data)
                 break
             else:
                 log_info(LOG_MODULE_DOCKER, "containers.run() success for %s" %image_name)
                 #self._docker_container_remove_previous()
 
-        return self.response.make_response_body(None)
+        log_info(LOG_MODULE_DOCKER, "rollback data : " + str(rollback_data))
+        return self.response.make_response_body(rollback_data)
 
     def _docker_container_mgt_proc(self, mgt_command, container, options):
         if options:
@@ -381,9 +419,10 @@ class DockerContainerProc():
             log_error(LOG_MODULE_DOCKER, "*** docker container processing error(%s) ***" %mgt_command)
             log_error(LOG_MODULE_DOCKER, "*** error: " + str(e))
             self.response.set_response_value(e.response.status_code, e, False)
+            return e.response.status_code
         finally:
             log_info(LOG_MODULE_DOCKER, "_docker_container_mgt_proc() : " + mgt_command + " Done..")
-            # error
+            return 200
 
     def _docker_container_management(self):
         while len(self.req_container_list) > 0:

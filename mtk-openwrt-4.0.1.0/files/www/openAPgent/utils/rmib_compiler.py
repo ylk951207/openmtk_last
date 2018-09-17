@@ -263,17 +263,17 @@ def make_django_uci_data_pyfile(filename, header):
 				str = UCI_DATA_PREFIX + "ARGS_"
 				config_name = line.split(str)[1]
 			else:
-			config_name = line.split(UCI_DATA_PREFIX)[1]
+				config_name = line.split(UCI_DATA_PREFIX)[1]
 			config_name = config_name.split('=')[0]
 
 			wline += "  if config_name == '" + config_name + "':\n"
 			if "_ARGS" in line:
 				wline += "    if args and args[0]:\n"
-			wline += "    section_map = {\n"
+			wline += "      section_map = {\n"
 
 		elif UCI_DATA_SUFFIX in line:
-			wline += "    }\n"
-			wline += "    return section_map\n\n"
+			wline += "      }\n"
+			wline += "      return section_map\n\n"
 			config_name = None
 
 		elif config_name:
@@ -282,7 +282,7 @@ def make_django_uci_data_pyfile(filename, header):
 			for i in range(0, len(line)):
 				line[i] = line[i].strip()
 
-			wline += "      %-25s:  [ %-20s, %-45s,' ' ],\n" % (line[0], line[1], line[2])
+			wline += "        %-25s:  [ %-20s, %-45s,' ' ],\n" % (line[0], line[1], line[2])
 
 		else:
 			continue
