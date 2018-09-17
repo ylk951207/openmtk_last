@@ -58,15 +58,15 @@ define Package/docker/install
 	$(INSTALL_BIN) ./files/makeContainer/chrony/* $(1)/root/makeContainer/chrony
 	$(INSTALL_BIN) ./files/makeContainer/dnsmasq/* $(1)/root/makeContainer/dnsmasq
 	$(INSTALL_BIN) ./files/makeContainer/net-snmp/run_snmpd.sh $(1)/usr/sbin
-#$(INSTALL_BIN) ./files/makeContainer/net-snmp/*.sh $(1)/root/makeContainer/net-snmp
-#$(INSTALL_BIN) ./files/makeContainer/net-snmp/dockerfile* $(1)/root/makeContainer/net-snmp
-#$(INSTALL_BIN) ./files/makeContainer/net-snmp/snmpd.* $(1)/root/makeContainer/net-snmp
+	$(INSTALL_BIN) ./files/makeContainer/net-snmp/*.sh $(1)/root/makeContainer/net-snmp
+	$(INSTALL_BIN) ./files/makeContainer/net-snmp/dockerfile* $(1)/root/makeContainer/net-snmp
+	$(INSTALL_BIN) ./files/makeContainer/net-snmp/snmpd.* $(1)/root/makeContainer/net-snmp
+	$(INSTALL_BIN) ./files/makeContainer/net-snmp/net-snmp-5.7.3/sbin/* $(1)/root/makeContainer/net-snmp/net-snmp-5.7.3/sbin
+	$(INSTALL_BIN) ./files/makeContainer/net-snmp/net-snmp-5.8/sbin/* $(1)/root/makeContainer/net-snmp/net-snmp-5.8/sbin
 #$(INSTALL_BIN) ./files/makeContainer/net-snmp/net-snmp-5.7.3/snmp* $(1)/root/makeContainer/net-snmp/net-snmp-5.7.3/bin
 #$(INSTALL_BIN) ./files/makeContainer/net-snmp/net-snmp-5.7.3/mibs/* $(1)/root/makeContainer/net-snmp/net-snmp-5.7.3/mibs
-#$(INSTALL_BIN) ./files/makeContainer/net-snmp/net-snmp-5.7.3/sbin/* $(1)/root/makeContainer/net-snmp/net-snmp-5.7.3/sbin
 #$(INSTALL_BIN) ./files/makeContainer/net-snmp/net-snmp-5.8/snmp* $(1)/root/makeContainer/net-snmp/net-snmp-5.8/bin
 #$(INSTALL_BIN) ./files/makeContainer/net-snmp/net-snmp-5.8/mibs/* $(1)/root/makeContainer/net-snmp/net-snmp-5.8/mibs
-#$(INSTALL_BIN) ./files/makeContainer/net-snmp/net-snmp-5.8/sbin/* $(1)/root/makeContainer/net-snmp/net-snmp-5.8/sbin
 endef
 
 $(eval $(call BuildPackage,docker))
