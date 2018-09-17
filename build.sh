@@ -19,7 +19,7 @@ openwrt)
     change_tmp_owner $(whoami)
 
     cd mtk-openwrt-4.0.1.0
-    make V=s
+    make V=s -j 12
     
     change_tmp_owner root
     ;;
@@ -28,8 +28,9 @@ bootloader)
     ;;
 openwrt-release)
     grep DISTRIB_RELEASE ${VERSION_FILE} | awk -F"'" '{print $2}' > .mtk_version
-		date=$(date +%m%d)
+		#suffix='_$(date +%m%d)'
+		suffix=''
     version=$(cat .mtk_version)
-    sudo cp ${MTK_IMAGE_NAME} /tftpboot/mtk4010_mt7622_AC2600_${version}_${date}.bin
+    sudo cp ${MTK_IMAGE_NAME} /tftpboot/mtk4010_mt7622_AC2600_${version}${suffix}.bin
     ;;
 esac
