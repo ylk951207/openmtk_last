@@ -11,21 +11,23 @@ stop() {
 }
 
 start() {
+	#
+	# Firewall Configuration
+	#
 	uci set firewall.@zone[1].input='ACCEPT'
 	uci set firewall.@zone[1].forward='ACCEPT'
 
 	uci commit firewall
 	/etc/init.d/firewall restart
 
+	#
+	# Network Configuration
+	#
+	uci set network.lan.ipaddr='172.33.1.1'
+	uci set network.lan.netmask='255.255.0.0'
+	uci set network.lan.gateway='172.33.1.254'
+
 	uci set network.lan.igmp_snooping='1'
-
 	uci commit network
-#/etc/init.d/network restart
-
-
-	uci set snmpd.@system[0].sysLocation=''
-	uci set snmpd.@system[0].sysContact='hepark@withusp.com'
-	uci set snmpd.@system[0].sysName='cAP'
-	uci set snmpd.@system[0].sysDescr='lede-mediatek-mt7622-MTK-AC4300-RFB1-squashfs-linux_4.4.124'
-	uci commit snmpd
+	ifdown lan;ifup lan
 }
