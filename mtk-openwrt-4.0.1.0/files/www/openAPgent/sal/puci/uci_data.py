@@ -61,7 +61,7 @@ def uci_get_section_map(config_name, *args):
 
   if config_name == 'vlan_common_config':
       section_map = {
-        'enableVlan'             :  [ CONFIG_TYPE_SCALAR  , 'show network.@switch[0].enable_vlan'        ,' ' ],
+        'enableVlan'             :  [ CONFIG_TYPE_SCALAR  , 'network.@switch[0].enable_vlan'             ,' ' ],
       }
       return section_map
 

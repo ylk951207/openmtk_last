@@ -9,9 +9,10 @@ from apServer.server.custom_classes import CustomRouter
 
 custom_router = CustomRouter()
 
+custom_router.register(r'v1/infos/usages', views.SysetmUsageViewSet, base_name='system_usage')
+custom_router.register(r'v1/infos/devices', views.DeviceInfoViewSet, base_name='device_info')
 custom_router.register(r'v1/configs/provisioning-done', views.ProvisioningDoneViewSet, base_name='provisioning_done')
 custom_router.register(r'v1/keepalive-check', views.KeepaliveCheckViewSet, base_name='keepalive_check')
-custom_router.register(r'v1/infos/usages', views.SysetmUsageViewSet, base_name='system_usage')
 custom_router.register(r'v1/configs/system', views.SysetmConfigViewSet, base_name='system_config')
 custom_router.register(r'v1/configs/interfaces', views.InterfaceConfigViewSet, base_name='interface_config')
 custom_router.register(r'v1/configs/vlans', views.VlanConfigViewSet, base_name='vlan_config')
@@ -19,6 +20,8 @@ custom_router.register(r'v1/configs/dhcp/common', views.DhcpCommonConfigViewSet,
 custom_router.register(r'v1/configs/dhcp/pools', views.DhcpPoolConfigViewSet, base_name='dhcp_pool_config')
 custom_router.register(r'v1/configs/dhcp/static-leases', views.DhcpStaticLeasesConfigViewSet, base_name='dhcp_static_leases_config')
 custom_router.register(r'v1/configs/snmp', views.SNMPConfigViewSet, base_name='snmp_config')
+custom_router.register(r'v1/configs/wireless', views.WirelessConfigViewSet, base_name='wireless_config')
+custom_router.register(r'v1/configs/wireless-search', views.WirelessSearchViewSet, base_name='wireless_search')
 custom_router.register(r'v1/management/firmware', views.FirmwareMgtViewSet, base_name='firmware_management')
 custom_router.register(r'v1/management/configuration', views.ConfigMgtViewSet, base_name='config_management')
 custom_router.register(r'v1/statistics', views.IfStatisticsViewSet, base_name='if_statistics')

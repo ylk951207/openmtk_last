@@ -9,6 +9,10 @@ UCI_SYSTEM_CONFIG_LOGGING_CONFIG = "system_config_logging"
 UCI_SYSTEM_CONFIG_NTP_CONFIG = "system_config_ntp"
 
 
+def system_puci_module_restart():
+    noti_data = dict()
+    noti_data['config_file'] = UCI_SYSTEM_CONFIG_FILE
+    puci_send_message_to_apnotifier(SAL_PUCI_MODULE_RESTART, noti_data)
 
 '''
 SystemConfig
@@ -83,9 +87,7 @@ def system_config_set(request):
     system_log_data = system_config_uci_set(UCI_SYSTEM_CONFIG_LOGGING_CONFIG, request['logging'], system_log_data)
     system_ntp_data = system_config_uci_set(UCI_SYSTEM_CONFIG_NTP_CONFIG, request['ntp'], system_ntp_data)
 
-    noti_data = dict()
-    noti_data['config_file'] = UCI_SYSTEM_CONFIG_FILE
-    puci_send_message_to_apnotifier(SAL_PUCI_MODULE_RESTART, noti_data)
+    system_puci_module_restart()
 
     data = {
         'header': {
@@ -109,9 +111,7 @@ def system_config_detail_set(request, command):
     else:
         raise RespNotFound("Command")
 
-    noti_data = dict()
-    noti_data['config_file'] = UCI_SYSTEM_CONFIG_FILE
-    puci_send_message_to_apnotifier(SAL_PUCI_MODULE_RESTART, noti_data)
+    system_puci_module_restart()
 
     data = {
         'header': {

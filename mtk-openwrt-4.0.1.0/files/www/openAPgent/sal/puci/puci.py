@@ -3,6 +3,7 @@ import subprocess
 import shlex
 from common.log import *
 from common.env import *
+from common.misc import *
 from common.request import *
 from uci_data import *
 
@@ -20,32 +21,6 @@ UCI_COMMIT_CMD="uci commit "
 
 LOG_MODULE_PUCI="puci"
 
-def subprocess_open(command):
-	popen = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-	(stdoutdata, stderrdata) = popen.communicate()
-	return stdoutdata, stderrdata
-
-def subprocess_open_when_shell_false(command):
-	popen = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-	(stdoutdata, stderrdata) = popen.communicate()
-	return stdoutdata, stderrdata
-
-def subprocess_open_when_shell_false_with_shelx(command):
-	popen = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-	(stdoutdata, stderrdata) = popen.communicate()
-	return stdoutdata, stderrdata
-
-def subprocess_pipe(cmd_list):
-	prev_stdin = None
-	last_p = None
-
-	for str_cmd in cmd_list:
-		cmd = str_cmd.split()
-		last_p = subprocess.Popen(cmd, stdin=prev_stdin, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-		prev_stdin = last_p.stdout
-
-	(stdoutdata, stderrdata) = last_p.communicate()
-	return stdoutdata, stderrdata
 
 
 def restart_uci_config_module(config_file, ifname):

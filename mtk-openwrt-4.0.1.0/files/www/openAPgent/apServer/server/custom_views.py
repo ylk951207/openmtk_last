@@ -12,6 +12,31 @@ from common.log import *
 
 
 '''
+ Define Class SysetmUsage
+'''
+class SysetmUsageViewSet(viewsets.ViewSet):
+  def list(self, request):
+    log_info(LOG_MODULE_APSERVER, "*** SysetmUsage list() ***")
+    data = sal_system_usage(SAL_METHOD_LIST, request.data, None)
+    return Response(data, content_type='application/json')
+
+  def retrieve(self, request, pk):
+    log_info(LOG_MODULE_APSERVER, "*** SysetmUsage retrieve(), pk = " + pk + " ***")
+    data = sal_system_usage(SAL_METHOD_RETRIEVE, request.data, pk)
+    return Response(data, content_type='application/json')
+
+
+'''
+ Define Class DeviceInfo
+'''
+class DeviceInfoViewSet(viewsets.ViewSet):
+  def list(self, request):
+    log_info(LOG_MODULE_APSERVER, "*** DeviceInfo list() ***")
+    data = sal_device_info(SAL_METHOD_LIST, request.data, None)
+    return Response(data, content_type='application/json')
+
+
+'''
  Define Class ProvisioningDone
 '''
 class ProvisioningDoneViewSet(viewsets.ViewSet):
@@ -28,21 +53,6 @@ class KeepaliveCheckViewSet(viewsets.ViewSet):
   def list(self, request):
     log_info(LOG_MODULE_APSERVER, "*** KeepaliveCheck list() ***")
     data = sal_keepalive_check(SAL_METHOD_LIST, request.data, None)
-    return Response(data, content_type='application/json')
-
-
-'''
- Define Class SysetmUsage
-'''
-class SysetmUsageViewSet(viewsets.ViewSet):
-  def list(self, request):
-    log_info(LOG_MODULE_APSERVER, "*** SysetmUsage list() ***")
-    data = sal_system_usage(SAL_METHOD_LIST, request.data, None)
-    return Response(data, content_type='application/json')
-
-  def retrieve(self, request, pk):
-    log_info(LOG_MODULE_APSERVER, "*** SysetmUsage retrieve(), pk = " + pk + " ***")
-    data = sal_system_usage(SAL_METHOD_RETRIEVE, request.data, pk)
     return Response(data, content_type='application/json')
 
 
@@ -273,6 +283,51 @@ class SNMPConfigViewSet(viewsets.ViewSet):
   def detail_update(self, request, pk):
     log_info(LOG_MODULE_APSERVER, "*** SNMPConfig detail_update(), pk = " + pk + " ***")
     data = sal_snmp_config(SAL_METHOD_DETAIL_UPDATE, request.data, pk)
+    return Response(data, content_type='application/json')
+
+
+'''
+ Define Class WirelessConfig
+'''
+class WirelessConfigViewSet(viewsets.ViewSet):
+  def list(self, request):
+    log_info(LOG_MODULE_APSERVER, "*** WirelessConfig list() ***")
+    data = sal_wireless_config(SAL_METHOD_LIST, request.data, None)
+    return Response(data, content_type='application/json')
+
+  def create(self, request):
+    log_info(LOG_MODULE_APSERVER, "*** WirelessConfig create() ***")
+    data = sal_wireless_config(SAL_METHOD_CREATE, request.data, None)
+    return Response(data, content_type='application/json')
+
+  def update(self, request):
+    log_info(LOG_MODULE_APSERVER, "*** WirelessConfig update() ***")
+    data = sal_wireless_config(SAL_METHOD_UPDATE, request.data, None)
+    return Response(data, content_type='application/json')
+
+  def retrieve(self, request, pk):
+    log_info(LOG_MODULE_APSERVER, "*** WirelessConfig retrieve(), pk = " + pk + " ***")
+    data = sal_wireless_config(SAL_METHOD_RETRIEVE, request.data, pk)
+    return Response(data, content_type='application/json')
+
+  def detail_create(self, request, pk):
+    log_info(LOG_MODULE_APSERVER, "*** WirelessConfig detail_create(), pk = " + pk + " ***")
+    data = sal_wireless_config(SAL_METHOD_DETAIL_CREATE, request.data, pk)
+    return Response(data, content_type='application/json')
+
+  def detail_update(self, request, pk):
+    log_info(LOG_MODULE_APSERVER, "*** WirelessConfig detail_update(), pk = " + pk + " ***")
+    data = sal_wireless_config(SAL_METHOD_DETAIL_UPDATE, request.data, pk)
+    return Response(data, content_type='application/json')
+
+
+'''
+ Define Class WirelessSearch
+'''
+class WirelessSearchViewSet(viewsets.ViewSet):
+  def list(self, request):
+    log_info(LOG_MODULE_APSERVER, "*** WirelessSearch list() ***")
+    data = sal_wireless_search(SAL_METHOD_LIST, request.data, None)
     return Response(data, content_type='application/json')
 
 

@@ -5,6 +5,7 @@ import shlex
 from puci import *
 from common.log import *
 from common.env import *
+from common.misc import *
 
 UCI_DHCP_CONFIG_FILE = "dhcp"
 UCI_DHCP_COMMON_CONFIG = "dhcp_common"
@@ -13,6 +14,12 @@ UCI_DHCP_INTERFACE_V6POOL_CONFIG = "dhcp_interface_v6pool"
 UCI_DHCP_STATIC_LEASE_CONFIG = "dhcp_static_leases"
 UCI_DHCP_V6POOL_STR = "v6Settings"
 
+
+def dhcp_puci_module_restart():
+    noti_data = dict()
+    noti_data['config_file'] = UCI_DHCP_CONFIG_FILE
+    noti_data['container_name'] = "dnsmasq"
+    puci_send_message_to_apnotifier(SAL_PUCI_MODULE_RESTART, noti_data)
 
 '''
 DHCP Common Config
@@ -41,9 +48,7 @@ def dhcp_common_config_set(request):
 
     dhcp_common_config_uci_set(request, UCI_DHCP_COMMON_CONFIG)
 
-    noti_data = dict()
-    noti_data['config_file'] = UCI_SYSTEM_CONFIG_FILE
-    puci_send_message_to_apnotifier(SAL_PUCI_MODULE_RESTART, noti_data)
+    dhcp_puci_module_restart()
 
     data = {
         'header': {
@@ -300,9 +305,7 @@ def dhcp_static_leases_config_set(request):
             for host_key, host_name in host_info_list.items():
                 dhcp_static_leases_config_uci_set(leases_data, host_key)
 
-    noti_data = dict()
-    noti_data['config_file'] = UCI_DHCP_CONFIG_FILE
-    puci_send_message_to_apnotifier(SAL_PUCI_MODULE_RESTART, noti_data)
+    dhcp_puci_module_restart()
 
     data = {
         'header': {
@@ -323,9 +326,7 @@ def dhcp_static_leases_config_detail_set(request, name):
         if host_name == name:
             dhcp_static_leases_config_uci_set(request, host_key)
 
-    noti_data = dict()
-    noti_data['config_file'] = UCI_DHCP_CONFIG_FILE
-    puci_send_message_to_apnotifier(SAL_PUCI_MODULE_RESTART, noti_data)
+    dhcp_puci_module_restart()
 
     data = {
         'header': {

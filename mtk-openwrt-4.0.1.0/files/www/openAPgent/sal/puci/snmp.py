@@ -4,10 +4,18 @@ from random import *
 from puci import *
 from common.log import *
 from common.env import *
+from common.misc import *
 
 UCI_SNMP_CONFIG_FILE = "snmpd"
 UCI_SNNP_COMMUNITY_CONFIG = "snmp_community_config"
 UCI_SNNP_TRAPHOST_CONFIG = "snmp_traphost_config"
+
+
+def snmp_puci_module_restart():
+    noti_data = dict()
+    noti_data['config_file'] = UCI_SNMP_CONFIG_FILE
+    noti_data['container_name'] = "net-snmp"
+    puci_send_message_to_apnotifier(SAL_PUCI_MODULE_RESTART, noti_data)
 
 '''
 SNMP Config
@@ -66,9 +74,7 @@ def snmp_config_set(request):
         traphost = snmp_traphost_config_set_default_value(traphost)
         snmp_config_uci_set(traphost, UCI_SNNP_TRAPHOST_CONFIG, traphost_name, None)
 
-    noti_data = dict()
-    noti_data['config_file'] = UCI_SNMP_CONFIG_FILE
-    puci_send_message_to_apnotifier(SAL_PUCI_MODULE_RESTART, noti_data)
+    snmp_puci_module_restart()
 
     data = {
         'header': {

@@ -2,6 +2,19 @@
 This file is REST Management Information Database(RMIB) that...
 '''
 
+URI=v1/infos/usages
+BASENAME=system_usage
+CLASSNAME=SysetmUsage
+SAL_FUNCTION=swigc
+SAL_IMPORT_FILE=swigc.sys_usage
+METHODLIST=list,retrieve
+
+URI=v1/infos/devices
+BASENAME=device_info
+CLASSNAME=DeviceInfo
+SAL_FUNCTION=py
+METHODLIST=list
+
 URI=v1/configs/provisioning-done
 BASENAME=provisioning_done
 CLASSNAME=ProvisioningDone
@@ -14,13 +27,6 @@ BASENAME=keepalive_check
 CLASSNAME=KeepaliveCheck
 SAL_FUNCTION=py
 METHODLIST=list
-
-URI=v1/infos/usages
-BASENAME=system_usage
-CLASSNAME=SysetmUsage
-SAL_FUNCTION=swigc
-SAL_IMPORT_FILE=swigc.sys_usage
-METHODLIST=list,retrieve
 
 #  v1/configs/system/logging, v1/configs/system/ntp
 #     : retrieve,detail_ceate,detail_update
@@ -80,7 +86,19 @@ CLASSNAME=SNMPConfig
 SAL_FUNCTION=puci
 SAL_IMPORT_FILE=puci.snmp
 METHODLIST=list,create,update,retrieve,detail_create,detail_update
-FIELD_NAME_snmp_config=snmp_config
+
+URI=v1/configs/wireless
+BASENAME=wireless_config
+CLASSNAME=WirelessConfig
+SAL_FUNCTION=puci
+SAL_IMPORT_FILE=python.wireless
+METHODLIST=list,create,update,retrieve,detail_create,detail_update
+
+URI=v1/configs/wireless-search
+BASENAME=wireless_search
+CLASSNAME=WirelessSearch
+SAL_FUNCTION=puci
+METHODLIST=list
 
 URI=v1/management/firmware
 BASENAME=firmware_management
@@ -88,7 +106,6 @@ CLASSNAME=FirmwareMgt
 SAL_FUNCTION=py
 SAL_IMPORT_FILE=python.firmware
 METHODLIST=list,create
-#FIELD_NAME_firmware=TODO
 
 URI=v1/management/configuration
 BASENAME=config_management
@@ -101,7 +118,6 @@ BASENAME=if_statistics
 CLASSNAME=IfStatistics
 SAL_FUNCTION=puci
 METHODLIST=list,retrieve
-#FIELD_NAME_if_stats=generic_if_stats,traffic_monitor_if_stats(not UCI field)
 
 URI=v1/virtualization/images
 BASENAME=docker_images
@@ -127,6 +143,7 @@ BASENAME=container_management
 CLASSNAME=ContainerManagement
 SAL_FUNCTION=py
 METHODLIST=create,detail_create
+
 
 
 
@@ -172,7 +189,7 @@ DEFINE_FIELD_ARGS_interface_v4addr_config= {
 };
 
 DEFINE_FIELD_vlan_common_config= {
-    'enableVlan'       : CONFIG_TYPE_SCALAR : 'show network.@switch[0].enable_vlan'
+    'enableVlan'       : CONFIG_TYPE_SCALAR : 'network.@switch[0].enable_vlan'
 };
 
 # if 'VLAN 1', uci show network.@switch_vlan[1]  (args[0] : switch_vlan[1])

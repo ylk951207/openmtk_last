@@ -14,6 +14,13 @@ UCI_INTERFACE_STR='interface'
 UCI_INTERFACE_V4ADDR_STR='v4Addr'
 UCI_INTERFACE_V6ADDR_STR='v6Addr'
 
+
+def interface_puci_module_restart(ifname):
+    noti_data = dict()
+    noti_data['config_file'] = UCI_NETWORK_FILE
+    noti_data['ifname'] = ifname
+    puci_send_message_to_apnotifier(SAL_PUCI_MODULE_RESTART, noti_data)
+
 '''
 InterfaceConfig
 '''
@@ -34,8 +41,8 @@ def puci_interface_config_list():
                         'resultCode':200,
                         'resultMessage':'Success.',
                         'isSuccessful':'true'
-                       }
             }
+    }
     return data
 
 def puci_interface_config_retrieve(ifname, add_header):
@@ -56,7 +63,7 @@ def puci_interface_config_retrieve(ifname, add_header):
                             'resultCode':200,
                             'resultMessage':'Success.',
                             'isSuccessful':'true'
-                        }
+            }
         }
     else:
         data = interface_data
@@ -90,10 +97,7 @@ def interface_config_common_set(request):
         if UCI_INTERFACE_V4ADDR_STR in ifdata:
             interface_config_v4addr_uci_set(ifdata[UCI_INTERFACE_V4ADDR_STR], ifname)
 
-        noti_data = dict()
-        noti_data['config_file'] = UCI_NETWORK_FILE
-        noti_data['ifname'] = ifdata['portName']
-        puci_send_message_to_apnotifier(SAL_PUCI_MODULE_RESTART, noti_data)
+        interface_puci_module_restart(ifname)
 
     data = {
         'header' : {
@@ -114,10 +118,7 @@ def interface_config_common_detail_set(request, ifname):
     if UCI_INTERFACE_V4ADDR_STR in request:
         interface_config_v4addr_uci_set(request[UCI_INTERFACE_V4ADDR_STR], ifname)
 
-    noti_data = dict()
-    noti_data['config_file'] = UCI_NETWORK_FILE
-    noti_data['ifname'] = request['portName']
-    puci_send_message_to_apnotifier(SAL_PUCI_MODULE_RESTART, noti_data)
+    interface_puci_module_restart(ifname)
 
     data = {
         'header' : {

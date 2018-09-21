@@ -5,14 +5,11 @@ from common.log import *
 from common.env import *
 from common.request import *
 from common.response import *
+from common.misc import *
 
 LOG_MODULE_DOCKER="docker"
 CONTAINER_BACKUP_STR=".old_container"
 
-def subprocess_open(command):
-	popen = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-	(stdoutdata, stderrdata) = popen.communicate()
-	return stdoutdata, stderrdata
 
 def _get_docker_image_name(image_name, image_tag, registry):
     if registry:
