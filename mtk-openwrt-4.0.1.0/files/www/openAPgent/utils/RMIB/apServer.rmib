@@ -195,7 +195,7 @@ DEFINE_FIELD_vlan_common_config= {
 # if 'VLAN 1', uci show network.@switch_vlan[1]  (args[0] : switch_vlan[1])
 DEFINE_FIELD_ARGS_vlan_config= {
     'vlanId'           : CONFIG_TYPE_SCALAR : ".".join(['network', args[0], 'vlan'])
-    'ports'            : CONFIG_TYPE_LIST   : ".".join(['network', args[0], 'ports'])
+    'ports'            : CONFIG_TYPE_SCALAR : ".".join(['network', args[0], 'ports'])
 };
 
 DEFINE_FIELD_dhcp_common= {

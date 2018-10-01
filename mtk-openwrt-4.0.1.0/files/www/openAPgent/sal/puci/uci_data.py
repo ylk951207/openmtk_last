@@ -69,7 +69,7 @@ def uci_get_section_map(config_name, *args):
     if args and args[0]:
       section_map = {
         'vlanId'                 :  [ CONFIG_TYPE_SCALAR  , ".".join(['network', args[0], 'vlan'])       ,' ' ],
-        'ports'                  :  [ CONFIG_TYPE_LIST    , ".".join(['network', args[0], 'ports'])      ,' ' ],
+        'ports'                  :  [ CONFIG_TYPE_SCALAR  , ".".join(['network', args[0], 'ports'])      ,' ' ],
       }
       return section_map
 
