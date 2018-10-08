@@ -50,18 +50,6 @@ def sal_device_info(method, request, pk):
 
 
 '''
- Define hardware_interface_info SAL function
-'''
-def sal_hardware_interface_info(method, request, pk):
-  # For Python APIs
-  if method == SAL_METHOD_LIST:
-    return py_hardware_interface_info_list()
-
-  if method == SAL_METHOD_RETRIEVE:
-    return py_hardware_interface_info_retrieve(pk, 1)
-
-
-'''
  Define provisioning_done SAL function
 '''
 def sal_provisioning_done(method, request, pk):
@@ -257,33 +245,33 @@ def sal_snmp_config(method, request, pk):
  Define wireless_config SAL function
 '''
 def sal_wireless_config(method, request, pk):
-  # For Python-UCI APIs
+  # For Python APIs
   if method == SAL_METHOD_LIST:
-    return puci_wireless_config_list()
+    return py_wireless_config_list()
 
   if method == SAL_METHOD_CREATE:
-    return puci_wireless_config_create(request)
+    return py_wireless_config_create(request)
 
   if method == SAL_METHOD_UPDATE:
-    return puci_wireless_config_update(request)
+    return py_wireless_config_update(request)
 
   if method == SAL_METHOD_RETRIEVE:
-    return puci_wireless_config_retrieve(pk, 1)
+    return py_wireless_config_retrieve(pk, 1)
 
   if method == SAL_METHOD_DETAIL_CREATE:
-    return puci_wireless_config_detail_create(request, pk)
+    return py_wireless_config_detail_create(request, pk)
 
   if method == SAL_METHOD_DETAIL_UPDATE:
-    return puci_wireless_config_detail_update(request, pk)
+    return py_wireless_config_detail_update(request, pk)
 
 
 '''
  Define wireless_search SAL function
 '''
 def sal_wireless_search(method, request, pk):
-  # For Python-UCI APIs
+  # For Python APIs
   if method == SAL_METHOD_LIST:
-    return puci_wireless_search_list()
+    return py_wireless_search_list()
 
 
 '''
