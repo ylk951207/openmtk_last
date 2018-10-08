@@ -18,16 +18,16 @@ from apServer.server.models import *
 from apServer.server.serializers import *
 from common.log import *
 from common.env import *
+from common.misc import *
 from sal.puci.interface import *
 from apServer.server.custom_views import *
 
 
-'''
-Device Info
-'''
-class DeviceInfoViewSet(viewsets.ModelViewSet):
-    queryset = DeviceInfo.objects.all()
-    serializer_class = DeviceInfoSerializer
+class hardwareInfoView(APIView):
+	def get(self, pk):
+		log_info(LOG_MODULE_APSERVER, "*" * 10 + "hardwareInfoView list()" + "*" * 10)
+		data = hardware_info_list()
+		return Response(data, content_type='application/json')
 
 
 class InterfaceV4AddrConfigView(APIView):

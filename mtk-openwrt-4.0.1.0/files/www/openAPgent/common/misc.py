@@ -1,9 +1,13 @@
 import os
-import subprocess
 import shlex
+import subprocess
+#import netifaces as ni
+import fcntl, socket, struct, json
+
 from common.log import *
 from common.env import *
 from conf.ap_device_config import *
+import libs._network as ln
 
 
 LOG_MODULE_MISC="misc"
@@ -40,7 +44,7 @@ def subprocess_pipe(cmd_list):
 
 
 '''
-Device Information Functions
+Device Information class
 '''
 
 class DeviceInformation(object):
@@ -68,7 +72,6 @@ class DeviceInformation(object):
 
 	def update_device_info(self):
 		self.name = socket.gethostname()
-		#gDeviceInfo.ip_addr = ni.ifaddresses(WAN_ETHDEV)[ni.AF_INET][0]['addr']
 		self.ip_addr = device_info_get_ip_address(WAN_ETHDEV)
 		self.mac_addr = device_info_get_hwaddr(WAN_ETHDEV)
 		self.serial_num = device_info_get_serial_num()
@@ -94,14 +97,16 @@ class DeviceInformation(object):
 	                "capabilities" : self.capabilities
                  }
 
-		log_info(LOG_MODULE_MISC, "=" * 80)
-		log_info(LOG_MODULE_MISC,  "<Make Request Message>")
+		log_info(LOG_MODULE_MISC,  "<Make Response Message>")
 		log_info(LOG_MODULE_MISC, json.dumps(self.data, indent=2))
 
 		return self.data
 
 
 def device_info_get_ip_address(ifname):
+	'''
+	return ni.ifaddresses(ifname)[ni.AF_INET][0]['addr']
+	'''
 	f = os.popen('ifconfig '+ ifname +' | grep "inet\ addr" | cut -d: -f2 | cut -d" " -f1')
 	return f.read()[:-1]
 
@@ -119,3 +124,182 @@ def device_info_get_uptime():
 	with open('/proc/uptime', 'r') as f:
 		uptime_seconds = float(f.readline().split()[0])
 		return uptime_seconds
+
+
+'''
+Hardware Information Class
+'''
+
+def hardware_info_list():
+	hardware_info = HardwareInformation()
+	interface_data = hardware_info._make_hardware_interface_info_data("all")
+	data = {
+		"hardware-info": {
+			"interface-info" : interface_data,
+		},
+		'header': {
+			'resultCode': 200,
+			'resultMessage': 'Success.',
+			'isSuccessful': 'true'
+		}
+	}
+	return data
+
+class HardwareInformation():
+	def __init__(self):
+		pass
+
+	def _make_hardware_interface_info_data(self, if_type):
+		if if_type == "all":
+			self.data = {
+				"maxLanPort": MAX_LAN_PORTS,
+				"maxWanPort": MAX_WAN_PORTS,
+				"interfaces" : device_get_interface_info(),
+			}
+		elif if_type == "wan":
+			self.data = device_get_wan_interface_info()
+		elif if_type == "lan":
+			self.data = device_get_lan_interface_info()
+		else:
+			self.data = "Not support interface"
+
+		log_info(LOG_MODULE_MISC, "=" * 80)
+		log_info(LOG_MODULE_MISC, "<Make Request Message>")
+		log_info(LOG_MODULE_MISC, json.dumps(self.data, indent=2))
+
+		return self.data
+
+
+def device_get_if_bridge_mode():
+	ifBridge = True
+	ifBridgeList = ["eth0"]
+	'''
+	TODO
+	'''
+	return ifBridge, ifBridgeList
+
+def device_get_if_oper_status(ifname):
+	return False
+
+def device_get_port_link_status(port_idx):
+	'''
+	call SWIG function for ioctl
+	'''
+	link_status = ln.network_link_status_get(port_idx)
+	if link_status == 1:
+		return True
+	else:
+		return False
+
+'''
+From left to right near wan port
+'''
+PORT_LAN_1_IDX = 0
+PORT_LAN_2_IDX = 1
+PORT_LAN_3_IDX = 2
+PORT_LAN_4_IDX = 3
+PORT_WAN_IDX = 4
+
+lan_port_idx_list = [PORT_LAN_1_IDX, PORT_LAN_2_IDX, PORT_LAN_3_IDX, PORT_LAN_4_IDX]
+
+port_map = {
+	PORT_LAN_1_IDX: "LAN 1",
+	PORT_LAN_2_IDX: "LAN 2",
+	PORT_LAN_3_IDX: "LAN 3",
+	PORT_LAN_4_IDX: "LAN 4",
+	PORT_WAN_IDX: "WAN",
+}
+
+def device_get_port_name_by_idx(port_idx):
+	for key in port_map:
+		if key == port_idx:
+			return port_map[key]
+
+def device_get_port_info(type):
+	data = list()
+
+	if type == "wan":
+		port_idx = PORT_WAN_IDX
+		port_data = {
+			"portName" : device_get_port_name_by_idx(port_idx),
+			"portSpeed" : "1000M",
+			"portDuplex" : "full duplex",
+			"portLinkStatus" : device_get_port_link_status(port_idx)
+		}
+		data.append(port_data)
+	else:
+		for port_idx in lan_port_idx_list:
+			port_data = {
+				"portName": device_get_port_name_by_idx(port_idx),
+				"portSpeed": "1000M",
+				"portDuplex": "full duplex",
+				"portLinkStatus": device_get_port_link_status(port_idx)
+			}
+			data.append(port_data)
+
+	return data
+
+def device_get_interface_info():
+	iface_list = list()
+
+	data = {
+		"ifName": "eth1",
+        "ifType" : "wan",
+		"ifBridge": False,
+		"ifBridgeList": [],
+		"portList": device_get_port_info("wan"),
+		"ifPhyAddress": device_info_get_hwaddr("eth1"),
+		"ifOperStatus": device_get_if_oper_status("eth1"),
+		"ifUptime": ""
+	}
+	iface_list.append (data);
+
+	ifBridge, ifBridgeList = device_get_if_bridge_mode()
+	if ifBridge == True:
+		ifname = "br-lan"
+	else:
+		ifname = "eth0"
+
+	data = {
+		"ifName" : ifname,
+        "ifType": "lan",
+		"ifBridge" : ifBridge,
+		"ifBridgeList" : ifBridgeList,
+		"portList" : device_get_port_info("lan"),
+		"ifPhyAddress" : device_info_get_hwaddr(ifname),
+		"ifOperStatus" : device_get_if_oper_status(ifname),
+		"ifUptime" : ""
+	}
+	iface_list.append(data);
+
+	return iface_list;
+
+def device_get_wan_interface_info():
+	data = {
+		"ifName" : "eth1",
+		"ifBridge": False,
+		"ifBridgeList": [],
+		"portList" : device_get_port_info("wan"),
+		"ifPhyAddress" : device_info_get_hwaddr("eth1"),
+		"ifOperStatus" : device_get_if_oper_status("eth1"),
+		"ifUptime" : ""
+	}
+	return data
+
+def device_get_lan_interface_info():
+	ifBridge, ifBridgeList = device_get_if_bridge_mode()
+	if ifBridge == True:
+		ifname = "br-lan"
+	else:
+		ifname = "eth0"
+
+	data = {
+		"ifName" : ifname,
+		"ifBridge" : ifBridge,
+		"ifBridgeList" : ifBridgeList,
+		"portList" : device_get_port_info("lan"),
+		"ifPhyAddress" : device_info_get_hwaddr(ifname),
+		"ifOperStatus" : device_get_if_oper_status(ifname),
+		"ifUptime" : ""
+	}
+	return data

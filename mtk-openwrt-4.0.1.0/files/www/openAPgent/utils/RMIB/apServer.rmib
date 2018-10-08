@@ -15,6 +15,12 @@ CLASSNAME=DeviceInfo
 SAL_FUNCTION=py
 METHODLIST=list
 
+URI=v1/infos/hardwares/interfaces
+BASENAME=hardware_interface_info
+CLASSNAME=HardwareInterfaceInfo
+SAL_FUNCTION=py
+METHODLIST=list,retrieve
+
 URI=v1/configs/provisioning-done
 BASENAME=provisioning_done
 CLASSNAME=ProvisioningDone

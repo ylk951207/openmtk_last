@@ -1,6 +1,4 @@
-import fileinput
-
-import libsrc._sys_usage
+import libsrc._sys_usage as ls
 
 from common.log import *
 from common.env import *
@@ -8,6 +6,7 @@ from common.response import *
 
 SYSTEM_USAGE_CPU = "cpu_usage"
 SYSTEM_USAGE_MEMORY = "memory_usage"
+
 
 """
 SystemUsage
@@ -57,14 +56,14 @@ def system_usage_get(command):
 
     if command == 'cpu_usage':
         cpu_field = {
-            'cpuCurrent' : libsrc._sys_usage.cpu_usage(),
+            'cpuCurrent' : ls.sys_usage_get_cpu_usage(),
         }
         return cpu_field
 
     if command == 'memory_usage':
         memory_field = {
-            'memoryTotal'  : libsrc._sys_usage.memory_total(),
-            'memoryUsed'   : libsrc._sys_usage.memory_used(),
-            'memoryFree'   : libsrc._sys_usage.memory_free(),
+            'memoryTotal'  : ls.sys_usage_get_memory_total(),
+            'memoryUsed'   : ls.sys_usage_get_memory_used(),
+            'memoryFree'   : ls.sys_usage_get_memory_free(),
         }
         return memory_field

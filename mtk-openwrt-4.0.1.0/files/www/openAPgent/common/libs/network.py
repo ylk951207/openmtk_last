@@ -15,20 +15,20 @@ if version_info >= (2,6,0):
         import imp
         fp = None
         try:
-            fp, pathname, description = imp.find_module('_sys_usage', [dirname(__file__)])
+            fp, pathname, description = imp.find_module('_network', [dirname(__file__)])
         except ImportError:
-            import _sys_usage
-            return _sys_usage
+            import _network
+            return _network
         if fp is not None:
             try:
-                _mod = imp.load_module('_sys_usage', fp, pathname, description)
+                _mod = imp.load_module('_network', fp, pathname, description)
             finally:
                 fp.close()
             return _mod
-    _sys_usage = swig_import_helper()
+    _network = swig_import_helper()
     del swig_import_helper
 else:
-    import _sys_usage
+    import _network
 del version_info
 try:
     _swig_property = property
@@ -70,21 +70,9 @@ except AttributeError:
 
 
 
-def sys_usage_get_cpu_usage():
-  return _sys_usage.sys_usage_get_cpu_usage()
-sys_usage_get_cpu_usage = _sys_usage.sys_usage_get_cpu_usage
-
-def sys_usage_get_memory_total():
-  return _sys_usage.sys_usage_get_memory_total()
-sys_usage_get_memory_total = _sys_usage.sys_usage_get_memory_total
-
-def sys_usage_get_memory_free():
-  return _sys_usage.sys_usage_get_memory_free()
-sys_usage_get_memory_free = _sys_usage.sys_usage_get_memory_free
-
-def sys_usage_get_memory_used():
-  return _sys_usage.sys_usage_get_memory_used()
-sys_usage_get_memory_used = _sys_usage.sys_usage_get_memory_used
+def network_link_status_get(*args):
+  return _network.network_link_status_get(*args)
+network_link_status_get = _network.network_link_status_get
 # This file is compatible with both classic and new-style classes.
 
 

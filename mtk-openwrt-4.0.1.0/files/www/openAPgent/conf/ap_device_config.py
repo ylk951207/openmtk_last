@@ -54,3 +54,7 @@ AP_MAP_Y         = 126.97020099999997
 AP_CAPABILITIES  = ["docker", "system", "interface", "snmp"]
 
 
+MAX_LAN_PORTS = 4
+MAX_WAN_PORTS = 1
+
+

@@ -1,55 +1,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <errno.h>
 
-#define MAX_LINE_LENGTH 80
 #define ZERO 0
 #define ONE 1
 #define JIFFIES_NUM 4
 
-enum jiffy{USER, USER_NICE, SYSTEM, IDLE} jiffy_enum;
-
-float cpu_usage(void)
-{
-    char load_data_buf[MAX_LINE_LENGTH] = {0};
-    char cpu_id[4] = {0};
-
-    int jiffies[2][JIFFIES_NUM] = {0}, total_jiffies;
-    int diff_jiffies[JIFFIES_NUM];
-    int idx;
-    float cpu_usage_data;
-
-//    while(1)
-	    FILE* stat_file = fopen("/proc/stat", "r");
-	    if(stat_file == NULL)
-	    {
-        	    fprintf(stderr, "cpu file open error\n");
-        	    fclose(stat_file);
-	    }
-	        fscanf(stat_file, "%s %d %d %d %d",
-	            cpu_id, &jiffies[ONE][USER], &jiffies[ONE][USER_NICE],
-	            &jiffies[ONE][SYSTEM], &jiffies[ONE][IDLE]);
-	    if(stat_file == NULL)
-	    {
-	            fprintf(stderr, "cpu file scan error\n");
-	            fclose(stat_file);
-	    }
-
-	    for(idx = 0, total_jiffies = 0; idx < JIFFIES_NUM; ++idx)
-        {
-		        diff_jiffies[idx] = jiffies[ONE][idx] - jiffies[ZERO][idx];
-		        total_jiffies = total_jiffies + diff_jiffies[idx];
-        }   
-	    cpu_usage_data = 100.0*(1.0-(diff_jiffies[IDLE] / (double)total_jiffies));
-//	    printf("Cpu usage : %f%%\n",cpu_usage_data);
-
-	    memcpy(jiffies[ZERO], jiffies[ONE], sizeof(int)*JIFFIES_NUM);
-	    fclose(stat_file);
-        
-	
-    return cpu_usage_data;
-}
-/*------------------------------------------------------------------------*/
+#define MAX_LINE_LENGTH 80
 
 struct memory_info
 {
@@ -58,19 +16,72 @@ struct memory_info
     int memoryused;
 };
 
-struct memory_info memory_usage()
+enum jiffy{USER, USER_NICE, SYSTEM, IDLE} jiffy_enum;
+
+
+
+/**
+ * Get cpu usage 
+ */
+float
+sys_usage_get_cpu_usage(void)
 {
-        struct memory_info memory;
+	int idx;
+	int diff_jiffies[JIFFIES_NUM];
+	int jiffies[2][JIFFIES_NUM] = {0}, total_jiffies;
+    char load_data_buf[MAX_LINE_LENGTH] = {0};
+    char cpu_id[4] = {0};
+	float cpu_usage_data = 0;
+	FILE* stat_file;
+
+	stat_file = fopen("/proc/stat", "r");
+	    if(stat_file == NULL)
+	    {
+		fprintf(stderr, "cpu fopen() error %s\n", strerror(errno));
+        	    fclose(stat_file);
+		return cpu_usage_data;
+	    }
+	
+	        fscanf(stat_file, "%s %d %d %d %d",
+								cpu_id,
+								&jiffies[ONE][USER],
+								&jiffies[ONE][USER_NICE],
+								&jiffies[ONE][SYSTEM],
+								&jiffies[ONE][IDLE]);
+
+	    for(idx = 0, total_jiffies = 0; idx < JIFFIES_NUM; ++idx)
+        {
+		        diff_jiffies[idx] = jiffies[ONE][idx] - jiffies[ZERO][idx];
+		        total_jiffies = total_jiffies + diff_jiffies[idx];
+        }   
+	    cpu_usage_data = 100.0*(1.0-(diff_jiffies[IDLE] / (double)total_jiffies));
+
+	    memcpy(jiffies[ZERO], jiffies[ONE], sizeof(int)*JIFFIES_NUM);
+	    fclose(stat_file);
+        
+    return cpu_usage_data;
+}
+
+
+/**
+ * Get memory usage (total, free, used)
+ */
+void
+sys_usage_get_memory_usage(struct memory_info *memory)
+{
+	int i = 0;
         char buffer[128] = {0};
         char *token[128] = {NULL, };
-        int i = 0;
+	FILE *fp;
 
-        /* */
-        FILE *fp = fopen("/proc/meminfo", "r");
+	memset (memory, 0x00, sizeof (struct memory_info));
+
+	fp = fopen("/proc/meminfo", "r");
         if(fp == NULL)
         {
-            fprintf(stderr, "memory file open error\n");
+		fprintf(stderr, "memory fopen() error %s\n", strerror(errno));
             fclose(fp);
+		return;
         }
 
         while(fgets(buffer, 128, fp) != NULL)
@@ -83,50 +94,42 @@ struct memory_info memory_usage()
                 i++;
                 ptr = strtok(NULL, " ");
             }
-            if(strcmp(token[0], "MemTotal") == 0)
-            memory.memorytotal = atoi(token[1]);
 
+		if(strcmp(token[0], "MemTotal") == 0)
+			memory->memorytotal = atoi(token[1]);
             else if(strcmp(token[0], "MemFree") == 0)
-            memory.memoryfree = atoi(token[1]);
-
+			memory->memoryfree = atoi(token[1]);
         }
-        memory.memoryused = memory.memorytotal - memory.memoryfree;
+	memory->memoryused = memory->memorytotal - memory->memoryfree;
 
         fclose(fp);
-        return memory;
+	return;
 }
 
-    int memory_total(void)
+int 
+sys_usage_get_memory_total(void)
     {
-            struct memory_info result;
-            result = memory_usage();
-//            printf("memorytotal : %d\n", result.memorytotal);
-            return result.memorytotal;
+	struct memory_info memory;
+
+	sys_usage_get_memory_usage(&memory);
+	return memory.memorytotal;
     }
 
-    int memory_free(void)
+int 
+sys_usage_get_memory_free(void)
     {
-            struct memory_info result;
-            result = memory_usage();
-//            printf("memoryfree : %d\n", result.memoryfree);
-            return result.memoryfree;
+	struct memory_info memory;
+	
+	sys_usage_get_memory_usage(&memory);
+	return memory.memoryfree;
     }
 
-    int memory_used(void)
-    {
-            struct memory_info result;
-            result = memory_usage();
-//            printf("memoryused : %d\n", result.memoryused);
-            return result.memoryused;
-    }
-
-//#if 0
-int main(void)
+int 
+sys_usage_get_memory_used(void)
 {
-        memory_total();
-        memory_free();
-        memory_used();
-        cpu_usage();
+	struct memory_info memory;
+	
+	sys_usage_get_memory_usage(&memory);
+	return memory.memoryused;
 }
-//#endif
 

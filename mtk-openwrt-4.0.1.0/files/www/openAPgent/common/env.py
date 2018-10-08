@@ -20,6 +20,7 @@ Controller
 '''
 
 CAPC_SERVER_IP='capc.withusp.com'
+#CAPC_SERVER_PORT='7733'
 CAPC_SERVER_PORT='80'
 
 CAPC_SERVER_URL='http://' + CAPC_SERVER_IP + ':' + CAPC_SERVER_PORT
@@ -49,10 +50,8 @@ SAL_PUCI_MODULE_RESTART                 = "2"
 '''
 Interface
 '''
-
 LAN_ETHDEV='eth0'
 WAN_ETHDEV='eth1'
-
 
 IFNAME_LENGTH=30
 
@@ -65,11 +64,9 @@ Logging
 LOG_MODULE_SAL='sal'
 LOG_MODULE_APSERVER='apServer'
 LOG_MODULE_APCLIENT='apClient'
-LOG_MODULE_APNOTIFIER='apNotifier'
 LOG_MODULE_REQUEST='Request'
 LOG_MODULE_RESPONSE='Response'
 
 APSERVER_LOG_PATH="/var/log/apServer.log"
 APCLIENT_LOG_PATH="/var/log/apClient.log"
-APNOTIFIER_LOG_PATH="/var/log/apNotifier.log"
 

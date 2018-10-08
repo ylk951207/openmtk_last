@@ -37,6 +37,21 @@ class DeviceInfoViewSet(viewsets.ViewSet):
 
 
 '''
+ Define Class HardwareInterfaceInfo
+'''
+class HardwareInterfaceInfoViewSet(viewsets.ViewSet):
+  def list(self, request):
+    log_info(LOG_MODULE_APSERVER, "*** HardwareInterfaceInfo list() ***")
+    data = sal_hardware_interface_info(SAL_METHOD_LIST, request.data, None)
+    return Response(data, content_type='application/json')
+
+  def retrieve(self, request, pk):
+    log_info(LOG_MODULE_APSERVER, "*** HardwareInterfaceInfo retrieve(), pk = " + pk + " ***")
+    data = sal_hardware_interface_info(SAL_METHOD_RETRIEVE, request.data, pk)
+    return Response(data, content_type='application/json')
+
+
+'''
  Define Class ProvisioningDone
 '''
 class ProvisioningDoneViewSet(viewsets.ViewSet):

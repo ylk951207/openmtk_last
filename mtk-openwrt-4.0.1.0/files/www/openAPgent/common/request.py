@@ -24,9 +24,9 @@ class APgentSendRequest(object):
             if self.method == 'POST':
                 response = requests.post(url, data=json.dumps(self.data), headers=self.headers)
             elif self.method == 'PUT':
-                response = requests.put(url + self.device_id, data=json.dumps(self.data), headers=self.headers)
+                response = requests.put(url, data=json.dumps(self.data), headers=self.headers)
             elif self.method == 'GET':
-                response = requests.get(url + self.device_id)
+                response = requests.get(url)
             else:
                 log_info(LOG_MODULE_REQUEST, "Invalid method")
         except Exception as e:

@@ -219,6 +219,7 @@ def interface_config_v4addr_uci_set(req_data, ifname):
 
 '''
 GenericIfStats
+stats = [[ifname, inBytes, inPkts, inErr, inDrop, outBytes, outPkts, outErr, outDrop]] 
 '''
 def generic_ifstats_get(ifname):
     #Get port traffic from /proc/net/dev file
@@ -235,13 +236,13 @@ def generic_ifstats_get(ifname):
         if ifname:
             if line.find(ifname) == -1:
                 continue
-            stats = [[ifname, token[1], token[2], token[9], token[10]]]
+            stats = [[ifname, token[1], token[2], token[3], token[4], token[9], token[10], token[11], token[12]]]
             break
         else:
             if port_count == 0:
-                stats = [[token[0], token[1], token[2], token[9], token[10]]]
+                stats = [[token[0], token[1], token[2], token[3], token[4], token[9], token[10], token[11], token[12]]]
             else:
-                stats.append([token[0], token[1], token[2], token[9], token[10]])
+                stats.append([token[0], token[1], token[2], token[3], token[4], token[9], token[10], token[11], token[12]])
         port_count = port_count + 1
 
     fileinput.close()
@@ -253,12 +254,16 @@ def puci_if_statistics_list():
 
     for index in range(0, port_count):
         temp = {
-                'ifname':stats[index][0],
+                'ifName':stats[index][0].strip(':'),
                 'ifIndex':0,
                 'rxBytes':stats[index][1],
                 'rxPkts':stats[index][2],
-                'txBytes':stats[index][3],
-                'txPkts':stats[index][4]
+                'rxError':stats[index][3],
+                'rxDrop': stats[index][4],
+                'txBytes':stats[index][5],
+                'txPkts':stats[index][6],
+                'txError' : stats[index][7],
+                'txDrop': stats[index][8],
         }
         if index == 0:
             ifstats_body = [temp]
@@ -281,18 +286,22 @@ def puci_if_statistics_retrieve(ifname, add_header):
     if not ifname:
         raise RespNotFound("Interface")
 
-    log_info(UCI_NETWORK_FILE, "[ifname] : " + ifname)
+    log_info(UCI_NETWORK_FILE, "[ifName] : " + ifname)
 
     stats, port_count = generic_ifstats_get(ifname)
     if not stats: return None
 
     ifstats_body = {
-            'ifname':stats[0][0],
+            'ifName':stats[0][0].strip(':'),
             'ifIndex':0,
             'rxBytes':stats[0][1],
             'rxPkts':stats[0][2],
-            'txBytes':stats[0][3],
-            'txPkts':stats[0][4]
+            'rxError': stats[0][3],
+            'rxDrop': stats[0][4],
+            'txBytes':stats[0][5],
+            'txPkts':stats[0][6],
+            'txError': stats[0][7],
+            'txDrop': stats[0][8],
     }
 
     data = {

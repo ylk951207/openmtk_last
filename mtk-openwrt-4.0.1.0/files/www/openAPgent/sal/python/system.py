@@ -25,7 +25,7 @@ def py_keepalive_check_list():
 
 def py_device_info_list():
     device_info = DeviceInformation(0)
-    device_data = device_info._make_request_data()
+    device_data = device_info._make_device_info_data()
     data = {
             "device-info" : device_data,
             'header' : {
@@ -34,5 +34,32 @@ def py_device_info_list():
                     'isSuccessful':'true'
             }
     }
+    return data
 
+
+def py_hardware_interface_info_list():
+    interface_info = HardwareInformation()
+    interface_data = interface_info._make_hardware_interface_info_data("all")
+    data = {
+        "interface-info" : interface_data,
+        'header': {
+            'resultCode': 200,
+            'resultMessage': 'Success.',
+            'isSuccessful': 'true'
+        }
+    }
+    return data
+
+
+def py_hardware_interface_info_retrieve(if_type, add_header):
+    interface_info = HardwareInformation()
+    interface_data = interface_info._make_hardware_interface_info_data(if_type)
+    data = {
+        if_type: interface_data,
+        'header' : {
+            'resultCode':200,
+            'resultMessage':'Success.',
+            'isSuccessful':'true'
+        }
+    }
     return data

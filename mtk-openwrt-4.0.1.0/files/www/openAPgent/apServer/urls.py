@@ -22,19 +22,15 @@ from apServer.server import views
 from apServer.server.urls import custom_router
 
 
-router = routers.DefaultRouter()
-router.register(r'v1/devices', views.DeviceInfoViewSet)
-
-
 '''
 Define URL Patterns
 '''
+# url(r'^v1/infos/hardwares', views.hardwareInfoView.as_view()),
 
 urlpatterns = [
 	url(r'^admin/', admin.site.urls),
 	url(r'^v1/configs/interfaces/(?P<ifname>[a-z]+\d*)/v4addr$', views.InterfaceV4AddrConfigView.as_view()),
 ]
 
-urlpatterns += router.urls
 urlpatterns += custom_router.urls
 
