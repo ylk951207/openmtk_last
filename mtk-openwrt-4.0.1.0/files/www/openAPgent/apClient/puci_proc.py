@@ -62,10 +62,10 @@ class PuciModuleRestart(object):
             log_error(LOG_MODULE_APCLIENT, "*** docker  container restart() error ***")
             log_error(LOG_MODULE_APCLIENT, "*** error: " + str(e))
 
-    def _puci_container_module_restart(self):
-        log_info(LOG_MODULE_APCLIENT, "<%s -'%s' container restart>" %(self.config_file, self.container_name))
+    def _puci_container_module_restart(self, container_name):
+        log_info(LOG_MODULE_APCLIENT, "<'%s' container restart>" %container_name)
         client = docker.from_env()
-        container_list = self._docker_container_get_by_prefix(self.container_name)
+        container_list = self._docker_container_get_by_prefix(container_name)
         if container_list:
             self._docker_container_restart(client, container_list)
 
@@ -74,8 +74,8 @@ class PuciModuleRestart(object):
         output, error = subprocess_open('ifdown ' + ifname)
         output, error = subprocess_open('ifup ' + ifname)
 
-    def _puci_default_module_restart(self):
-        command = '/etc/init.d/' + self.config_file + ' restart'
+    def _puci_default_module_restart(self, config_file):
+        command = '/etc/init.d/' + config_file + ' restart'
         output, error = subprocess_open(command)
         log_info(LOG_MODULE_APCLIENT, "== command '%s', output:%s, error:%s ==" % (command, output, error))
 
@@ -108,11 +108,11 @@ class PuciModuleRestart(object):
         if self.config_file == "all":
             self._puci_provisioning_module_restart ()
         elif self.container_name:
-            self._puci_container_module_restart()
+            self._puci_container_module_restart(self.container_name)
         elif self.config_file == 'network' and self.ifname:
             self._puci_network_module_restart(self.ifname)
         else:
-            self._puci_default_module_restart()
+            self._puci_default_module_restart(self.config_file)
 
         '''
         TODO : Send result message to cACP

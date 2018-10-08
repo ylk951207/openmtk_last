@@ -171,15 +171,35 @@ class HardwareInformation():
 
 
 def device_get_if_bridge_mode():
-	ifBridge = True
-	ifBridgeList = ["eth0"]
-	'''
-	TODO
-	'''
+	ifBridge = False
+	ifBridgeList = []
+
+	cmd_str = "brctl show"
+	output, error = subprocess_open(cmd_str)
+	if 'br-lan' in output:
+		output = output.split('\n')
+		for line in output:
+			token = line.split()
+
+			if ifBridge == True:
+				if len(token) == 1:
+					ifBridgeList.append(token[0])
+					continue
+				else:
+					break
+
+			if not 'br-lan' in line:
+				continue
+			ifBridge = True
+			if token[3]:
+				ifBridgeList.append(token[3])
+
+	log_info(LOG_MODULE_MISC, "ifBridge :" + str(ifBridge))
+	log_info(LOG_MODULE_MISC, "ifBridgeList :" + str(ifBridgeList))
 	return ifBridge, ifBridgeList
 
 def device_get_if_oper_status(ifname):
-	return False
+	return True
 
 def device_get_port_link_status(port_idx):
 	'''

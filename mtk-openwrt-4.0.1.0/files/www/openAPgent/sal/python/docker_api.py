@@ -3,9 +3,10 @@ import subprocess
 
 from common.log import *
 from common.env import *
+from common.file import *
+from common.misc import *
 from common.request import *
 from common.response import *
-from common.misc import *
 
 LOG_MODULE_DOCKER="docker"
 CONTAINER_BACKUP_STR=".old_container"
@@ -390,6 +391,9 @@ class DockerContainerProc():
         while len(self.req_container_list) > 0:
             req_container = self.req_container_list.pop(0)
 
+            lock = FileLock("container_lock", dir="/tmp")
+            lock.acquire()
+
             self._docker_container_stop_previous(req_container)
 
             try:
@@ -410,8 +414,10 @@ class DockerContainerProc():
                 log_info(LOG_MODULE_DOCKER, "containers.run() success for %s" %image_name)
 
         self._docker_container_remove_others(rollback_body, error, req_container['containerName'])
-
         log_info(LOG_MODULE_DOCKER, "rollback data : " + str(rollback_body))
+
+        lock.release()
+
         return self.response.make_response_body(rollback_body)
 
     def _docker_container_mgt_proc(self, mgt_command, container, options):

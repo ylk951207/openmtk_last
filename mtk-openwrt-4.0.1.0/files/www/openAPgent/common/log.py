@@ -7,7 +7,7 @@ class GetLogger():
         self.logger = logging.getLogger(name)
         self.logger.setLevel(logging.INFO)
 
-        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
         if name == "apServerLog":
             log_file = APSERVER_LOG_PATH
         else:
@@ -30,25 +30,25 @@ def log_debug(module, *values):
         gLogger.logger.debug('%s: Invaild log' % module)
     else:
         val_list = ' '.join(str(x) for x in values)
-        gLogger.logger.debug('%s: %s' % (module, val_list))
+        gLogger.logger.debug('%s[%d]: %s' % (module, os.getpid(),  val_list))
 
 def log_info(module, *values):
     if not values:
         gLogger.logger.info ('%s: Invaild log' % module)
     else:
         val_list = ' '.join(str(x) for x in values)
-        gLogger.logger.info('%s: %s' % (module, val_list))
+        gLogger.logger.info('%s[%d]: %s' % (module, os.getpid(), val_list))
 
 def log_error(module, *values):
     if not values:
         gLogger.logger.error('%s: Invaild log' % module)
     else:
         val_list = ' '.join(str(x) for x in values)
-        gLogger.logger.error('%s: %s' % (module, val_list))
+        gLogger.logger.error('%s[%d]: %s' % (module, os.getpid(), val_list))
 
 def log_warn(module, *values):
     if not values:
         gLogger.logger.warn('%s: Invaild log' % module)
     else:
         val_list = ' '.join(str(x) for x in values)
-        gLogger.logger.warn('%s: %s' % (module, val_list))
+        gLogger.logger.warn('%s[%d]: %s' % (module, os.getpid(), val_list))
