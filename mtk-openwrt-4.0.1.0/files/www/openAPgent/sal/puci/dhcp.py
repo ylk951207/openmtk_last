@@ -150,7 +150,7 @@ def dhcp_pool_config_set(request):
 
         ifname = ifdata['ifname']
 
-        dhcp_pool_uci_set(ifdata, ifname)
+        dhcp_pool_config_uci_set(ifdata, ifname)
         if UCI_DHCP_V6POOL_STR in ifdata:
             dhcp_pool_v6pool_config_uci_set(ifdata[UCI_DHCP_V6POOL_STR], ifname)
 
