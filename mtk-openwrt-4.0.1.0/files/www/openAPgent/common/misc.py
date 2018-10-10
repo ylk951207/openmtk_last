@@ -1,6 +1,7 @@
 import os
 import shlex
 import subprocess
+import fileinput
 #import netifaces as ni
 import fcntl, socket, struct, json
 
@@ -323,3 +324,17 @@ def device_get_lan_interface_info():
 		"ifUptime" : ""
 	}
 	return data
+
+
+def device_get_wireless_state(ifname):
+	filename = '/sys/class/net/' + ifname + '/flags'
+	try:
+		with open(filename, 'r') as f:
+			flags = int(f.read()[2:-1])
+			if (flags % 2) == 1:
+				return "up"
+			else:
+				return "down"
+	except:
+		log_error(LOG_MODULE_MISC, "file '%s' open() error" %filename)
+		return "-"

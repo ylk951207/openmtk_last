@@ -21,6 +21,12 @@ CLASSNAME=HardwareInterfaceInfo
 SAL_FUNCTION=py
 METHODLIST=list,retrieve
 
+URI=v1/infos/hardwares/wireless
+BASENAME=hardware_wireless_info
+CLASSNAME=HardwareWirelessInfo
+SAL_FUNCTION=py
+METHODLIST=list
+
 URI=v1/configs/provisioning-done
 BASENAME=provisioning_done
 CLASSNAME=ProvisioningDone

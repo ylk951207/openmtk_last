@@ -63,3 +63,28 @@ def py_hardware_interface_info_retrieve(if_type, add_header):
         }
     }
     return data
+
+
+def py_hardware_wireless_info_list():
+    wireless_data = list()
+    wireless_iflist = {
+        "2G_default" : "ra0",
+        "5G_default" : "rai0"
+    }
+
+    for key, value in wireless_iflist.items():
+        dict_data = {
+            "type" : key,
+            "state" : device_get_wireless_state(value)
+        }
+        wireless_data.append(dict_data)
+
+    data = {
+        "wireless-info": wireless_data,
+        'header': {
+               'resultCode': 200,
+               'resultMessage': 'Success.',
+               'isSuccessful': 'true'
+        }
+    }
+    return data

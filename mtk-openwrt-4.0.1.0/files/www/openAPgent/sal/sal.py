@@ -48,6 +48,7 @@ def sal_device_info(method, request, pk):
   if method == SAL_METHOD_LIST:
     return py_device_info_list()
 
+
 '''
  Define hardware_interface_info SAL function
 '''
@@ -58,6 +59,16 @@ def sal_hardware_interface_info(method, request, pk):
 
   if method == SAL_METHOD_RETRIEVE:
     return py_hardware_interface_info_retrieve(pk, 1)
+
+
+'''
+ Define hardware_wireless_info SAL function
+'''
+def sal_hardware_wireless_info(method, request, pk):
+  # For Python APIs
+  if method == SAL_METHOD_LIST:
+    return py_hardware_wireless_info_list()
+
 
 '''
  Define provisioning_done SAL function

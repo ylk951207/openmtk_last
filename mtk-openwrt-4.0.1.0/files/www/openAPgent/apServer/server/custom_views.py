@@ -52,6 +52,16 @@ class HardwareInterfaceInfoViewSet(viewsets.ViewSet):
 
 
 '''
+ Define Class HardwareWirelessInfo
+'''
+class HardwareWirelessInfoViewSet(viewsets.ViewSet):
+  def list(self, request):
+    log_info(LOG_MODULE_APSERVER, "*** HardwareWirelessInfo list() ***")
+    data = sal_hardware_wireless_info(SAL_METHOD_LIST, request.data, None)
+    return Response(data, content_type='application/json')
+
+
+'''
  Define Class ProvisioningDone
 '''
 class ProvisioningDoneViewSet(viewsets.ViewSet):
