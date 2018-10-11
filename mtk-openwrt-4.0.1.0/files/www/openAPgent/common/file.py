@@ -31,7 +31,7 @@ class ConfigFileProc:
 
 		for map_key, map_val in self.section_map.items():
 			for key, val in file_data.items():
-				if map_val[1] in key:
+				if map_val[1] == key:
 					map_val[2] = self.convert_get_config_value(map_val[0], file_data[map_val[1]])
 					self.section_map[map_key] = map_val
 

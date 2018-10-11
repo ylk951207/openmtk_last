@@ -2,6 +2,7 @@ from common.log import *
 from common.env import *
 from common.misc import *
 from common.file import*
+from common.request import*
 
 WIRELESS_COMMON_CONFIG = "wireless_common_config"
 WIRELESS_SEARCH_CONFIG = "wireless_search_config"
@@ -117,6 +118,9 @@ def py_wireless_config_retrieve(ap_type, add_header):
         wireless_data['wps'] = False
 
     wireless_data['mode'] = wireless_convert_number_to_mode_type(wireless_data['mode'])
+
+    wireless_data['enable'] = device_get_wireless_state(if_name)
+    wireless_data['status'] = device_get_wireless_state(if_name)
 
     if add_header == 1:
         data = {
@@ -235,6 +239,10 @@ def wireless_config_detail_set(request, ap_type):
     return data
 
 def wireless_get_device_info(ap_type):
+    if_name = ""
+    device_name = ""
+    if_num = 0
+
     if ap_type == "5G_default":
         if_name = "rai0"
         device_name = FIVE_GIGA_DEVICE_NAME

@@ -5,6 +5,7 @@ import logging
 import socket
 from apClient.docker_proc import *
 from apClient.puci_proc import *
+from apClient.wifi_proc import *
 from common.log import *
 from common.env import *
 
