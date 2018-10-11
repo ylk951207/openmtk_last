@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import subprocess
 import docker
 
 from common.log import *
@@ -24,7 +23,6 @@ class PuciModuleRestart(object):
             self.ifname = request['ifname']
         else:
             self.ifname = None
-        pass
 
     def puci_provisioning_done_file_create(self):
         f = open(PROVISIONING_DONE_FILE, "w")

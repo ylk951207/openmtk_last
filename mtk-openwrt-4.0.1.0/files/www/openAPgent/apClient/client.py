@@ -44,6 +44,7 @@ class ClientCmdApp():
                     docker_cmd_proc(data['command'], data['body'])
                 elif module == 'PUCI':
                     puci_cmd_proc(data['command'], data['body'])
-
+                elif module == 'WIFI':
+                    wifi_cmd_proc(data['command'], data['body'])
             log_info(LOG_MODULE_APCLIENT, '---- Socket close ----')
             sock.close()

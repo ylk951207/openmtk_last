@@ -208,12 +208,12 @@ def device_get_interface_operstate(ifname):
 		with open(filename, 'r') as f:
 			flags = int(f.read()[2:-1])
 			if (flags % 2) == 1:
-				return "up"
+				return True
 			else:
-				return "down"
+				return False
 	except:
 		log_error(LOG_MODULE_MISC, "file '%s' open() error" % filename)
-		return "-"
+		return False
 
 def device_get_wireless_state(ifname):
 	return device_get_interface_operstate(ifname)

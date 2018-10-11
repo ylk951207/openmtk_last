@@ -40,6 +40,7 @@ mode_data = {
         '802.11 a/ac/an mixed': 14,
         '802.11 ac/an mixed':15
         }
+
 '''
 Wireless configuration GET, SET
 '''
@@ -93,16 +94,15 @@ def py_wireless_config_retrieve(ap_type, add_header):
 	(authMode, privacyMode, wps | data file type = a;b;c;d) 
 	'''
         if key == 'authMode' or key == 'privacyMode' or key == 'wps':
-            token = val.split(';')
-
-            if len(token) == field_data_num:
-                filter_val = token[if_num].replace("\n", "")
+            if ';' in val:
+                token = val.split(';')
+                if len(token) == field_data_num:
+                    filter_val = token[if_num].replace("\n", "")
+                else:
+                    filter_val = ""
             else:
-                token.append("")
-                filter_val = token[if_num].replace("\n", "")
-
+                filter_val = val.replace("\n", "")
             wireless_data[key] = filter_val
-
         elif isinstance(val, str):
             filter_val = val.replace("\n","")
             wireless_data[key] = filter_val
@@ -141,7 +141,6 @@ def py_wireless_search_list():
     pass
 
 
-
 '''
 file I/O
 '''
@@ -169,7 +168,6 @@ def wireless_config_set(request):
             if wireless_field['type'] == ap_type:
                 wireless_config_detail_set(wireless_field, ap_type)
 
-
     data = {
         'header': {
             'resultCode': 200,
@@ -178,7 +176,6 @@ def wireless_config_set(request):
         }
     }
     return data
-
 
 def wireless_config_detail_set(request, ap_type):
     log_info(WIRELESS_COMMON_CONFIG, "request data = ", str(request))
@@ -202,12 +199,10 @@ def wireless_config_detail_set(request, ap_type):
     elif request['wps'] == False:
         request['wps'] = WPS_DISABLE_SIGNAL
 
-
     for req_key, req_val in request.items():
         if req_key == "authMode" or req_key == "privacyMode" or req_key == "wps":
             apply_req_val = wireless_convert_to_spcific_data_type(config_file_name, req_key, req_val, str(if_num))
             request[req_key] = apply_req_val
-
 
     file_config = ConfigFileProc(WIRELESS_COMMON_CONFIG, PATH_WIRELESS_MEDIATEK, config_file_name, field_data_num)
     if file_config == None:
@@ -224,6 +219,11 @@ def wireless_config_detail_set(request, ap_type):
     request['mode'] = wireless_convert_mode_type_to_number(str(request['mode']))
 
     file_config.write_file_data(request, DELIMITER_EQUEL, header_text)
+
+    '''
+    Wireless Enable/Disable Processing
+    '''
+    wireless_module_restart(request['enable'], if_name)
 
     data = {
         'header': {
@@ -253,7 +253,6 @@ def wireless_get_device_info(ap_type):
             if_num = ap_type.split("t")[1]
             device_name = TWO_GIGA_DEVICE_NAME
             if_name = "ra" + str(if_num)
-
 
     return if_name, device_name, int(if_num)
 
@@ -291,3 +290,13 @@ def wireless_convert_number_to_mode_type(mode_num):
     for key,val in mode_data.items():
         if val == mode_num:
             return key
+
+
+def wireless_module_restart(enable, ifname):
+    noti_data = dict()
+    noti_data['enable'] = enable
+    noti_data['ifname'] = ifname
+    server_msg = ApServerLocalMassage(APNOTIFIER_CMD_PORT)
+    server_msg.send_message_to_apnotifier("WIFI", SAL_WIFI_MODULE_RESTART, noti_data)
+    log_info(LOG_MODULE_PUCI, "** Send wifi module restart message to apClient **")
+

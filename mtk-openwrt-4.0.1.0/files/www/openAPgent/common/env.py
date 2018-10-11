@@ -44,6 +44,7 @@ apClient Command
 '''
 SAL_PYTHON_DOCKER_IMAGE_CREATE          = "1"
 SAL_PUCI_MODULE_RESTART                 = "2"
+SAL_WIFI_MODULE_RESTART                 = "3"
 
 
 '''
