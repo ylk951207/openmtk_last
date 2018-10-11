@@ -46,10 +46,5 @@ ls -al mtk-openwrt-4.0.1.0/bin/targets/mediatek/mt7622-glibc'''
 ls -al /tftpboot'''
       }
     }
-    stage('Send Slack Messsage') {
-      steps {
-        slackSend(message: 'cAP - building openmtk4010 success!', baseUrl: 'https://withusplanet.slack.com/services/hooks/jenkins-ci/', failOnError: true, color: 'Red', token: 'VevfQyHTHojGYOf0rvY3PRKG')
-      }
-    }
   }
 }
