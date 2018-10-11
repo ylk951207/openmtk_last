@@ -6,7 +6,6 @@ from common.file import*
 WIRELESS_COMMON_CONFIG = "wireless_common_config"
 WIRELESS_SEARCH_CONFIG = "wireless_search_config"
 
-
 PATH_WIRELESS_MEDIATEK='/etc/wireless/mediatek/'
 
 MT7615_1_DAT="mt7615e.1.dat"
@@ -26,8 +25,21 @@ ap_type_list = ["5G_default", "5G_guest1", "5G_guest2", "2G_default", "2G_guest1
 WPS enable is 7, disable is 0
 '''
 WPS_ENABLE_SIGNAL = "7"
+WPS_DISABLE_SIGNAL = "0"
 
-
+'''
+Wireless 802.11 protocol supported mode 
+'''
+mode_data = {
+        '802.11 b only': 1,
+        '802.11 a only': 2,
+        '802.11 g only': 4,
+        '802.11 a/n in 5 band':8,
+        '802.11 b/g/gn mode': 9,
+        '802.11 b/g mixed': 0,
+        '802.11 a/ac/an mixed': 14,
+        '802.11 ac/an mixed':15
+        }
 '''
 Wireless configuration GET, SET
 '''
@@ -71,10 +83,7 @@ def py_wireless_config_retrieve(ap_type, add_header):
     field_data_num = str(if_num+1)
 
     wireless_data = wireless_config_get(data_file_name, field_data_num)
-    if_line = subprocess_open("ifconfig " + if_name)[0]
-    if if_line[0:5].replace(" ","") == if_name:
-        wireless_data['bssid'] = device_info_get_hwaddr(if_name)
-
+    wireless_data['bssid'] = device_info_get_hwaddr(if_name)
     wireless_data['devName'] = device_name
     wireless_data['type'] = ap_type
 
@@ -94,14 +103,20 @@ def py_wireless_config_retrieve(ap_type, add_header):
 
             wireless_data[key] = filter_val
 
-        else:
+        elif isinstance(val, str):
             filter_val = val.replace("\n","")
             wireless_data[key] = filter_val
+        else:
+            wireless_data[key] = val
     '''
     wps enable = 7 , disable = 0 | data file type = 7;0;0;7
     '''
     if wireless_data['wps'] == WPS_ENABLE_SIGNAL:
-        wireless_data['wps'] = "1"
+        wireless_data['wps'] = True
+    elif wireless_data['wps'] == WPS_DISABLE_SIGNAL:
+        wireless_data['wps'] = False
+
+    wireless_data['mode'] = wireless_convert_number_to_mode_type(wireless_data['mode'])
 
     if add_header == 1:
         data = {
@@ -147,8 +162,6 @@ def wireless_config_get(data_file_name, field_data_num):
 def wireless_config_set(request):
     log_info(WIRELESS_COMMON_CONFIG, "request data = ", str(request))
 
-    ap_type_list = ["5G_default", "5G_guest1", "5G_guest2", "2G_default", "2G_guest1", "2G_guest2"]
-
     wireless_list = request['wireless-list']
     while len(wireless_list) > 0:
         wireless_field = wireless_list.pop(0)
@@ -184,8 +197,11 @@ def wireless_config_detail_set(request, ap_type):
     '''
     wps enable = 7 , disable = 0 | data file type = 7;0;0;7
     '''
-    if request["wps"] == "1":
-        request["wps"] = WPS_ENABLE_SIGNAL
+    if request['wps'] == True:
+        request['wps'] = WPS_ENABLE_SIGNAL
+    elif request['wps'] == False:
+        request['wps'] = WPS_DISABLE_SIGNAL
+
 
     for req_key, req_val in request.items():
         if req_key == "authMode" or req_key == "privacyMode" or req_key == "wps":
@@ -201,6 +217,11 @@ def wireless_config_detail_set(request, ap_type):
         header_text = MT7615_1_HEADER_TEXT
     elif request["type"] == "2G_default" or request["type"] == "2G_guest1" or request["type"] =="2G_guest2":
         header_text = MT7622_1_HEADER_TEXT
+
+    '''
+    Change the mode type to a matching number(802.11 b only -> 1, 802.11 g only -> 4 ...)
+    '''
+    request['mode'] = wireless_convert_mode_type_to_number(str(request['mode']))
 
     file_config.write_file_data(request, DELIMITER_EQUEL, header_text)
 
@@ -254,3 +275,19 @@ def wireless_convert_to_spcific_data_type(config_file_name, req_key, req_val, if
 
     return apply_req_val
 
+'''
+Change the mode type to a matching number(802.11 b only -> 1, 802.11 g only -> 4 ...)
+'''
+def wireless_convert_mode_type_to_number(mode_type):
+    for i in mode_data.keys():
+        if i == mode_type:
+            mode_num = mode_data[mode_type]
+            return mode_num
+
+'''
+Change the number to a matching mode type(1 -> 802.11 b only , 4 -> 802.11 g only...)
+'''
+def wireless_convert_number_to_mode_type(mode_num):
+    for key,val in mode_data.items():
+        if val == mode_num:
+            return key

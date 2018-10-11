@@ -23,6 +23,21 @@ class ConfigFileProc:
 		log_info(LOG_MODULE_FILE, "Section_map(" + config_name + "): " + str(self.section_map))
 
 	'''
+	Get section map
+	'''
+	def get_file_data_section_map(self, delimiter):
+
+		file_data = self.read_file_data(delimiter)
+
+		for map_key, map_val in self.section_map.items():
+			for key, val in file_data.items():
+				if map_val[1] in key:
+					map_val[2] = self.convert_get_config_value(map_val[0], file_data[map_val[1]])
+					self.section_map[map_key] = map_val
+
+		return self.section_map
+
+	'''
 	Read the data and split it by delimiter
 	'''
 	def read_file_data(self, delimiter):
@@ -61,21 +76,6 @@ class ConfigFileProc:
 				f.write(write_data)
 
 	'''
-	Get section map
-	'''
-	def get_file_data_section_map(self, delimiter):
-
-		file_data = self.read_file_data(delimiter)
-
-		for map_key, map_val in self.section_map.items():
-			for key, val in file_data.items():
-				if map_val[1] in key:
-					map_val[2] = file_data[map_val[1]]
-					self.section_map[map_key] = map_val
-
-		return self.section_map
-
-	'''
 	Apply data using request value
 	'''
 	def apply_request_data(self, req_data):
@@ -85,10 +85,38 @@ class ConfigFileProc:
 			for req_key, req_val in req_data.items():
 				if map_key == req_key:
 					apply_map_key = map_val[1]
-					apply_req_data[apply_map_key] = req_val
+					apply_req_data[apply_map_key] = self.convert_set_config_value(map_val[0], req_val)
 
 		return apply_req_data
+	'''
+	Changes the string to a different type
+	'''
+	def convert_get_config_value(self, type, val):
+		if type == CONFIG_TYPE_INTEGER:
+			if isinstance(val, str) and val != '\n':
+				val = int(val)
+				return val
+		elif type == CONFIG_TYPE_BOOLEAN:
+			if isinstance(val, bool):
+				if val == "1":	return True
+				elif val == "0": return False
+		else:
+			return val
 
+	'''
+	Change other types to strings.
+	'''
+	def convert_set_config_value(self, type, val):
+		if type == CONFIG_TYPE_INTEGER:
+			if isinstance(val, int):
+				val = str(val)
+				return val
+		elif type == CONFIG_TYPE_BOOLEAN:
+			if isinstance(val, bool):
+				if val == True:	return "1"
+				elif val == False: return "0"
+		else:
+			return val
 
 '''
 File Lock Class

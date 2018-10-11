@@ -117,9 +117,12 @@ def device_info_get_serial_num():
 	return "AP_SR_NO7777_"+ token[3] + token[4] + token[5]
 
 def device_info_get_hwaddr(ifname):
+    try:
 	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	info = fcntl.ioctl(s.fileno(), 0x8927,  struct.pack('256s', ifname[:15]))
 	return ':'.join(['%02x' % ord(char) for char in info[18:24]])
+    except:
+	return ""
 
 def device_info_get_uptime():
 	with open('/proc/uptime', 'r') as f:
