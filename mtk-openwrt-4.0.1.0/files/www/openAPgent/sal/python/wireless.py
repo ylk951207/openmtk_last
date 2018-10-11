@@ -306,5 +306,5 @@ def wireless_module_restart(enable, ifname):
     noti_data['ifname'] = ifname
     server_msg = ApServerLocalMassage(APNOTIFIER_CMD_PORT)
     server_msg.send_message_to_apnotifier("WIFI", SAL_WIFI_MODULE_RESTART, noti_data)
-    log_info(LOG_MODULE_PUCI, "** Send wifi module restart message to apClient **")
+    log_info("WIFI", "** Send wifi module restart message to apClient **")
 
