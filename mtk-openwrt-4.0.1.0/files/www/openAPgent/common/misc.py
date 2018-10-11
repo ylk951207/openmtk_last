@@ -199,8 +199,21 @@ def device_get_if_bridge_mode():
 	log_info(LOG_MODULE_MISC, "ifBridgeList :" + str(ifBridgeList))
 	return ifBridge, ifBridgeList
 
-def device_get_if_oper_status(ifname):
-	return True
+def device_get_interface_operstate(ifname):
+	filename = '/sys/class/net/' + ifname + '/flags'
+	try:
+		with open(filename, 'r') as f:
+			flags = int(f.read()[2:-1])
+			if (flags % 2) == 1:
+				return "up"
+			else:
+				return "down"
+	except:
+		log_error(LOG_MODULE_MISC, "file '%s' open() error" % filename)
+		return "-"
+
+def device_get_wireless_state(ifname):
+	return device_get_interface_operstate(ifname)
 
 def device_get_port_link_status(port_idx):
 	'''
@@ -270,7 +283,7 @@ def device_get_interface_info():
 		"ifBridgeList": [],
 		"portList": device_get_port_info("wan"),
 		"ifPhyAddress": device_info_get_hwaddr("eth1"),
-		"ifOperStatus": device_get_if_oper_status("eth1"),
+		"ifOperStatus": device_get_interface_operstate("eth1"),
 		"ifUptime": ""
 	}
 	iface_list.append (data);
@@ -288,7 +301,7 @@ def device_get_interface_info():
 		"ifBridgeList" : ifBridgeList,
 		"portList" : device_get_port_info("lan"),
 		"ifPhyAddress" : device_info_get_hwaddr(ifname),
-		"ifOperStatus" : device_get_if_oper_status(ifname),
+		"ifOperStatus" : device_get_interface_operstate(ifname),
 		"ifUptime" : ""
 	}
 	iface_list.append(data);
@@ -302,7 +315,7 @@ def device_get_wan_interface_info():
 		"ifBridgeList": [],
 		"portList" : device_get_port_info("wan"),
 		"ifPhyAddress" : device_info_get_hwaddr("eth1"),
-		"ifOperStatus" : device_get_if_oper_status("eth1"),
+		"ifOperStatus" : device_get_interface_operstate("eth1"),
 		"ifUptime" : ""
 	}
 	return data
@@ -320,21 +333,8 @@ def device_get_lan_interface_info():
 		"ifBridgeList" : ifBridgeList,
 		"portList" : device_get_port_info("lan"),
 		"ifPhyAddress" : device_info_get_hwaddr(ifname),
-		"ifOperStatus" : device_get_if_oper_status(ifname),
+		"ifOperStatus" : device_get_interface_operstate(ifname),
 		"ifUptime" : ""
 	}
 	return data
 
-
-def device_get_wireless_state(ifname):
-	filename = '/sys/class/net/' + ifname + '/flags'
-	try:
-		with open(filename, 'r') as f:
-			flags = int(f.read()[2:-1])
-			if (flags % 2) == 1:
-				return "up"
-			else:
-				return "down"
-	except:
-		log_error(LOG_MODULE_MISC, "file '%s' open() error" %filename)
-		return "-"
