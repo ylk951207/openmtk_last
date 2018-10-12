@@ -195,7 +195,7 @@ def device_get_if_bridge_mode():
 			if not 'br-lan' in line:
 				continue
 			ifBridge = True
-			if token[3]:
+			if len(token) > 3 and token[3]:
 				ifBridgeList.append(token[3])
 
 	log_info(LOG_MODULE_MISC, "ifBridge :" + str(ifBridge))

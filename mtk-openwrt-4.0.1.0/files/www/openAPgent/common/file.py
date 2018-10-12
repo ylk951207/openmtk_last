@@ -45,7 +45,7 @@ class ConfigFileProc:
 		with open(self.config_path + self.config_name, 'r') as f:
 			lines = f.readlines()
 			for line in lines:
-				line = line.replace("\r\n", "")
+				line = line.strip()
 				if delimiter in line:
 					tokens = line.split(delimiter)
 
