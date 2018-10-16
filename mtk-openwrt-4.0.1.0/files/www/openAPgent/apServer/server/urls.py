@@ -24,6 +24,7 @@ custom_router.register(r'v1/configs/dhcp/static-leases', views.DhcpStaticLeasesC
 custom_router.register(r'v1/configs/snmp', views.SNMPConfigViewSet, base_name='snmp_config')
 custom_router.register(r'v1/configs/wireless', views.WirelessConfigViewSet, base_name='wireless_config')
 custom_router.register(r'v1/configs/wireless-search', views.WirelessSearchViewSet, base_name='wireless_search')
+custom_router.register(r'v1/configs/firewall/port-forwarding', views.PortForwardingViewSet, base_name='port_forwarding')
 custom_router.register(r'v1/management/firmware', views.FirmwareMgtViewSet, base_name='firmware_management')
 custom_router.register(r'v1/management/configuration', views.ConfigMgtViewSet, base_name='config_management')
 custom_router.register(r'v1/statistics', views.IfStatisticsViewSet, base_name='if_statistics')

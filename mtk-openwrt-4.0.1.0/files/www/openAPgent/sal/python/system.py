@@ -16,11 +16,11 @@ def py_provisioning_done_create(request):
     server_msg = ApServerLocalMassage(APNOTIFIER_CMD_PORT)
     server_msg.send_message_to_apnotifier("PUCI", SAL_PUCI_MODULE_RESTART, noti_data)
 
-    return response_make_simple_success_body()
+    return response_make_simple_success_body(None)
 
 
 def py_keepalive_check_list():
-    return response_make_simple_success_body()
+    return response_make_simple_success_body(None)
 
 
 def py_device_info_list():

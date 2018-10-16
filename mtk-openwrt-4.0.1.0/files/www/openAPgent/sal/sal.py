@@ -12,6 +12,7 @@ from puci.vlan import *
 from puci.dhcp import *
 from puci.snmp import *
 from python.wireless import *
+from puci.firewall import *
 from python.firmware import *
 from python.docker_api import *
 
@@ -293,6 +294,36 @@ def sal_wireless_search(method, request, pk):
   # For Python APIs
   if method == SAL_METHOD_LIST:
     return py_wireless_search_list()
+
+
+'''
+ Define port_forwarding SAL function
+'''
+def sal_port_forwarding(method, request, pk):
+  # For Python-UCI APIs
+  if method == SAL_METHOD_LIST:
+    return puci_port_forwarding_list()
+
+  if method == SAL_METHOD_CREATE:
+    return puci_port_forwarding_create(request)
+
+  if method == SAL_METHOD_UPDATE:
+    return puci_port_forwarding_update(request)
+
+  if method == SAL_METHOD_RETRIEVE:
+    return puci_port_forwarding_retrieve(pk, 1)
+
+  if method == SAL_METHOD_DETAIL_CREATE:
+    return puci_port_forwarding_detail_create(request, pk)
+
+  if method == SAL_METHOD_DETAIL_UPDATE:
+    return puci_port_forwarding_detail_update(request, pk)
+
+  if method == SAL_METHOD_DESTROY:
+    return puci_port_forwarding_destroy(request)
+
+  if method == SAL_METHOD_DETAIL_DESTROY:
+    return puci_port_forwarding_detail_destroy(request, pk)
 
 
 '''

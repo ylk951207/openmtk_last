@@ -6,7 +6,7 @@ from common.env import *
 from common.response import *
 
 UCI_NETWORK_FILE="network"
-UCI_INTERFACE_CONFIG_CONFIG = "interface_config"
+UCI_INTERFACE_COMMON_CONFIG = "interface_config"
 UCI_INTERFACE_V4ADDR_CONFIG = "interface_v4addr_config"
 
 UCI_INTERFACE_LIST_STR='interfaces-list'
@@ -131,7 +131,7 @@ def interface_config_common_detail_set(request, ifname):
 
 
 def interface_config_common_uci_get(ifname, interface_data):
-    uci_config = ConfigUCI(UCI_NETWORK_FILE, UCI_INTERFACE_CONFIG_CONFIG, ifname)
+    uci_config = ConfigUCI(UCI_NETWORK_FILE, UCI_INTERFACE_COMMON_CONFIG, ifname)
     if uci_config == None:
         raise RespNotFound("UCI Config")
 
@@ -148,7 +148,7 @@ def interface_config_common_uci_set(req_data, ifname):
     if not ifname:
         raise RespNotFound("Interface")
 
-    uci_config = ConfigUCI(UCI_NETWORK_FILE, UCI_INTERFACE_CONFIG_CONFIG, ifname)
+    uci_config = ConfigUCI(UCI_NETWORK_FILE, UCI_INTERFACE_COMMON_CONFIG, ifname)
     if uci_config == None:
         raise RespNotFound("UCI Config")
 

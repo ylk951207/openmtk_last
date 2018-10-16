@@ -45,4 +45,4 @@ def py_firmware_management_list():
     return data
 
 def py_firmware_management_create(request):
-    return response_make_simple_success_body()
+    return response_make_simple_success_body(None)

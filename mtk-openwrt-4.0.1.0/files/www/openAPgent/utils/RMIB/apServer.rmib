@@ -112,6 +112,13 @@ CLASSNAME=WirelessSearch
 SAL_FUNCTION=py
 METHODLIST=list
 
+URI=v1/configs/firewall/port-forwarding
+BASENAME=port_forwarding
+CLASSNAME=PortForwarding
+SAL_FUNCTION=puci
+SAL_IMPORT_FILE=puci.firewall
+METHODLIST=list,create,update,retrieve,detail_create,detail_update,destroy,detail_destroy
+
 URI=v1/management/firmware
 BASENAME=firmware_management
 CLASSNAME=FirmwareMgt
@@ -162,6 +169,9 @@ METHODLIST=create,detail_create
 #
 # Field efinitions
 #
+DEFINE_FIELD_system_config_common= {
+    'hostname'     : CONFIG_TYPE_SCALAR : 'system.@system[0].hostname'
+};
 
 DEFINE_FIELD_system_config_logging= {
     'loggingBufferSize'     : CONFIG_TYPE_SCALAR : 'system.@system[0].log_size'
@@ -311,4 +321,15 @@ DEFINE_FIELD_ARGS_snmp_traphost_config={
     'trapHost'                 : CONFIG_TYPE_SCALAR : ".".join(['snmpd', args[0], 'HostName'])
     'trapVersion'              : CONFIG_TYPE_SCALAR : ".".join(['snmpd', args[0], 'Type'])
     'trapCommunity'            : CONFIG_TYPE_SCALAR : ".".join(['snmpd', args[0], 'Community'])
+};
+
+DEFINE_FIELD_ARGS_port_forwarding_config={
+    'name'                    : CONFIG_TYPE_SCALAR : ".".join(['firewall', args[0], 'name'])
+    'protocol'                : CONFIG_TYPE_SCALAR : ".".join(['firewall', args[0], 'proto'])
+    'external_zone'           : CONFIG_TYPE_SCALAR : ".".join(['firewall', args[0], 'src'])
+    'external_ipaddr'         : CONFIG_TYPE_SCALAR : ''
+    'external_port'           : CONFIG_TYPE_SCALAR : ".".join(['firewall', args[0], 'src_dport'])
+    'inernal_zone'            : CONFIG_TYPE_SCALAR : ".".join(['firewall', args[0], 'dest'])
+    'internal_ipaddr'         : CONFIG_TYPE_SCALAR : ".".join(['firewall', args[0], 'dest_ip'])
+    'internal_port'           : CONFIG_TYPE_SCALAR : ".".join(['firewall', args[0], 'dest_port'])
 };

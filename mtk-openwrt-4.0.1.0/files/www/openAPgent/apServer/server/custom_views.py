@@ -357,6 +357,51 @@ class WirelessSearchViewSet(viewsets.ViewSet):
 
 
 '''
+ Define Class PortForwarding
+'''
+class PortForwardingViewSet(viewsets.ViewSet):
+  def list(self, request):
+    log_info(LOG_MODULE_APSERVER, "*** PortForwarding list() ***")
+    data = sal_port_forwarding(SAL_METHOD_LIST, request.data, None)
+    return Response(data, content_type='application/json')
+
+  def create(self, request):
+    log_info(LOG_MODULE_APSERVER, "*** PortForwarding create() ***")
+    data = sal_port_forwarding(SAL_METHOD_CREATE, request.data, None)
+    return Response(data, content_type='application/json')
+
+  def update(self, request):
+    log_info(LOG_MODULE_APSERVER, "*** PortForwarding update() ***")
+    data = sal_port_forwarding(SAL_METHOD_UPDATE, request.data, None)
+    return Response(data, content_type='application/json')
+
+  def retrieve(self, request, pk):
+    log_info(LOG_MODULE_APSERVER, "*** PortForwarding retrieve(), pk = " + pk + " ***")
+    data = sal_port_forwarding(SAL_METHOD_RETRIEVE, request.data, pk)
+    return Response(data, content_type='application/json')
+
+  def detail_create(self, request, pk):
+    log_info(LOG_MODULE_APSERVER, "*** PortForwarding detail_create(), pk = " + pk + " ***")
+    data = sal_port_forwarding(SAL_METHOD_DETAIL_CREATE, request.data, pk)
+    return Response(data, content_type='application/json')
+
+  def detail_update(self, request, pk):
+    log_info(LOG_MODULE_APSERVER, "*** PortForwarding detail_update(), pk = " + pk + " ***")
+    data = sal_port_forwarding(SAL_METHOD_DETAIL_UPDATE, request.data, pk)
+    return Response(data, content_type='application/json')
+
+  def destroy(self, request):
+    log_info(LOG_MODULE_APSERVER, "*** PortForwarding destroy() ***")
+    data = sal_port_forwarding(SAL_METHOD_DESTROY, request.data, None)
+    return Response(data, content_type='application/json')
+
+  def detail_destroy(self, request, pk):
+    log_info(LOG_MODULE_APSERVER, "*** PortForwarding detail_destroy(), pk = " + pk + " ***")
+    data = sal_port_forwarding(SAL_METHOD_DETAIL_DESTROY, request.data, pk)
+    return Response(data, content_type='application/json')
+
+
+'''
  Define Class FirmwareMgt
 '''
 class FirmwareMgtViewSet(viewsets.ViewSet):

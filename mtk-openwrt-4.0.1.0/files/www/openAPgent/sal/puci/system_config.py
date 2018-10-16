@@ -5,6 +5,7 @@ from common.request import *
 from common.response import *
 
 UCI_SYSTEM_CONFIG_FILE = "system"
+UCI_SYSTEM_CONFIG_COMMON_CONFIG = "system_config_common"
 UCI_SYSTEM_CONFIG_LOGGING_CONFIG = "system_config_logging"
 UCI_SYSTEM_CONFIG_NTP_CONFIG = "system_config_ntp"
 
@@ -18,16 +19,19 @@ def system_puci_module_restart():
 SystemConfig
 '''
 def puci_system_config_list():
+    system_common_data = dict()
     system_log_data = dict()
     system_ntp_data = dict()
 
+    system_common_data = system_config_uci_get(UCI_SYSTEM_CONFIG_COMMON_CONFIG, system_common_data)
     system_log_data = system_config_uci_get(UCI_SYSTEM_CONFIG_LOGGING_CONFIG, system_log_data)
     system_ntp_data = system_config_uci_get(UCI_SYSTEM_CONFIG_NTP_CONFIG, system_ntp_data)
 
     data = {
         "system" : {
-             "logging": system_log_data,
-             "ntp": system_ntp_data
+            "common" : system_common_data,
+            "logging": system_log_data,
+            "ntp": system_ntp_data
         },
         'header': {
             'resultCode': 200,
@@ -43,7 +47,9 @@ def puci_system_config_retrieve(command, add_header):
 
     log_info(UCI_SYSTEM_CONFIG_FILE, "command = ", command)
 
-    if command == 'logging':
+    if command == 'common':
+        system_data = system_config_uci_get(UCI_SYSTEM_CONFIG_COMMON_CONFIG, system_data)
+    elif command == 'logging':
         system_data = system_config_uci_get(UCI_SYSTEM_CONFIG_LOGGING_CONFIG, system_data)
     elif command == 'ntp':
         system_data = system_config_uci_get(UCI_SYSTEM_CONFIG_NTP_CONFIG, system_data)
@@ -79,11 +85,13 @@ def puci_system_config_detail_update(request, command):
     return system_config_detail_set(request, command)
 
 def system_config_set(request):
+    system_common_data = dict()
     system_log_data = dict()
     system_ntp_data = dict()
 
     log_info(UCI_SYSTEM_CONFIG_FILE, "request data = ", request)
 
+    system_common_data = system_config_uci_set(UCI_SYSTEM_CONFIG_COMMON_CONFIG, request['common'], system_common_data)
     system_log_data = system_config_uci_set(UCI_SYSTEM_CONFIG_LOGGING_CONFIG, request['logging'], system_log_data)
     system_ntp_data = system_config_uci_set(UCI_SYSTEM_CONFIG_NTP_CONFIG, request['ntp'], system_ntp_data)
 
@@ -104,7 +112,9 @@ def system_config_detail_set(request, command):
     log_info(UCI_SYSTEM_CONFIG_FILE, "command = ", command)
     log_info(UCI_SYSTEM_CONFIG_FILE, "request data = ", request)
 
-    if command == 'logging':
+    if command == 'common':
+        system_data = system_config_uci_set(UCI_SYSTEM_CONFIG_COMMON_CONFIG, request, system_data)
+    elif command == 'logging':
         system_data = system_config_uci_set(UCI_SYSTEM_CONFIG_LOGGING_CONFIG, request, system_data)
     elif command == 'ntp':
         system_data = system_config_uci_set(UCI_SYSTEM_CONFIG_NTP_CONFIG, request, system_data)

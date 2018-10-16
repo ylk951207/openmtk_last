@@ -14,6 +14,12 @@ def uci_get_section_map(config_name, *args):
 
   log_info(LOG_MODULE_SAL, "ARGS: " + str(args))
 
+  if config_name == 'system_config_common':
+      section_map = {
+        'hostname'               :  [ CONFIG_TYPE_SCALAR  , 'system.@system[0].hostname'                 ,' ' ],
+      }
+      return section_map
+
   if config_name == 'system_config_logging':
       section_map = {
         'loggingBufferSize'      :  [ CONFIG_TYPE_SCALAR  , 'system.@system[0].log_size'                 ,' ' ],
@@ -183,6 +189,20 @@ def uci_get_section_map(config_name, *args):
         'trapHost'               :  [ CONFIG_TYPE_SCALAR  , ".".join(['snmpd', args[0], 'HostName'])     ,' ' ],
         'trapVersion'            :  [ CONFIG_TYPE_SCALAR  , ".".join(['snmpd', args[0], 'Type'])         ,' ' ],
         'trapCommunity'          :  [ CONFIG_TYPE_SCALAR  , ".".join(['snmpd', args[0], 'Community'])    ,' ' ],
+      }
+      return section_map
+
+  if config_name == 'port_forwarding_config':
+    if args and args[0]:
+      section_map = {
+        'name'                   :  [ CONFIG_TYPE_SCALAR  , ".".join(['firewall', args[0], 'name'])      ,' ' ],
+        'protocol'               :  [ CONFIG_TYPE_SCALAR  , ".".join(['firewall', args[0], 'proto'])     ,' ' ],
+        'external_zone'          :  [ CONFIG_TYPE_SCALAR  , ".".join(['firewall', args[0], 'src'])       ,' ' ],
+        'external_ipaddr'        :  [ CONFIG_TYPE_SCALAR  , ''                                           ,' ' ],
+        'external_port'          :  [ CONFIG_TYPE_SCALAR  , ".".join(['firewall', args[0], 'src_dport']) ,' ' ],
+        'inernal_zone'           :  [ CONFIG_TYPE_SCALAR  , ".".join(['firewall', args[0], 'dest'])      ,' ' ],
+        'internal_ipaddr'        :  [ CONFIG_TYPE_SCALAR  , ".".join(['firewall', args[0], 'dest_ip'])   ,' ' ],
+        'internal_port'          :  [ CONFIG_TYPE_SCALAR  , ".".join(['firewall', args[0], 'dest_port']) ,' ' ],
       }
       return section_map
 

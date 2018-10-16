@@ -188,7 +188,9 @@ class ConfigUCI:
                         value = list_value.pop()
                         
                         if value[0] == "'":
-                            value = value[1:-1]
+                            value = value[1:]
+                        if value[len(value) - 1] == "'":
+                            value = value[:-1]
 
                         map_val[2].append(value)
 

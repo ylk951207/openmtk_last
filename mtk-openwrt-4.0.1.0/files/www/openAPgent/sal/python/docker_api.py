@@ -150,7 +150,7 @@ def py_docker_images_create(request):
         req_image = req_image_list.pop(0)
         server_msg.send_message_to_apnotifier("DOCKER", SAL_PYTHON_DOCKER_IMAGE_CREATE, req_image)
 
-    return response_make_simple_success_body()
+    return response_make_simple_success_body(None)
 
 '''
 TODO: Temporary processing 

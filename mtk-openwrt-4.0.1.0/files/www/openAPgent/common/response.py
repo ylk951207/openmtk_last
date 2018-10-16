@@ -52,8 +52,18 @@ class APgentResponseMessgae(object):
         log_debug(LOG_MODULE_RESPONSE, "Response Body = ", str(body_data))
         return body_data
 
-def response_make_simple_success_body():
-    response = APgentResponseMessgae()
-    response.set_response_value(200, "Successful", True)
-    data = response.make_response_body(None)
+def response_make_simple_success_body(body_data):
+    resp_msg = APgentResponseMessgae()
+    resp_msg.set_response_value(200, "Successful", True)
+    data = resp_msg.make_response_body(body_data)
+    return data
+
+def response_make_simple_error_body(status_code, msg, body_data):
+    resp_msg = APgentResponseMessgae()
+
+    resp_msg.response['status_code'] = status_code
+    resp_msg.response['error_msg'] = msg
+    resp_msg.response['isSuccessful'] = False
+
+    data = resp_msg.make_response_body(body_data)
     return data
