@@ -58,36 +58,41 @@ class ConfigFileProc:
 	'''
 	Rewrite to a file of a specific path using the request value
 	'''
-	def write_file_data(self, req_data, delimiter, header):
+	def write_file_data(self, req_data, delimiter, header, add_header = True):
 		log_info(LOG_MODULE_FILE, "request_data = " + str(req_data))
 
-		file_data = self.read_file_data(delimiter)
-		apply_req_data = self.apply_request_data(req_data)
+		apply_req_data = self.apply_request_data(req_data, add_header)
+		with open(self.config_path + self.config_name, 'r') as f:
+			lines = f.readlines()
+		with open(self.config_path + 'temp', 'w') as fw:
+			fw.write(header)
+			for line in lines:
+				token = line.strip()
+				tokens = token.split(delimiter)
+				if len(tokens) == 2:
+					for key, val in apply_req_data.items():
+						if tokens[0] == key:
+							tokens[1] = val
+					tokens[1] = tokens[1] + '\n'
+					fw.write('='.join(tokens))
 
-		for key, val in file_data.items():
-			for req_key, req_val in apply_req_data.items():
-				if key == req_key:
-					file_data[key] = apply_req_data[req_key]
-
-		with open(self.config_path + self.config_name, 'w') as f:
-			f.write(header)
-			for file_data_key, file_data_val in file_data.items():
-				write_data = delimiter.join([file_data_key, file_data_val]) + "\n"
-				f.write(write_data)
+		os.rename(self.config_path + 'temp', self.config_path + self.config_name)
 
 	'''
 	Apply data using request value
 	'''
-	def apply_request_data(self, req_data):
-		apply_req_data = dict()
-
-		for map_key, map_val in self.section_map.items():
-			for req_key, req_val in req_data.items():
-				if map_key == req_key:
-					apply_map_key = map_val[1]
-					apply_req_data[apply_map_key] = self.convert_set_config_value(map_val[0], req_val)
+	def apply_request_data(self, req_data, add_header):
+		apply_req_data = req_data
+		if add_header == True:
+			for map_key, map_val in self.section_map.items():
+				for req_key, req_val in req_data.items():
+					if map_key == req_key:
+						apply_map_key = map_val[1]
+						apply_req_data[apply_map_key] = self.convert_set_config_value(map_val[0], req_val)
 
 		return apply_req_data
+
+
 	'''
 	Changes the string to a different type
 	'''
