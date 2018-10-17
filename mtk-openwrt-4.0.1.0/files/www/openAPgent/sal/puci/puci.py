@@ -199,7 +199,7 @@ class ConfigUCI:
     def convert_config_value(self, val):
         if isinstance(val, bool):
             if val == True: return 1
-            elif val == False: return 2
+            elif val == False: return 0
         else:
             return val
 

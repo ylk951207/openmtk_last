@@ -10,7 +10,7 @@ from apServer.server.custom_classes import CustomRouter
 custom_router = CustomRouter()
 
 custom_router.register(r'v1/infos/usages', views.SysetmUsageViewSet, base_name='system_usage')
-custom_router.register(r'v1/infos/devices', views.DeviceInfoViewSet, base_name='device_info')
+custom_router.register(r'v1/infos/systems', views.SystemInfoViewSet, base_name='system_info')
 custom_router.register(r'v1/infos/hardwares/interfaces', views.HardwareInterfaceInfoViewSet, base_name='hardware_interface_info')
 custom_router.register(r'v1/infos/hardwares/wireless', views.HardwareWirelessInfoViewSet, base_name='hardware_wireless_info')
 custom_router.register(r'v1/configs/provisioning-done', views.ProvisioningDoneViewSet, base_name='provisioning_done')
@@ -26,7 +26,7 @@ custom_router.register(r'v1/configs/wireless', views.WirelessConfigViewSet, base
 custom_router.register(r'v1/configs/wireless-search', views.WirelessSearchViewSet, base_name='wireless_search')
 custom_router.register(r'v1/configs/firewall/port-forwarding', views.PortForwardingViewSet, base_name='port_forwarding')
 custom_router.register(r'v1/management/firmware', views.FirmwareMgtViewSet, base_name='firmware_management')
-custom_router.register(r'v1/management/configuration', views.ConfigMgtViewSet, base_name='config_management')
+custom_router.register(r'v1/management/system-reboot', views.SystemRebootViewSet, base_name='system_reboot')
 custom_router.register(r'v1/statistics', views.IfStatisticsViewSet, base_name='if_statistics')
 custom_router.register(r'v1/virtualization/images', views.DockerImagesViewSet, base_name='docker_images')
 custom_router.register(r'v1/virtualization/containers-creation', views.ContainerCreationViewSet, base_name='container_creation')

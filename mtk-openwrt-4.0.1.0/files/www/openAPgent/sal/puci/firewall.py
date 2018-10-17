@@ -123,7 +123,7 @@ def port_forwarding_config_uci_get(name_key):
     for map_key in uci_config.section_map.keys():
         map_val = uci_config.section_map[map_key]
 
-        if map_key == 'external_ipaddr':
+        if map_key == 'externalAddr':
             data[map_key] = device_info_get_ip_address(WAN_ETHDEV)
         elif map_key == 'protocol':
             data[map_key] = map_val[2].split(' ')
@@ -188,13 +188,13 @@ def port_forwarding_config_uci_set(req_data, name_key):
         str_value = str_value + " " + value
 
     req_data['protocol'] = "'%s'" % str_value.strip()
-    req_data['external_ipaddr'] = ""
-    if not req_data['internal_ipaddr']:
+    req_data['externalAddr'] = ""
+    if not req_data['internalAddr']:
         isBridge, bridgeList = device_get_if_bridge_mode()
         if isBridge == True:
-            req_data['internal_ipaddr'] = device_info_get_ip_address('br-lan')
+            req_data['internalAddr'] = device_info_get_ip_address('br-lan')
         else:
-            req_data['internal_ipaddr'] = device_info_get_ip_address(LAN_ETHDEV)
+            req_data['internalAddr'] = device_info_get_ip_address(LAN_ETHDEV)
 
     uci_config.set_uci_config(req_data)
 

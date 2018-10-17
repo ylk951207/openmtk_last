@@ -77,13 +77,21 @@ class PuciModuleRestart(object):
         output, error = subprocess_open(command)
         log_info(LOG_MODULE_APCLIENT, "== command '%s', output:%s, error:%s ==" % (command, output, error))
 
+    def _puci_wifi_module_reload(self):
+        log_info(LOG_MODULE_APCLIENT, "** wifi restart **")
+        output, error = subprocess_open('/sbin/wifi reload')
+
     def _puci_provisioning_module_restart(self):
 
         log_info(LOG_MODULE_APCLIENT, "================= Service module restart for provisioning  ==============")
-        self._puci_default_module_restart("system")
-
         self._puci_network_module_restart('lan')
         self._puci_network_module_restart('wan')
+
+        self._puci_wifi_module_reload()
+
+        self._puci_default_module_restart("system")
+        self._puci_default_module_restart("dhcp")
+        self._puci_default_module_restart("firewall")
 
         self._puci_container_module_restart("snmpd")
         self._puci_container_module_restart("dnsmasq")

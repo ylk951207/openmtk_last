@@ -1,4 +1,5 @@
 import fileinput
+import time
 from common.env import *
 from common.log import *
 from common.misc import *
@@ -23,17 +24,42 @@ def py_keepalive_check_list():
     return response_make_simple_success_body(None)
 
 
-def py_device_info_list():
+def py_system_info_list():
     device_info = DeviceInformation(0)
     device_data = device_info._make_device_info_data()
+    time_data = device_info_get_all_time_info ()
     data = {
             "device-info" : device_data,
+            "time-info" : time_data,
             'header' : {
                     'resultCode':200,
                     'resultMessage':'Success.',
                     'isSuccessful':'true'
             }
     }
+    return data
+
+
+def py_system_info_retrieve(command, add_header):
+    log_info(LOG_MODULE_SAL, "command = ", command)
+
+    time_data = dict()
+
+    if command == 'times':
+        time_data = device_info_get_all_time_info()
+    else:
+        raise RespNotFound("Command")
+
+    data = {
+        'time-info': time_data,
+        'header': {
+            'resultCode': 200,
+            'resultMessage': 'Success.',
+            'isSuccessful': 'true'
+        }
+    }
+    log_info(LOG_MODULE_SAL, "Response = ", str(data))
+
     return data
 
 
@@ -88,3 +114,26 @@ def py_hardware_wireless_info_list():
         }
     }
     return data
+
+
+def py_system_reboot_create(request):
+    delay = request['delay']
+
+    # Default delay for response
+    if delay <= 0: delay = 2
+
+    cmd_str = "reboot -d %d" % delay
+
+    subprocess_open(cmd_str)
+
+    data = {
+        'header': {
+               'resultCode': 200,
+               'resultMessage': 'Success.',
+               'isSuccessful': 'true'
+        }
+    }
+    return data
+
+
+

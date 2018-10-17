@@ -42,12 +42,15 @@ def sal_system_usage(method, request, pk):
 
 
 '''
- Define device_info SAL function
+ Define system_info SAL function
 '''
-def sal_device_info(method, request, pk):
+def sal_system_info(method, request, pk):
   # For Python APIs
   if method == SAL_METHOD_LIST:
-    return py_device_info_list()
+    return py_system_info_list()
+
+  if method == SAL_METHOD_RETRIEVE:
+    return py_system_info_retrieve(pk, 1)
 
 
 '''
@@ -238,6 +241,12 @@ def sal_dhcp_static_leases_config(method, request, pk):
   if method == SAL_METHOD_DETAIL_UPDATE:
     return puci_dhcp_static_leases_config_detail_update(request, pk)
 
+  if method == SAL_METHOD_DESTROY:
+    return puci_dhcp_static_leases_config_destroy(request)
+
+  if method == SAL_METHOD_DETAIL_DESTROY:
+    return puci_dhcp_static_leases_config_detail_destroy(request, pk)
+
 
 '''
  Define snmp_config SAL function
@@ -339,15 +348,12 @@ def sal_firmware_management(method, request, pk):
 
 
 '''
- Define config_management SAL function
+ Define system_reboot SAL function
 '''
-def sal_config_management(method, request, pk):
+def sal_system_reboot(method, request, pk):
   # For Python APIs
-  if method == SAL_METHOD_LIST:
-    return py_config_management_list()
-
   if method == SAL_METHOD_CREATE:
-    return py_config_management_create(request)
+    return py_system_reboot_create(request)
 
 
 '''

@@ -1,7 +1,8 @@
 import os
 import shlex
 import subprocess
-import fileinput
+import datetime
+import time
 #import netifaces as ni
 import fcntl, socket, struct, json
 
@@ -128,6 +129,20 @@ def device_info_get_uptime():
 	with open('/proc/uptime', 'r') as f:
 		uptime_seconds = float(f.readline().split()[0])
 		return uptime_seconds
+
+def device_info_get_localtime():
+	return datetime.datetime.now()
+
+def device_info_get_timezone():
+	return time.tzname[time.daylight]
+
+def device_info_get_all_time_info():
+	data = {
+		"uptime" : device_info_get_uptime(),
+		"localtime" : device_info_get_localtime(),
+		"timezone" : device_info_get_timezone()
+	}
+	return data
 
 
 '''

@@ -27,12 +27,17 @@ class SysetmUsageViewSet(viewsets.ViewSet):
 
 
 '''
- Define Class DeviceInfo
+ Define Class SystemInfo
 '''
-class DeviceInfoViewSet(viewsets.ViewSet):
+class SystemInfoViewSet(viewsets.ViewSet):
   def list(self, request):
-    log_info(LOG_MODULE_APSERVER, "*** DeviceInfo list() ***")
-    data = sal_device_info(SAL_METHOD_LIST, request.data, None)
+    log_info(LOG_MODULE_APSERVER, "*** SystemInfo list() ***")
+    data = sal_system_info(SAL_METHOD_LIST, request.data, None)
+    return Response(data, content_type='application/json')
+
+  def retrieve(self, request, pk):
+    log_info(LOG_MODULE_APSERVER, "*** SystemInfo retrieve(), pk = " + pk + " ***")
+    data = sal_system_info(SAL_METHOD_RETRIEVE, request.data, pk)
     return Response(data, content_type='application/json')
 
 
@@ -275,6 +280,16 @@ class DhcpStaticLeasesConfigViewSet(viewsets.ViewSet):
     data = sal_dhcp_static_leases_config(SAL_METHOD_DETAIL_UPDATE, request.data, pk)
     return Response(data, content_type='application/json')
 
+  def destroy(self, request):
+    log_info(LOG_MODULE_APSERVER, "*** DhcpStaticLeasesConfig destroy() ***")
+    data = sal_dhcp_static_leases_config(SAL_METHOD_DESTROY, request.data, None)
+    return Response(data, content_type='application/json')
+
+  def detail_destroy(self, request, pk):
+    log_info(LOG_MODULE_APSERVER, "*** DhcpStaticLeasesConfig detail_destroy(), pk = " + pk + " ***")
+    data = sal_dhcp_static_leases_config(SAL_METHOD_DETAIL_DESTROY, request.data, pk)
+    return Response(data, content_type='application/json')
+
 
 '''
  Define Class SNMPConfig
@@ -417,17 +432,12 @@ class FirmwareMgtViewSet(viewsets.ViewSet):
 
 
 '''
- Define Class ConfigMgt
+ Define Class SystemReboot
 '''
-class ConfigMgtViewSet(viewsets.ViewSet):
-  def list(self, request):
-    log_info(LOG_MODULE_APSERVER, "*** ConfigMgt list() ***")
-    data = sal_config_management(SAL_METHOD_LIST, request.data, None)
-    return Response(data, content_type='application/json')
-
+class SystemRebootViewSet(viewsets.ViewSet):
   def create(self, request):
-    log_info(LOG_MODULE_APSERVER, "*** ConfigMgt create() ***")
-    data = sal_config_management(SAL_METHOD_CREATE, request.data, None)
+    log_info(LOG_MODULE_APSERVER, "*** SystemReboot create() ***")
+    data = sal_system_reboot(SAL_METHOD_CREATE, request.data, None)
     return Response(data, content_type='application/json')
 
 

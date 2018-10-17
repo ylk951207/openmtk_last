@@ -17,6 +17,7 @@ def uci_get_section_map(config_name, *args):
   if config_name == 'system_config_common':
       section_map = {
         'hostname'               :  [ CONFIG_TYPE_SCALAR  , 'system.@system[0].hostname'                 ,' ' ],
+        'timezone'               :  [ CONFIG_TYPE_SCALAR  , 'system.@system[0].timezone'                 ,' ' ],
       }
       return section_map
 
@@ -197,12 +198,12 @@ def uci_get_section_map(config_name, *args):
       section_map = {
         'name'                   :  [ CONFIG_TYPE_SCALAR  , ".".join(['firewall', args[0], 'name'])      ,' ' ],
         'protocol'               :  [ CONFIG_TYPE_SCALAR  , ".".join(['firewall', args[0], 'proto'])     ,' ' ],
-        'external_zone'          :  [ CONFIG_TYPE_SCALAR  , ".".join(['firewall', args[0], 'src'])       ,' ' ],
-        'external_ipaddr'        :  [ CONFIG_TYPE_SCALAR  , ''                                           ,' ' ],
-        'external_port'          :  [ CONFIG_TYPE_SCALAR  , ".".join(['firewall', args[0], 'src_dport']) ,' ' ],
-        'inernal_zone'           :  [ CONFIG_TYPE_SCALAR  , ".".join(['firewall', args[0], 'dest'])      ,' ' ],
-        'internal_ipaddr'        :  [ CONFIG_TYPE_SCALAR  , ".".join(['firewall', args[0], 'dest_ip'])   ,' ' ],
-        'internal_port'          :  [ CONFIG_TYPE_SCALAR  , ".".join(['firewall', args[0], 'dest_port']) ,' ' ],
+        'externalZone'           :  [ CONFIG_TYPE_SCALAR  , ".".join(['firewall', args[0], 'src'])       ,' ' ],
+        'externalAddr'           :  [ CONFIG_TYPE_SCALAR  , ''                                           ,' ' ],
+        'externalPort'           :  [ CONFIG_TYPE_SCALAR  , ".".join(['firewall', args[0], 'src_dport']) ,' ' ],
+        'inernalZone'            :  [ CONFIG_TYPE_SCALAR  , ".".join(['firewall', args[0], 'dest'])      ,' ' ],
+        'internalAddr'           :  [ CONFIG_TYPE_SCALAR  , ".".join(['firewall', args[0], 'dest_ip'])   ,' ' ],
+        'internalPort'           :  [ CONFIG_TYPE_SCALAR  , ".".join(['firewall', args[0], 'dest_port']) ,' ' ],
       }
       return section_map
 
