@@ -49,8 +49,14 @@ def sal_system_info(method, request, pk):
   if method == SAL_METHOD_LIST:
     return py_system_info_list()
 
-  if method == SAL_METHOD_RETRIEVE:
-    return py_system_info_retrieve(pk, 1)
+
+'''
+ Define system_time_info SAL function
+'''
+def sal_system_time_info(method, request, pk):
+  # For Python APIs
+  if method == SAL_METHOD_LIST:
+    return py_system_time_info_list()
 
 
 '''

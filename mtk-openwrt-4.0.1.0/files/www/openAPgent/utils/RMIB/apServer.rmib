@@ -9,19 +9,25 @@ SAL_FUNCTION=swigc
 SAL_IMPORT_FILE=swigc.sys_usage
 METHODLIST=list,retrieve
 
-URI=v1/infos/systems
+URI=v1/infos/systems/device-reg-info
 BASENAME=system_info
 CLASSNAME=SystemInfo
 SAL_FUNCTION=py
-METHODLIST=list,retrieve
+METHODLIST=list
 
-URI=v1/infos/hardwares/interfaces
+URI=v1/infos/systems/times
+BASENAME=system_time_info
+CLASSNAME=SystemTimeInfo
+SAL_FUNCTION=py
+METHODLIST=list
+
+URI=v1/infos/systems/interfaces
 BASENAME=hardware_interface_info
 CLASSNAME=HardwareInterfaceInfo
 SAL_FUNCTION=py
 METHODLIST=list,retrieve
 
-URI=v1/infos/hardwares/wireless
+URI=v1/infos/systems/wireless
 BASENAME=hardware_wireless_info
 CLASSNAME=HardwareWirelessInfo
 SAL_FUNCTION=py

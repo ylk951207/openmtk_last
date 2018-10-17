@@ -27,7 +27,7 @@ def py_keepalive_check_list():
 def py_system_info_list():
     device_info = DeviceInformation(0)
     device_data = device_info._make_device_info_data()
-    time_data = device_info_get_all_time_info ()
+    time_data = device_info_get_all_time_info()
     data = {
             "device-info" : device_data,
             "time-info" : time_data,
@@ -39,16 +39,8 @@ def py_system_info_list():
     }
     return data
 
-
-def py_system_info_retrieve(command, add_header):
-    log_info(LOG_MODULE_SAL, "command = ", command)
-
-    time_data = dict()
-
-    if command == 'times':
-        time_data = device_info_get_all_time_info()
-    else:
-        raise RespNotFound("Command")
+def py_system_time_info_list():
+    time_data = device_info_get_all_time_info()
 
     data = {
         'time-info': time_data,

@@ -35,9 +35,14 @@ class SystemInfoViewSet(viewsets.ViewSet):
     data = sal_system_info(SAL_METHOD_LIST, request.data, None)
     return Response(data, content_type='application/json')
 
-  def retrieve(self, request, pk):
-    log_info(LOG_MODULE_APSERVER, "*** SystemInfo retrieve(), pk = " + pk + " ***")
-    data = sal_system_info(SAL_METHOD_RETRIEVE, request.data, pk)
+
+'''
+ Define Class SystemTimeInfo
+'''
+class SystemTimeInfoViewSet(viewsets.ViewSet):
+  def list(self, request):
+    log_info(LOG_MODULE_APSERVER, "*** SystemTimeInfo list() ***")
+    data = sal_system_time_info(SAL_METHOD_LIST, request.data, None)
     return Response(data, content_type='application/json')
 
 
