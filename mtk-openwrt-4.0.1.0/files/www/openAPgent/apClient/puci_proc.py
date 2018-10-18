@@ -10,7 +10,7 @@ from apClient.device_info import device_info_get_serial_num
 
 class PuciModuleRestart(object):
     def __init__(self, request):
-        self.request = request
+        if not request : return
 
         self.config_file = request['config_file']
 
@@ -24,17 +24,11 @@ class PuciModuleRestart(object):
         else:
             self.ifname = None
 
-    def puci_provisioning_done_file_create(self):
-        f = open(PROVISIONING_DONE_FILE, "w")
-        f.write("done")
-        f.close()
-        log_info(LOG_MODULE_APCLIENT, "** Create %s file **" %PROVISIONING_DONE_FILE)
-
     def _docker_container_get_by_prefix(self, name_prefix):
         cmd_str = "docker ps -a --filter 'name=" + name_prefix + "' | grep " + name_prefix + " | awk '{print $NF}'"
         output, error = subprocess_open(cmd_str)
         output = output.split()
-        log_info(LOG_MODULE_APCLIENT, "Execute command(%s) output(%s) error(%s)***" % (str(cmd_str), str(output), str(error)))
+        log_info(LOG_MODULE_APCLIENT, "Execute command(%s) output:%s, error:%s ***" % (str(cmd_str), str(output), str(error)))
         if not error:
             return output
         return None
@@ -77,43 +71,10 @@ class PuciModuleRestart(object):
         output, error = subprocess_open(command)
         log_info(LOG_MODULE_APCLIENT, "== command '%s', output:%s, error:%s ==" % (command, output, error))
 
-    def _puci_wifi_module_reload(self):
-        log_info(LOG_MODULE_APCLIENT, "** wifi restart **")
-        output, error = subprocess_open('/sbin/wifi reload')
-
-    def _puci_provisioning_module_restart(self):
-
-        log_info(LOG_MODULE_APCLIENT, "================= Service module restart for provisioning  ==============")
-        self._puci_network_module_restart('lan')
-        self._puci_network_module_restart('wan')
-
-        self._puci_wifi_module_reload()
-
-        self._puci_default_module_restart("system")
-        self._puci_default_module_restart("dhcp")
-        self._puci_default_module_restart("firewall")
-
-        self._puci_container_module_restart("snmpd")
-        self._puci_container_module_restart("dnsmasq")
-
-        # Notification
-        noti_req = APgentSendNotification()
-        noti_req.set_notification_value(200, "Successful")
-        noti_req.response['serialNumber'] = device_info_get_serial_num()
-
-        for i in range(0, 30):
-            status_code = noti_req.send_notification(CAPC_NOTIFICATION_PROVISIONING_FINISH_URL)
-            if status_code == 200:
-                log_info(LOG_MODULE_APCLIENT, "** Send provisioning finish to Controller Success **")
-                self.puci_provisioning_done_file_create()
-                break
-
     def puci_module_restart(self):
         log_info(LOG_MODULE_APCLIENT, "Restart UCI config module: " + self.config_file)
 
-        if self.config_file == "all":
-            self._puci_provisioning_module_restart ()
-        elif self.container_name:
+        if self.container_name:
             self._puci_container_module_restart(self.container_name)
         elif self.config_file == 'network' and self.ifname:
             self._puci_network_module_restart(self.ifname)
@@ -124,12 +85,8 @@ class PuciModuleRestart(object):
         TODO : Send result message to cACP
         '''
 
-def puci_cmd_proc(command, request):
+def puci_module_restart_proc(command, request):
     log_info(LOG_MODULE_APCLIENT, 'Received message: command(%s), request(%s)' % (command, str(request)))
 
     pmr = PuciModuleRestart(request)
-
-    if command == SAL_PUCI_MODULE_RESTART:
-        pmr.puci_module_restart()
-    else:
-        log_info(LOG_MODULE_APCLIENT, 'Invalid Argument')
+    pmr.puci_module_restart()

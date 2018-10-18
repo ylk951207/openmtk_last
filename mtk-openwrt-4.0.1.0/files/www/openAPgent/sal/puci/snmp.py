@@ -86,11 +86,11 @@ def snmp_config_set(request):
     return data
 
 
-def snmp_community_config_set_default_value (request, version_list):
+def snmp_community_config_set_default_value (community, version_list):
     community_data = dict()
 
-    community_str = request['community']
-    community_type = request['communityType']
+    community_str = community['community']
+    community_type = community['communityType']
 
     #community_data['com2sec'] = "com2sec"
     community_data['community'] = community_str
@@ -132,18 +132,18 @@ def snmp_community_config_set_default_value (request, version_list):
     return community_data
 
 
-def snmp_traphost_config_set_default_value (request):
+def snmp_traphost_config_set_default_value (traphost):
     traphost_data = dict()
 
     #traphost_data['trapHostName'] = "trap_HostName"
-    traphost_data['trapHost'] = request['trapHost']
+    traphost_data['trapHost'] = traphost['trapHost']
 
-    if request['trapVersion'] == "v1":
+    if traphost['trapVersion'] == "v1":
         traphost_data['trapVersion'] = "trapsink"
-    elif request['trapVersion'] == "v2":
+    elif traphost['trapVersion'] == "v2":
         traphost_data['trapVersion'] = "trap2sink"
 
-    traphost_data['trapCommunity'] = request['trapCommunity']
+    traphost_data['trapCommunity'] = traphost['trapCommunity']
 
     return traphost_data
 

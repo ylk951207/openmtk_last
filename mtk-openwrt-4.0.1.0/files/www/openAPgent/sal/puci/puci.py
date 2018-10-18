@@ -40,7 +40,7 @@ def restart_uci_config_module(config_file, ifname):
 def puci_send_message_to_apnotifier(command, noti_data):
     if os.path.exists(PROVISIONING_DONE_FILE):
         server_msg = ApServerLocalMassage(APNOTIFIER_CMD_PORT)
-        server_msg.send_message_to_apnotifier("PUCI", command, noti_data)
+        server_msg.send_message_to_apnotifier(command, noti_data)
         log_info(LOG_MODULE_PUCI, "** Send service module restart message to apClient **")
     else:
         log_info(LOG_MODULE_PUCI, "Cannot find provisioining file(%s)" %PROVISIONING_DONE_FILE)

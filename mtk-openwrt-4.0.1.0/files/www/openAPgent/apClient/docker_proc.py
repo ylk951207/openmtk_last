@@ -6,7 +6,6 @@ from common.env import *
 from common.request import *
 from apClient.device_info import device_info_get_serial_num
 
-LOG_MODULE_DOCKER="docker"
 
 def _get_docker_image_name(image_name, image_tag, registry):
     if registry:
@@ -96,7 +95,7 @@ def _docker_image_remove(client, noti_req, req_image):
         if e.response.status_code != 404:
             noti_req.set_notification_value(e.response.status_code, e)
 
-def docker_image_create(request):
+def docker_image_create_proc(request):
     client = docker.from_env()
 
     noti_req = APgentSendNotification()
@@ -113,9 +112,3 @@ def docker_image_create(request):
     log_info(LOG_MODULE_DOCKER, "*** End image pull ***")
 
     noti_req.send_notification(CAPC_NOTIFICATION_IMAGE_POST_URL)
-
-def docker_cmd_proc(command, request):
-    if command == SAL_PYTHON_DOCKER_IMAGE_CREATE:
-        docker_image_create(request)
-    else:
-        log_info(LOG_MODULE_DOCKER, 'Invalid Argument')

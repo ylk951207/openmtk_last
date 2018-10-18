@@ -8,7 +8,6 @@ from common.misc import *
 from common.request import *
 from common.response import *
 
-LOG_MODULE_DOCKER="docker"
 CONTAINER_BACKUP_STR=".old_container"
 
 
@@ -148,7 +147,7 @@ def py_docker_images_create(request):
     req_image_list = request["docker-image-list"]
     while len(req_image_list) > 0:
         req_image = req_image_list.pop(0)
-        server_msg.send_message_to_apnotifier("DOCKER", SAL_PYTHON_DOCKER_IMAGE_CREATE, req_image)
+        server_msg.send_message_to_apnotifier(SAL_PYTHON_DOCKER_IMAGE_CREATE, req_image)
 
     return response_make_simple_success_body(None)
 
@@ -257,7 +256,7 @@ class DockerContainerProc():
         cmd_str = "docker ps -a --filter 'name=" + name_prefix + "' | grep " + name_prefix + " | awk '{print $NF}'"
         output, error = subprocess_open(cmd_str)
         output = output.split()
-        log_info(LOG_MODULE_DOCKER, "Execute command(%s) output(%s) error(%s)***" % (str(cmd_str), str(output), str(error)))
+        log_info(LOG_MODULE_DOCKER, "Execute command(%s) output:%s, error:%s ***" % (str(cmd_str), str(output), str(error)))
         if not error:
             return output
         return None

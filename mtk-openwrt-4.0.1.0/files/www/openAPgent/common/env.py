@@ -42,9 +42,11 @@ PROVISIONING_DONE_FILE="/tmp/provisioning-done"
 '''
 apClient Command 
 '''
-SAL_PYTHON_DOCKER_IMAGE_CREATE          = "1"
-SAL_PUCI_MODULE_RESTART                 = "2"
-SAL_WIFI_MODULE_RESTART                 = "3"
+SAL_PROVISIONING_DONE           = 1
+SAL_PUCI_MODULE_RESTART         = 2
+SAL_PYTHON_DOCKER_IMAGE_CREATE  = 3
+SAL_WIFI_MODULE_RESTART         = 4
+
 
 
 '''
@@ -66,6 +68,8 @@ LOG_MODULE_APSERVER='apServer'
 LOG_MODULE_APCLIENT='apClient'
 LOG_MODULE_REQUEST='Request'
 LOG_MODULE_RESPONSE='Response'
+
+LOG_MODULE_DOCKER="docker"
 
 APSERVER_LOG_PATH="/var/log/apServer.log"
 APCLIENT_LOG_PATH="/var/log/apClient.log"

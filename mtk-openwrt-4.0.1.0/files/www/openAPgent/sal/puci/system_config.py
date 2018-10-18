@@ -91,9 +91,12 @@ def system_config_set(request):
 
     log_info(UCI_SYSTEM_CONFIG_FILE, "request data = ", request)
 
-    system_common_data = system_config_uci_set(UCI_SYSTEM_CONFIG_COMMON_CONFIG, request['common'], system_common_data)
-    system_log_data = system_config_uci_set(UCI_SYSTEM_CONFIG_LOGGING_CONFIG, request['logging'], system_log_data)
-    system_ntp_data = system_config_uci_set(UCI_SYSTEM_CONFIG_NTP_CONFIG, request['ntp'], system_ntp_data)
+    if 'common' in request.keys():
+        system_common_data = system_config_uci_set(UCI_SYSTEM_CONFIG_COMMON_CONFIG, request['common'], system_common_data)
+    if 'logging' in request.keys():
+        system_log_data = system_config_uci_set(UCI_SYSTEM_CONFIG_LOGGING_CONFIG, request['logging'], system_log_data)
+    if 'ntp' in request.keys():
+        system_ntp_data = system_config_uci_set(UCI_SYSTEM_CONFIG_NTP_CONFIG, request['ntp'], system_ntp_data)
 
     system_puci_module_restart()
 

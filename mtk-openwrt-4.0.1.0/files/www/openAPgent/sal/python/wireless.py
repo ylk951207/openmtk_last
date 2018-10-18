@@ -228,7 +228,7 @@ def wireless_config_detail_set(request, ap_type):
     '''
     Wireless Enable/Disable Processing
     '''
-    wireless_module_restart(request['enable'], if_name)
+    wireless_module_restart(request['enable'], if_name, device_name)
 
     data = {
         'header': {
@@ -301,12 +301,13 @@ def wireless_convert_number_to_mode_type(mode_num):
             return key
 
 
-def wireless_module_restart(enable, ifname):
+def wireless_module_restart(enable, ifname, devname):
     noti_data = dict()
     noti_data['enable'] = enable
     noti_data['ifname'] = ifname
+    noti_data['devname'] = devname
     server_msg = ApServerLocalMassage(APNOTIFIER_CMD_PORT)
-    server_msg.send_message_to_apnotifier("WIFI", SAL_WIFI_MODULE_RESTART, noti_data)
+    server_msg.send_message_to_apnotifier(SAL_WIFI_MODULE_RESTART, noti_data)
     log_info("WIFI", "** Send wifi module restart message to apClient **")
 
 

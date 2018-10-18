@@ -123,9 +123,8 @@ class ApServerLocalMassage():
         sock.close()
         log_info(LOG_MODULE_REQUEST, "send_request_apnotifier() data: " + str(data))
 
-    def send_message_to_apnotifier(self, module, command, request):
+    def send_message_to_apnotifier(self, command, request):
         data = {
-            'module' : module,
             'command' : command,
             'body' : request
         }
