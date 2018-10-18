@@ -67,12 +67,16 @@ class ConfigFileProc:
 		with open(self.config_path + 'temp', 'w') as fw:
 			fw.write(header)
 			for line in lines:
+				if '#' in line:	continue
 				token = line.strip()
 				tokens = token.split(delimiter)
 				if len(tokens) == 2:
 					for key, val in apply_req_data.items():
 						if tokens[0] == key:
 							tokens[1] = val
+					if tokens[1] == None:
+						tokens[1] = '\n'
+					else:
 					tokens[1] = tokens[1] + '\n'
 					fw.write('='.join(tokens))
 

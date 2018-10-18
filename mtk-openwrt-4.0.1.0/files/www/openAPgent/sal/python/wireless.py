@@ -124,6 +124,12 @@ def py_wireless_config_retrieve(ap_type, add_header):
     wireless_data['enable'] = device_get_wireless_state(if_name)
     wireless_data['status'] = device_get_wireless_state(if_name)
 
+    if wireless_data['status'] == True:
+        wireless_data['status'] = 'connected'
+    elif wireless_data['status'] == False:
+        wireless_data['status'] = 'disconnected'
+
+
     if add_header == 1:
         data = {
             "wireless": wireless_data,
