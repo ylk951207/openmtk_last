@@ -77,7 +77,7 @@ class ConfigFileProc:
 					if tokens[1] == None:
 						tokens[1] = '\n'
 					else:
-					tokens[1] = tokens[1] + '\n'
+						tokens[1] = tokens[1] + '\n'
 					fw.write('='.join(tokens))
 
 		os.rename(self.config_path + 'temp', self.config_path + self.config_name)
