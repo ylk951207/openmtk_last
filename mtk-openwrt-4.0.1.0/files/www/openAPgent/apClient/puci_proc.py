@@ -85,8 +85,8 @@ class PuciModuleRestart(object):
         TODO : Send result message to cACP
         '''
 
-def puci_module_restart_proc(command, request):
-    log_info(LOG_MODULE_APCLIENT, 'Received message: command(%s), request(%s)' % (command, str(request)))
+def puci_module_restart_proc(request):
+    log_info(LOG_MODULE_APCLIENT, 'Received message: request(%s)' % (str(request)))
 
     pmr = PuciModuleRestart(request)
     pmr.puci_module_restart()

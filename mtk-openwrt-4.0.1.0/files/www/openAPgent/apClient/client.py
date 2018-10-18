@@ -48,7 +48,7 @@ class ClientCmdApp():
                     docker_image_create_proc(data['body'])
                 elif command == SAL_PUCI_MODULE_RESTART:
                     puci_module_restart_proc(data['body'])
-                elif module == SAL_WIFI_MODULE_RESTART:
+                elif command == SAL_WIFI_MODULE_RESTART:
                     wifi_module_restart_proc(data['body'])
 
             log_info(LOG_MODULE_APCLIENT, '---- Socket close ----')

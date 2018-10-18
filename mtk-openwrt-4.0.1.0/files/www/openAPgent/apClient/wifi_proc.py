@@ -41,8 +41,8 @@ def wifi_module_reload_all_devices():
     log_info(LOG_MODULE_APCLIENT, "** /sbin/wifi reload **")
     output, error = subprocess_open("/sbin/wifi reload")
 
-def wifi_module_restart_proc(command, request):
-    log_info(LOG_MODULE_APCLIENT, 'Received message: command(%s), request(%s)' % (command, str(request)))
+def wifi_module_restart_proc(request):
+    log_info(LOG_MODULE_APCLIENT, 'Received message: request(%s)' % (str(request)))
 
     wmr = WifiModuleRestart(request)
     wmr.wifi_module_restart_proc()
