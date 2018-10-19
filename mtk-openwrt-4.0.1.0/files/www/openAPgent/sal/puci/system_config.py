@@ -184,3 +184,5 @@ def convert_system_logging_output_data(log_req):
         log_req['loggingOutputLevel'] = '7'
     elif log_req['loggingOutputLevel'] == 'debug':
         log_req['loggingOutputLevel'] = '8'
+
+    return log_req
