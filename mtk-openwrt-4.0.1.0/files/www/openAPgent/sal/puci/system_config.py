@@ -87,7 +87,6 @@ def puci_system_config_detail_update(request, command):
 def system_config_set(request):
 
     log_info(UCI_SYSTEM_CONFIG_FILE, "request data = ", request)
-    request = request["system"]
     if 'common' in request.keys():
         system_config_uci_set(UCI_SYSTEM_CONFIG_COMMON_CONFIG, request['common'])
 
