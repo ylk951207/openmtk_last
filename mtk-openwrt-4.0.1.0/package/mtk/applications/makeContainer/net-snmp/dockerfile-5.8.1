@@ -1,5 +1,6 @@
-FROM	scratch
-COPY	/start.sh /start.sh
-COPY	/net-snmp-5.8 /net-snmp-5.8
-COPY	/snmpd.* /
-CMD	["/abcd.sh"]
+FROM scratch
+COPY /start.sh /start.sh
+COPY /net-snmp-5.8 /net-snmp-5.8
+COPY /snmpd.* /
+ENV  SNMP_ARGS=161
+CMD  ["/abcd.sh"]
