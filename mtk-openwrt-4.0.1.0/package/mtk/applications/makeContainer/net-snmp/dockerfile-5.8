@@ -1,0 +1,5 @@
+FROM	scratch
+COPY	/start.sh /start.sh
+COPY	/net-snmp-5.8 /net-snmp-5.8
+COPY	/snmpd.* /
+CMD	["/start.sh"]
