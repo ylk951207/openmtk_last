@@ -17,7 +17,7 @@ def uci_get_section_map(config_name, *args):
   if config_name == 'system_config_common':
       section_map = {
         'hostname'               :  [ CONFIG_TYPE_SCALAR  , 'system.@system[0].hostname'                 ,' ' ],
-        'timezone'               :  [ CONFIG_TYPE_SCALAR  , 'system.@system[0].timezone'                 ,' ' ],
+        'timezone'               :  [ CONFIG_TYPE_SCALAR  , 'system.@system[0].zonename'                 ,' ' ],
       }
       return section_map
 
