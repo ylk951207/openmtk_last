@@ -102,7 +102,7 @@ def py_interface_address_info_list():
 
 def py_interface_address_info_retrieve(ifname, add_header):
     if not ifname:
-        raise RespNotFound("Interface")
+        return response_make_simple_error_body(500, "Not found interface name", None)
 
     log_info(LOG_MODULE_SYSINFO, "[ifname] : " + ifname)
 

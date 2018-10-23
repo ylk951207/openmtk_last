@@ -56,7 +56,7 @@ def puci_system_config_retrieve(command, add_header):
     elif command == 'ntp':
         system_data = system_config_uci_get(UCI_SYSTEM_CONFIG_NTP_CONFIG, system_data)
     else:
-        raise RespNotFound("Command")
+        return response_make_simple_error_body(500, "Not found command", None)
 
     data = {
         command: system_data,
@@ -122,7 +122,7 @@ def system_config_detail_set(request, command):
     elif command == 'ntp':
         system_config_uci_set(UCI_SYSTEM_CONFIG_NTP_CONFIG, request)
     else:
-        raise RespNotFound("Command")
+        return response_make_simple_error_body(500, "Not found command", None)
 
     system_puci_module_restart()
 
@@ -138,8 +138,8 @@ def system_config_detail_set(request, command):
 
 def system_config_uci_get(uci_file, system_data):
     uci_config = ConfigUCI(UCI_SYSTEM_CONFIG_FILE, uci_file)
-    if uci_config == None:
-        raise RespNotFound("UCI Config")
+    if uci_config.section_map == None:
+        return response_make_simple_error_body(500, "Not found UCI config", None)
 
     uci_config.show_uci_config()
 
@@ -153,8 +153,8 @@ def system_config_uci_set(uci_file, req_data):
     system_data = dict()
     log_info(UCI_SYSTEM_CONFIG_FILE, "request data = ", req_data)
     uci_config = ConfigUCI(UCI_SYSTEM_CONFIG_FILE, uci_file)
-    if uci_config == None:
-        raise RespNotFound("UCI Config")
+    if uci_config.section_map == None:
+        return response_make_simple_error_body(500, "Not found UCI config", None)
 
     uci_config.set_uci_config(req_data)
 

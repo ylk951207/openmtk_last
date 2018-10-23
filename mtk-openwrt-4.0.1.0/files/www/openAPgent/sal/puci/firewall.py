@@ -115,8 +115,8 @@ def port_forwarding_config_detail_set(request, name):
 def port_forwarding_config_uci_get(name_key):
     data = dict()
     uci_config = ConfigUCI(UCI_FIREWALL_CONFIG_FILE, UCI_PORT_FORWARDING_CONFIG, name_key)
-    if uci_config == None:
-        return response_make_simple_error_body(404, "UCI config not found", None)
+    if uci_config.section_map == None:
+        return response_make_simple_error_body(500, "Not found UCI config", None)
 
     uci_config.show_uci_config()
 
@@ -143,8 +143,8 @@ def port_forwarding_config_destroy(request):
 
 def port_forwarding_config_detail_destroy(name):
     uci_config = ConfigUCI(UCI_FIREWALL_CONFIG_FILE, UCI_PORT_FORWARDING_CONFIG, None)
-    if uci_config == None:
-        return response_make_simple_error_body(404, "UCI config not found", None)
+    if uci_config.section_map == None:
+        return response_make_simple_error_body(500, "Not found UCI config", None)
 
     name_list = port_forwarding_get_name_info(name)
 
@@ -158,8 +158,8 @@ def port_forwarding_config_detail_destroy(name):
 def port_forwarding_config_uci_add(host_str, name):
     name_info = dict()
     uci_config = ConfigUCI(UCI_FIREWALL_CONFIG_FILE, UCI_PORT_FORWARDING_CONFIG, None)
-    if uci_config == None:
-        return response_make_simple_error_body(404, "UCI config not found", None)
+    if uci_config.section_map == None:
+        return response_make_simple_error_body(500, "Not found UCI config", None)
 
     uci_config.add_uci_config(host_str)
 
@@ -180,8 +180,8 @@ def port_forwarding_config_uci_add(host_str, name):
 
 def port_forwarding_config_uci_set(req_data, name_key):
     uci_config = ConfigUCI(UCI_FIREWALL_CONFIG_FILE, UCI_PORT_FORWARDING_CONFIG, name_key)
-    if uci_config == None:
-        return response_make_simple_error_body(404, "UCI config not found", None)
+    if uci_config.section_map == None:
+        return response_make_simple_error_body(500, "Not found UCI config", None)
 
     str_value = ""
     for value in req_data['protocol']:

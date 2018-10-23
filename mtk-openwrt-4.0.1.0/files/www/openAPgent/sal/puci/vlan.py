@@ -1,6 +1,7 @@
 from puci import *
 from common.env import *
 from common.misc import *
+from common.message import *
 
 
 UCI_NETWORK_FILE="network"
@@ -24,10 +25,6 @@ def puci_vlan_config_list():
 	common_data = vlan_config_uci_get(None, UCI_VLAN_COMMON_CONFIG_CONFIG)
 	vlan_list_body[common_data.keys()[0]] = common_data.values()[0]
 	vlan_list_body['vlan-list'] = vlan_body
-
-
-
-
 
 	data = {
 		"vlan": vlan_list_body,
@@ -163,8 +160,8 @@ def vlan_config_detail_set(request, vlan_id):
 def vlan_config_uci_get(vlan_info, uci_config_file):
 	vlan_data = dict()
 	uci_config = ConfigUCI(UCI_NETWORK_FILE, uci_config_file, vlan_info)
-	if uci_config == None:
-		raise RespNotFound("UCI Config")
+	if uci_config.section_map == None:
+		return response_make_simple_error_body(500, "Not found UCI config", None)
 
 	uci_config.show_uci_config()
 
@@ -181,8 +178,8 @@ def vlan_config_uci_get(vlan_info, uci_config_file):
 def vlan_config_uci_add(vlan_str, vlan_id):
 	vlan_info = dict()
 	uci_config = ConfigUCI(UCI_NETWORK_FILE, UCI_VLAN_CONFIG_CONFIG, None)
-	if uci_config == None:
-		raise RespNotFound("UCI Config")
+	if uci_config.section_map == None:
+		return response_make_simple_error_body(500, "Not found UCI config", None)
 
 	uci_config.add_uci_config(vlan_str)
 
@@ -206,8 +203,8 @@ def vlan_config_uci_add(vlan_str, vlan_id):
 
 def vlan_config_uci_set(req_data, vlan_key, uci_config_file):
 	uci_config = ConfigUCI(UCI_NETWORK_FILE, uci_config_file, vlan_key)
-	if uci_config == None:
-		raise RespNotFound("UCI Config")
+	if uci_config.section_map== None:
+		return response_make_simple_error_body(500, "Not found UCI config", None)
 
 	uci_config.set_uci_config(req_data)
 

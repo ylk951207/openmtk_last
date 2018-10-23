@@ -254,10 +254,8 @@ class DockerContainerProc():
         else:
             params_dic['command'] = None
 
-        '''
         if len(dest_port_list) > 0:
             params_dic['environment'] = ['ARGS=' + " ".join(dest_port_list)]
-        '''
 
         log_info(LOG_MODULE_DOCKER, "container params_dic: " + str(params_dic))
         return params_dic
@@ -294,8 +292,7 @@ class DockerContainerProc():
                 log_error(LOG_MODULE_DOCKER, "*** error: " + str(e))
             else:
                 log_info(LOG_MODULE_DOCKER, "Get the previous container '%s' info (status:%s)" % (prev_container_name, prev_container.status))
-                if prev_container.status == "running":
-                    return prev_container
+                return prev_container
 
         return None
 
@@ -385,9 +382,8 @@ class DockerContainerProc():
     def _docker_container_remove_unused_container(self, prev_container, error, req_container_name):
         if not error:
             if prev_container:
-                if prev_container.status == "running":
-                    mgt_command = "stop"
-                    self._docker_container_mgt_proc(mgt_command, prev_container, None)
+                mgt_command = "stop"
+                self._docker_container_mgt_proc(mgt_command, prev_container, None)
 
                 mgt_command = "remove"
                 self._docker_container_mgt_proc(mgt_command, prev_container, None)
@@ -437,6 +433,8 @@ class DockerContainerProc():
             else:
                 prev_dest_port = DEST_PORT_PREFIX_PRIMARY + src_port
 
+            log_info(LOG_MODULE_DOCKER, "Proc iptables : is_add: %s, prev_dest_port: %s, src_port:%s" %(str(is_add), prev_dest_port, src_port))
+
             if is_add:
                 if prev_container:
                     cmd_str = "iptables -t nat -D PREROUTING -p UDP --dport %s -j REDIRECT --to-port %s" % (src_port, prev_dest_port)
@@ -444,6 +442,7 @@ class DockerContainerProc():
                     output, error = subprocess_open(cmd_str)
                     if error:
                         log_error(LOG_MODULE_DOCKER, "command(%s) error(%s)" %(cmd_str, error))
+
 
                 cmd_str = "iptables -t nat -A PREROUTING -p UDP --dport %s -j REDIRECT --to-port %s" %(src_port, dest_port)
                 log_info(LOG_MODULE_DOCKER, "[ADD] iptables-cmd: " + cmd_str)
@@ -482,14 +481,29 @@ class DockerContainerProc():
 
     def _check_docker_container_available_port(self, port_number):
         log_info(LOG_MODULE_DOCKER, "Check the available container port_number(" + port_number + ")")
+        cmd_str = "iptables -t nat -L | grep %s" %port_number
+        output, error = subprocess_open(cmd_str)
+
+        output = output.split()
+        if port_number in output and output[-1] == port_number:
+            # Port number already exist
+            log_info(LOG_MODULE_DOCKER, "Port number already exist")
+            return False
+        else:
+            log_info(LOG_MODULE_DOCKER, "Port number is available")
+            return True
+
+        '''
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         result = sock.connect_ex(('127.0.0.1', int(port_number)))
         if result == 0:
             return False
         else:
             return True
+        '''
 
-    def xxxxxxx_docker_container_create(self):
+
+    def _docker_container_create(self):
         error = False
         resp_body = dict()
         resp_body['rollback'] = {
@@ -536,7 +550,7 @@ class DockerContainerProc():
 
         return self.response.make_response_body(resp_body)
 
-    def _docker_container_create(self):
+    def xxxxxx_docker_container_create(self):
         error = False
         rollback_body = dict()
         rollback_body['rollback'] = {

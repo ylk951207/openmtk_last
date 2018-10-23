@@ -46,7 +46,7 @@ def puci_interface_config_list():
 
 def puci_interface_config_retrieve(ifname, add_header):
     if not ifname:
-        raise RespNotFound("Interface")
+        return response_make_simple_error_body(500, "Not found interface name", None)
 
     log_info(UCI_NETWORK_FILE, "[ifname] : " + ifname)
 
@@ -109,7 +109,7 @@ def interface_config_common_set(request):
 
 def interface_config_common_detail_set(request, ifname):
     if not ifname:
-        raise RespNotFound("Interface")
+        return response_make_simple_error_body(500, "Not found interface name", None)
 
     log_info(UCI_NETWORK_FILE, "ifname[" + ifname + "], " + "request data = ", str(request))
 
@@ -131,8 +131,8 @@ def interface_config_common_detail_set(request, ifname):
 
 def interface_config_common_uci_get(ifname, interface_data):
     uci_config = ConfigUCI(UCI_NETWORK_FILE, UCI_INTERFACE_COMMON_CONFIG, ifname)
-    if uci_config == None:
-        raise RespNotFound("UCI Config")
+    if uci_config.section_map == None:
+        return response_make_simple_error_body(500, "Not found UCI config", None)
 
     uci_config.show_uci_config()
 
@@ -145,17 +145,17 @@ def interface_config_common_uci_get(ifname, interface_data):
 
 def interface_config_common_uci_set(req_data, ifname):
     if not ifname:
-        raise RespNotFound("Interface")
+        return response_make_simple_error_body(500, "Not found interface name", None)
 
     uci_config = ConfigUCI(UCI_NETWORK_FILE, UCI_INTERFACE_COMMON_CONFIG, ifname)
-    if uci_config == None:
-        raise RespNotFound("UCI Config")
+    if uci_config.section_map == None:
+        return response_make_simple_error_body(500, "Not found UCI config", None)
 
     uci_config.set_uci_config(req_data)
 
 def puci_interface_v4addr_config_list(ifname):
     if not ifname:
-        raise RespNotFound("Interface")
+        return response_make_simple_error_body(500, "Not found interface name", None)
 
     interface_data = dict()
     interface_data = interface_config_v4addr_uci_get(ifname, interface_data)
@@ -176,7 +176,7 @@ def puci_interface_v4addr_config_update(request, ifname):
 
 def interface_config_v4addr_set(request, ifname):
     if not ifname:
-        raise RespNotFound("Interface")
+        return response_make_simple_error_body(500, "Not found interface name", None)
 
     interface_config_v4addr_uci_set(request, ifname)
 
@@ -193,8 +193,8 @@ def interface_config_v4addr_uci_get(ifname, interface_data):
     addr_data = dict()
 
     uci_config = ConfigUCI(UCI_NETWORK_FILE, UCI_INTERFACE_V4ADDR_CONFIG, ifname)
-    if uci_config == None:
-        raise RespNotFound("UCI Config")
+    if uci_config.section_map == None:
+        return response_make_simple_error_body(500, "Not found UCI config", None)
 
     uci_config.show_uci_config()
 
@@ -211,8 +211,8 @@ def interface_config_v4addr_uci_get(ifname, interface_data):
 def interface_config_v4addr_uci_set(req_data, ifname):
 
     uci_config = ConfigUCI(UCI_NETWORK_FILE, UCI_INTERFACE_V4ADDR_CONFIG, ifname)
-    if uci_config == None:
-        raise RespNotFound("UCI Config")
+    if uci_config.section_map == None:
+        return response_make_simple_error_body(500, "Not found UCI config", None)
 
     uci_config.set_uci_config(req_data)
 
@@ -283,7 +283,7 @@ def puci_if_statistics_list():
 
 def puci_if_statistics_retrieve(ifname, add_header):
     if not ifname:
-        raise RespNotFound("Interface")
+        return response_make_simple_error_body(500, "Not found interface name", None)
 
     log_info(UCI_NETWORK_FILE, "[ifName] : " + ifname)
 

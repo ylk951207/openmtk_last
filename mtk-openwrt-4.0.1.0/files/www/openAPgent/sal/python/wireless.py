@@ -83,7 +83,7 @@ def py_wireless_config_retrieve(ap_type, add_header):
     elif ap_type == "2G_default" or "2G_guest" in ap_type:
         data_file_name = MT7622_1_DAT
     else:
-        raise RespNotFound("No such type")
+        return response_make_simple_error_body(500, "Not found type", None)
 
     field_data_num = str(if_num+1)
 
@@ -93,10 +93,10 @@ def py_wireless_config_retrieve(ap_type, add_header):
     wireless_data['type'] = ap_type
 
     for key, val in wireless_data.items():
-	'''
-	Gets the required value from a specific type of value.
-	(authMode, privacyMode, wps | data file type = a;b;c;d) 
-	'''
+        '''
+	    Gets the required value from a specific type of value.
+	    (authMode, privacyMode, wps | data file type = a;b;c;d) 
+	    '''
         if key == 'authMode' or key == 'privacyMode' or key == 'wps':
             if ';' in val:
                 token = val.split(';')
@@ -125,11 +125,9 @@ def py_wireless_config_retrieve(ap_type, add_header):
     wireless_data['enable'] = device_get_wireless_state(if_name)
     status = device_get_wireless_state(if_name)
     if status == True:
-	wireless_data['status'] = 'connected'
+        wireless_data['status'] = 'connected'
     else:
-	wireless_data['status'] = 'disconnected'
-
-
+        wireless_data['status'] = 'disconnected'
 
     if add_header == 1:
         data = {
@@ -161,8 +159,8 @@ file I/O
 def wireless_config_get(data_file_name, field_data_num):
     wireless_data = dict()
     file_config = ConfigFileProc(WIRELESS_COMMON_CONFIG, PATH_WIRELESS_MEDIATEK, data_file_name, field_data_num)
-    if file_config == None:
-        raise RespNotFound("FILE Config")
+    if file_config.section_map == None:
+        return response_make_simple_error_body(500, "Not found file config", None)
 
     file_config.get_file_data_section_map(DELIMITER_EQUEL)
 
@@ -193,7 +191,7 @@ def wireless_config_set(request):
 def wireless_config_detail_set(request, ap_type):
     log_info(WIRELESS_COMMON_CONFIG, "request data = ", str(request))
     if not ap_type == request["type"]:
-        raise RespNotFound("wireless")
+        return response_make_simple_error_body(500, "Not found request [type]", None)
 
     if_name, device_name, if_num = wireless_get_device_info(request["type"])
 
@@ -222,8 +220,8 @@ def wireless_config_detail_set(request, ap_type):
             request[req_key] = apply_req_val
 
     file_config = ConfigFileProc(WIRELESS_COMMON_CONFIG, PATH_WIRELESS_MEDIATEK, config_file_name, field_data_num)
-    if file_config == None:
-        raise RespNotFound("FILE Config")
+    if file_config.section_map == None:
+        return response_make_simple_error_body(500, "Not found file config", None)
 
     '''
     Change the mode type to a matching number(802.11 b only -> 1, 802.11 g only -> 4 ...)

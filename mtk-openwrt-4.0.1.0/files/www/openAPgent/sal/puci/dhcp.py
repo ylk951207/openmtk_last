@@ -57,8 +57,8 @@ def dhcp_common_config_set(request):
 
 def dhcp_config_common_uci_get(uci_file, dhcp_data):
     uci_config = ConfigUCI(UCI_DHCP_CONFIG_FILE, uci_file)
-    if uci_config == None:
-        raise RespNotFound("UCI Config")
+    if uci_config.section_map == None:
+        return response_make_simple_error_body(500, "Not found UCI config", None)
 
     uci_config.show_uci_config()
 
@@ -71,8 +71,8 @@ def dhcp_common_config_uci_set(req_data, uci_file):
     log_info(UCI_DHCP_CONFIG_FILE, "request data = ", req_data)
 
     uci_config = ConfigUCI(UCI_DHCP_CONFIG_FILE, uci_file)
-    if uci_config == None:
-        raise RespNotFound("UCI Config")
+    if uci_config.section_map == None:
+        return response_make_simple_error_body(500, "Not found UCI config", None)
 
     uci_config.set_uci_config(req_data)
 
@@ -104,7 +104,7 @@ def puci_dhcp_pool_config_list():
 
 def puci_dhcp_pool_config_retrieve(ifname, add_header):
     if not ifname:
-        raise RespNotFound("dhcp")
+        return response_make_simple_error_body(500, "Not found interface name", None)
 
     log_info(UCI_DHCP_CONFIG_FILE, "[ifname] : " + ifname)
 
@@ -177,7 +177,7 @@ def dhcp_pool_config_set(request):
 
 def dhcp_pool_config_detail_set(request, ifname):
     if not ifname:
-        raise RespNotFound("dhcp")
+        return response_make_simple_error_body(500, "Not found interface name", None)
 
     dhcp_pool_config_uci_set(request, ifname)
     if UCI_DHCP_V6POOL_STR in request:
@@ -194,8 +194,8 @@ def dhcp_pool_config_detail_set(request, ifname):
 
 def dhcp_pool_config_uci_get(ifname, dhcp_data):
     uci_config = ConfigUCI(UCI_DHCP_CONFIG_FILE, UCI_DHCP_INTERFACE_POOL_CONFIG, ifname)
-    if uci_config == None:
-        raise RespNotFound("UCI Config")
+    if uci_config.section_map == None:
+        return response_make_simple_error_body(500, "Not found UCI config", None)
 
     uci_config.show_uci_config()
 
@@ -208,7 +208,8 @@ def dhcp_pool_config_uci_get(ifname, dhcp_data):
 
 def dhcp_pool_config_uci_set(req_data, ifname):
     if not ifname:
-        raise RespNotFound("dhcp")
+        return response_make_simple_error_body(500, "Not found interface name", None)
+
     log_info('DHCP-POOL', 'dhcp_pool_req = ' + str(req_data))
 
     start_addr = req_data['addrStartAddr']
@@ -218,8 +219,8 @@ def dhcp_pool_config_uci_set(req_data, ifname):
         req_data['addrStartAddr'], req_data['addrEndAddr'] = dhcp_pool_get_start_limit(start_addr, end_addr, sub_mask)
 
     uci_config = ConfigUCI(UCI_DHCP_CONFIG_FILE, UCI_DHCP_INTERFACE_POOL_CONFIG, ifname)
-    if uci_config == None:
-        raise RespNotFound("UCI Config")
+    if uci_config.section_map == None:
+        return response_make_simple_error_body(500, "Not found UCI config", None)
 
     uci_config.set_uci_config(req_data)
 
@@ -227,8 +228,8 @@ def dhcp_pool_v6pool_config_uci_get(ifname, dhcp_data):
     pool_data = dict()
 
     uci_config = ConfigUCI(UCI_DHCP_CONFIG_FILE, UCI_DHCP_INTERFACE_V6POOL_CONFIG, ifname)
-    if uci_config == None:
-        raise RespNotFound("UCI Config")
+    if uci_config.section_map == None:
+        return response_make_simple_error_body(500, "Not found UCI config", None)
 
     uci_config.show_uci_config()
 
@@ -244,8 +245,8 @@ def dhcp_pool_v6pool_config_uci_get(ifname, dhcp_data):
 
 def dhcp_pool_v6pool_config_uci_set(req_data, ifname):
     uci_config = ConfigUCI(UCI_DHCP_CONFIG_FILE, UCI_DHCP_INTERFACE_V6POOL_CONFIG, ifname)
-    if uci_config == None:
-        raise RespNotFound("UCI Config")
+    if uci_config.section_map == None:
+        return response_make_simple_error_body(500, "Not found UCI config", None)
 
     uci_config.set_uci_config(req_data)
 
@@ -360,8 +361,8 @@ def dhcp_static_leases_config_detail_set(request, name):
 def dhcp_static_leases_config_uci_get(host_info):
     leases_data = dict()
     uci_config = ConfigUCI(UCI_DHCP_CONFIG_FILE, UCI_DHCP_STATIC_LEASE_CONFIG, host_info)
-    if uci_config == None:
-        raise RespNotFound("UCI Config")
+    if uci_config.section_map == None:
+        return response_make_simple_error_body(500, "Not found UCI config", None)
 
     uci_config.show_uci_config()
 
@@ -373,8 +374,8 @@ def dhcp_static_leases_config_uci_get(host_info):
 
 def dhcp_static_leases_config_uci_add(host_str, name):
     uci_config = ConfigUCI(UCI_DHCP_CONFIG_FILE, UCI_DHCP_STATIC_LEASE_CONFIG, None)
-    if uci_config == None:
-        raise RespNotFound("UCI Config")
+    if uci_config.section_map == None:
+        return response_make_simple_error_body(500, "Not found UCI config", None)
 
     uci_config.add_uci_config(host_str)
 
@@ -390,8 +391,8 @@ def dhcp_static_leases_config_uci_add(host_str, name):
 
 def dhcp_static_leases_config_uci_set(req_data, host_key):
     uci_config = ConfigUCI(UCI_DHCP_CONFIG_FILE, UCI_DHCP_STATIC_LEASE_CONFIG, host_key)
-    if uci_config == None:
-        raise RespNotFound("UCI Config")
+    if uci_config.section_map == None:
+        return response_make_simple_error_body(500, "Not found UCI config", None)
 
     uci_config.set_uci_config(req_data)
 

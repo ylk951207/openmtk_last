@@ -3,15 +3,9 @@ import json
 import requests
 import ssl
 import socket
-from rest_framework.exceptions import *
 
 from common.env import *
 from common.misc import *
-
-
-class RespNotFound(APIException):
-    status_code = status.HTTP_404_NOT_FOUND
-#    default_detail = _('Not found.')
 
 
 '''

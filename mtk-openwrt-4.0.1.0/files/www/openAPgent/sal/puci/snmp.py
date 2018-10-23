@@ -150,8 +150,8 @@ def snmp_traphost_config_set_default_value (traphost):
 def snmp_config_uci_get(uci_config_name, value):
     snmp_data = dict()
     uci_config = ConfigUCI(UCI_SNMP_CONFIG_FILE, uci_config_name, value)
-    if uci_config == None:
-        raise RespNotFound("UCI Config")
+    if uci_config.section_map == None:
+        return response_make_simple_error_body(500, "Not found UCI config", None)
 
     uci_config.show_uci_config()
 
@@ -175,8 +175,8 @@ def snmp_config_initialize():
     traphost_list = snmp_config_get_uci_section_value("trap_HostName")
 
     uci_config = ConfigUCI(UCI_SNMP_CONFIG_FILE, UCI_SNNP_COMMUNITY_CONFIG, None)
-    if uci_config == None:
-        raise RespNotFound("UCI Config")
+    if uci_config.section_map == None:
+        return response_make_simple_error_body(500, "Not found UCI config", None)
 
     for i in range(0, len(community_list)):
         uci_config.delete_uci_config("snmpd." + community_list[i])
@@ -191,8 +191,8 @@ def snmp_config_initialize():
 
 def snmp_config_uci_set(req_data, config_name, value, version_list):
     uci_config = ConfigUCI(UCI_SNMP_CONFIG_FILE, config_name, value)
-    if uci_config == None:
-        raise RespNotFound("UCI Config")
+    if uci_config.section_map == None:
+        return response_make_simple_error_body(500, "Not found UCI config", None)
 
     if config_name == UCI_SNNP_COMMUNITY_CONFIG:
         uci_config.set_uci_config_scalar("snmpd."+value, "com2sec")

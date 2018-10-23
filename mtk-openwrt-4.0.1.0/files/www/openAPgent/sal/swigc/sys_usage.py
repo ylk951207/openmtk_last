@@ -38,7 +38,7 @@ def swigc_system_usage_retrieve(command, add_header):
     elif command == 'memory':
         system_usage = system_usage_get(SYSTEM_USAGE_MEMORY)
     else:
-        raise RespNotFound("Command")
+        return response_make_simple_error_body(500, "Not found command", None)
 
     data = {
         command: system_usage,
