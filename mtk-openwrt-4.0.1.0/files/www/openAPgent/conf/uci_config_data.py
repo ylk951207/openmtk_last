@@ -122,8 +122,8 @@ def uci_get_section_map(config_name, *args):
     if args and args[0]:
       section_map = {
         'ignore'                 :  [ CONFIG_TYPE_SCALAR  , ".".join(['dhcp', args[0], 'ignore'])        ,' ' ],
-        'addrStart'              :  [ CONFIG_TYPE_SCALAR  , ".".join(['dhcp', args[0], 'start'])         ,' ' ],
-        'addrLimit'              :  [ CONFIG_TYPE_SCALAR  , ".".join(['dhcp', args[0], 'limit'])         ,' ' ],
+        'addrStartAddr'          :  [ CONFIG_TYPE_SCALAR  , ".".join(['dhcp', args[0], 'start'])         ,' ' ],
+        'addrEndAddr'            :  [ CONFIG_TYPE_SCALAR  , ".".join(['dhcp', args[0], 'limit'])         ,' ' ],
         'leaseTime'              :  [ CONFIG_TYPE_SCALAR  , ".".join(['dhcp', args[0], 'leasetime'])     ,' ' ],
         'dynamicDhcp'            :  [ CONFIG_TYPE_SCALAR  , ".".join(['dhcp', args[0], 'dynamicdhcp'])   ,' ' ],
         'force'                  :  [ CONFIG_TYPE_SCALAR  , ".".join(['dhcp', args[0], 'force'])         ,' ' ],

@@ -1,6 +1,7 @@
 from puci import *
 from common.env import *
 from common.misc import *
+from common.sysinfo import *
 
 UCI_DHCP_CONFIG_FILE = "dhcp"
 UCI_DHCP_COMMON_CONFIG = "dhcp_common"
@@ -112,6 +113,22 @@ def puci_dhcp_pool_config_retrieve(ifname, add_header):
     dhcp_data = dhcp_pool_config_uci_get(ifname, dhcp_data)
     dhcp_data = dhcp_pool_v6pool_config_uci_get(ifname, dhcp_data)
 
+    addr_data = device_get_lan_ipaddr_netmask()
+    start = dhcp_data['addrStartAddr']
+    limit = dhcp_data['addrEndAddr']
+    ip_addr = addr_data['ipv4_addr']
+
+    if dhcp_data['v4Netmask'] != ' ':
+        sub_mask = dhcp_data['v4Netmask']
+    else:
+        sub_mask = addr_data['ipv4_netmask']
+
+    if start !=' ' and limit !=' ':
+        start_addr, end_addr = dhcp_pool_get_start_end_addr(start, limit, ip_addr, sub_mask)
+
+        dhcp_data['addrStartAddr'] = start_addr
+        dhcp_data['addrEndAddr'] = end_addr
+
     if add_header == 1:
         data = {
             'dhcp-pool': dhcp_data,
@@ -192,6 +209,13 @@ def dhcp_pool_config_uci_get(ifname, dhcp_data):
 def dhcp_pool_config_uci_set(req_data, ifname):
     if not ifname:
         raise RespNotFound("dhcp")
+    log_info('DHCP-POOL', 'dhcp_pool_req = ' + str(req_data))
+
+    start_addr = req_data['addrStartAddr']
+    end_addr = req_data['addrEndAddr']
+    sub_mask = req_data['v4Netmask']
+    if start_addr != '' and end_addr != '':
+        req_data['addrStartAddr'], req_data['addrEndAddr'] = dhcp_pool_get_start_limit(start_addr, end_addr, sub_mask)
 
     uci_config = ConfigUCI(UCI_DHCP_CONFIG_FILE, UCI_DHCP_INTERFACE_POOL_CONFIG, ifname)
     if uci_config == None:
@@ -399,3 +423,60 @@ def dhcp_static_leases_config_get_info(name):
 
     else:
         return host_info
+
+def dhcp_pool_get_start_limit(start_addr, end_addr, sub_mask):
+    start_ip = map(int, start_addr.split('.'))
+    end_ip = map(int, end_addr.split('.'))
+    '''
+    ['xxx','xxx','xxx','xxx'] -> [xxx,xxx,xxx,xxx]
+    '''
+    start = start_ip[3]
+    limit = 0
+
+    if sub_mask == '255.255.255.0':
+        limit = end_ip[3] - start + 1
+
+    elif sub_mask == '255.255.0.0':
+        token = end_ip[3] - start + 1
+        end_num = end_ip[2] + 1
+        limit = token + (end_num - start_ip[2]) * 256
+
+    elif sub_mask == '255.0.0.0':
+        token = end_ip[3] - start + 1
+        end_num = end_ip[2] + 1
+        token = token + (end_num - start_ip[2]) * 256
+        end_num = end_ip[1] + 1
+        limit = token + (end_num - start_ip[1]) * 65536
+
+    return start, limit
+
+def dhcp_pool_get_start_end_addr(start, limit, ip_addr, sub_mask):
+
+    token = ip_addr.split('.')
+    token[3] = start
+    start_addr = '.'.join(token)
+    end_addr = '.'.join(token)
+    start = int(start)
+    limit = int(limit)
+
+    if sub_mask == '255.255.255.0':
+        token[3] = limit + start - 1
+        end_addr = '.'.join(list(map(str, token)))
+
+    elif sub_mask == '255.255.0.0':
+        token[2] = limit/255
+        token[3] = limit - ((limit/255) * 256) + start - 1
+        end_addr = '.'.join(list(map(str, token)))
+
+    elif sub_mask == '255.0.0.0':
+        second_num = limit/65535
+        token[1] = second_num
+        third_num = (limit%65536)/256
+        token[2] = third_num
+        token[3] = (limit%65536) - third_num * 256 + start - 1
+        end_addr = '.'.join(list(map(str, token)))
+
+
+    return start_addr, end_addr
+
+
