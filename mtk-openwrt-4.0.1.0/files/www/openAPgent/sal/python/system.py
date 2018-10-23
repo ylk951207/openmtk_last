@@ -1,18 +1,16 @@
-import fileinput
-import time
 from common.env import *
-from common.log import *
 from common.misc import *
-from common.request import *
-from common.response import *
+from common.message import *
+from common.sysinfo import *
 
+LOG_MODULE_SYSINFO="sysinfo"
 
 
 def py_provisioning_done_create(request):
     noti_data = dict()
     server_msg = ApServerLocalMassage(APNOTIFIER_CMD_PORT)
     server_msg.send_message_to_apnotifier(SAL_PROVISIONING_DONE, noti_data)
-    log_info("System", "** Send provisioning done message to apClient **")
+    log_info(LOG_MODULE_SYSINFO, "** Send provisioning done message to apClient **")
 
 
 def py_keepalive_check_list():
@@ -50,7 +48,7 @@ def py_system_time_info_list():
     return data
 
 
-def py_hardware_interface_info_list():
+def py_interface_info_list():
     interface_info = HardwareInformation()
     interface_data = interface_info._make_hardware_interface_info_data("all")
     data = {
@@ -64,7 +62,7 @@ def py_hardware_interface_info_list():
     return data
 
 
-def py_hardware_interface_info_retrieve(if_type, add_header):
+def py_interface_info_retrieve(if_type, add_header):
     interface_info = HardwareInformation()
     interface_data = interface_info._make_hardware_interface_info_data(if_type)
     data = {
@@ -77,8 +75,59 @@ def py_hardware_interface_info_retrieve(if_type, add_header):
     }
     return data
 
+def py_interface_address_info_list():
+    iflist_body = []
 
-def py_hardware_wireless_info_list():
+    ni_addrs = DeviceNetifacesInfo()
+
+    for ifname in ni_addrs.iflist:
+        interface_data = {
+            "ifname": ifname,
+            "ipv4Address": ni_addrs.get_ipv4_addr(ifname),
+            "ipv4Netmask": ni_addrs.get_ipv4_netmask(ifname),
+            "ipv4Gateway": ni_addrs.get_ipv4_gateway_addr(ifname),
+            "ipv4Broadcast": ni_addrs.get_ipv4_broadcast(ifname),
+        }
+        iflist_body.append(interface_data)
+
+    data = {
+        "v4Addr": iflist_body,
+        'header' : {
+            'resultCode':200,
+            'resultMessage':'Success.',
+            'isSuccessful':'true'
+        }
+    }
+    return data
+
+def py_interface_address_info_retrieve(ifname, add_header):
+    if not ifname:
+        raise RespNotFound("Interface")
+
+    log_info(LOG_MODULE_SYSINFO, "[ifname] : " + ifname)
+
+    ni_addrs = DeviceNetifacesInfo()
+
+    interface_data = {
+        "ifname": ifname,
+        "ipv4Address": ni_addrs.get_ipv4_addr(ifname),
+        "ipv4Netmask": ni_addrs.get_ipv4_netmask(ifname),
+        "ipv4Gateway": ni_addrs.get_ipv4_gateway_addr(ifname),
+        "ipv4Broadcast": ni_addrs.get_ipv4_broadcast(ifname),
+    }
+
+    data = {
+        "v4Addr" : interface_data,
+        'header' : {
+            'resultCode':200,
+            'resultMessage':'Success.',
+            'isSuccessful':'true'
+        }
+    }
+    return data
+
+
+def py_wireless_info_list():
     wireless_data = list()
     wireless_iflist = {
         "2G_default" : "ra0",
@@ -121,6 +170,5 @@ def py_system_reboot_create(request):
         }
     }
     return data
-
 
 

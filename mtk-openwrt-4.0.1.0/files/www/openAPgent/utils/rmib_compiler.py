@@ -43,7 +43,7 @@ def initialize_file(test_mode):
 		view_file = "test/custom_views.py"
 		url_file  = "test/urls.py"
 		sal_file  = "test/sal.py"
-		uci_data_file = "test/uci_data.py"
+		uci_data_file = "test/uci_config_data.py"
 		sal_user_specific_path = "test/"
 
 		if not os.path.exists(view_file): os.mknod(view_file, 0755) 
@@ -54,7 +54,7 @@ def initialize_file(test_mode):
 		view_file = WORKDIR + "/apServer/server/custom_views.py"
 		url_file  = WORKDIR + "/apServer/server/urls.py"
 		sal_file  = WORKDIR + "/sal/sal.py"
-		uci_data_file = WORKDIR + "/sal/puci/uci_data.py"
+		uci_data_file = WORKDIR + "/conf/uci_config_data.py"
 		sal_user_specific_path = WORKDIR + "/sal/puci/"
 
 	print "%-30s: %s" %("view_file", view_file)
@@ -77,7 +77,7 @@ def get_django_header(filename):
 		header += "from rest_framework import status, viewsets\n"
 		header += "from rest_framework.response import Response\n"
 		header += "from sal.sal import *\n"
-		header += "from common.log import *\n\n"
+		header += "from common.misc import *\n\n"
 	elif filename == sal_file:
 		'''
 		Add HEADER_STR after handle SAL_IMPORT_LIST
@@ -92,7 +92,7 @@ def get_django_header(filename):
 		header += "SAL_METHOD_DESTROY        = 8\n"
 		header += "SAL_METHOD_DETAIL_DESTROY = 9\n\n\n"
 	elif filename == uci_data_file:
-		header += "from common.log import *\n\n"
+		header += "from common.misc import *\n\n"
 		header += "CONFIG_TYPE_SCALAR=1\n"
 		header += "CONFIG_TYPE_LIST=2\n"
 		header += "\n\ndef uci_get_section_map(config_name, *args):\n\n"
@@ -321,7 +321,7 @@ def make_sal_user_specific_file():
 		print "SAL USER FILE: " + sal_user_filename
 		wline = "import fileinput\n\n"
 		wline += "from puci import *\n"
-		wline += "from common.log import *\n"
+		wline += "from common.misc import *\n"
 		wline += "from common.env import *\n\n"
 
 		for elem in config_list:

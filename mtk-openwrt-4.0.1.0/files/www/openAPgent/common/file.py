@@ -1,10 +1,9 @@
 import fcntl
 import os
 
-from common.log import *
 from common.env import *
 from common.misc import *
-from common.file_config_data import *
+from conf.wireless_config_data import *
 
 
 DELIMITER_EQUEL = "="

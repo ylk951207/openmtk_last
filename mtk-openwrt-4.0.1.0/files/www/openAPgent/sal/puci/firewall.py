@@ -1,8 +1,8 @@
 from puci import *
-from common.log import *
 from common.env import *
 from common.misc import *
-from common.response import *
+from common.message import *
+from common.sysinfo import *
 
 UCI_FIREWALL_CONFIG_FILE="firewall"
 UCI_PORT_FORWARDING_CONFIG = "port_forwarding_config"

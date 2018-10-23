@@ -1,10 +1,8 @@
 #!/usr/bin/env python
-import docker
-
-from common.log import *
 from common.env import *
-from common.request import *
 from common.misc import *
+from common.message import *
+from common.sysinfo import *
 
 class WifiModuleRestart(object):
     def __init__(self, request):

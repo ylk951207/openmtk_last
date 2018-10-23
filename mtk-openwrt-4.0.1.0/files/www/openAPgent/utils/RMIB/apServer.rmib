@@ -22,14 +22,20 @@ SAL_FUNCTION=py
 METHODLIST=list
 
 URI=v1/infos/systems/interfaces
-BASENAME=hardware_interface_info
-CLASSNAME=HardwareInterfaceInfo
+BASENAME=interface_info
+CLASSNAME=InterfaceInfo
+SAL_FUNCTION=py
+METHODLIST=list,retrieve
+
+URI=v1/infos/systems/interface-addresses
+BASENAME=interface_address_info
+CLASSNAME=InterfaceAddressInfo
 SAL_FUNCTION=py
 METHODLIST=list,retrieve
 
 URI=v1/infos/systems/wireless
-BASENAME=hardware_wireless_info
-CLASSNAME=HardwareWirelessInfo
+BASENAME=wireless_info
+CLASSNAME=WirelessInfo
 SAL_FUNCTION=py
 METHODLIST=list
 

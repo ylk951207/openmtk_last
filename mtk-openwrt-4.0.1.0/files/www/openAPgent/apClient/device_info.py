@@ -1,9 +1,8 @@
 #!/usr/bin/pyhton
-from common.request import *
-from common.log import *
 from common.env import *
 from common.misc import *
-
+from common.message import *
+from common.sysinfo import *
 
 def request_post_device_info(device_info, url):
     post_req = APgentSendRequest('POST')

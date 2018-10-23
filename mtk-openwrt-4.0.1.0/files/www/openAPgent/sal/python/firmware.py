@@ -1,10 +1,9 @@
-import fileinput
 import os
 import requests
-from common.log import *
+
 from common.env import *
 from common.misc import *
-from common.response import *
+from common.message import *
 
 class FirmwareProc:
     def __init__(self):

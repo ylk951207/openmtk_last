@@ -1,9 +1,4 @@
-import fileinput
-import subprocess
-import shlex
-
 from puci import *
-from common.log import *
 from common.env import *
 from common.misc import *
 

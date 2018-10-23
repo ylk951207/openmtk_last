@@ -1,8 +1,7 @@
 #!/usr/bin/python
-#import sys
-#sys.path.append('/www/openAPgent/')
 import docker
-from common.log import *
+
+from common.misc import *
 
 
 LOG_MODULE_DOCKER_INIT="InitDocker"

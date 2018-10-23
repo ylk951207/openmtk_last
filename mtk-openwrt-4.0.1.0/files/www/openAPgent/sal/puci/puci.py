@@ -1,11 +1,7 @@
-import os
-import subprocess
-import shlex
-from common.log import *
 from common.env import *
 from common.misc import *
-from common.request import *
-from uci_data import *
+from common.message import *
+from conf.uci_config_data import *
 
 
 UCI_SHOW_CMD="uci show "

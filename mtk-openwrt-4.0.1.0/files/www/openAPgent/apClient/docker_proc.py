@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 import os
 import docker
-from common.log import *
+
 from common.env import *
-from common.request import *
-from apClient.device_info import device_info_get_serial_num
+from common.misc import *
+from common.message import *
+from common.sysinfo import *
 
 
 def _get_docker_image_name(image_name, image_tag, registry):

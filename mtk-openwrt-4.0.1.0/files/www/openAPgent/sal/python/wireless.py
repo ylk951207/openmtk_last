@@ -1,8 +1,9 @@
-from common.log import *
 from common.env import *
 from common.misc import *
 from common.file import*
-from common.request import*
+from common.message import *
+from common.sysinfo import *
+
 
 WIRELESS_COMMON_CONFIG = "wireless_common_config"
 WIRELESS_GENERATE_CONFIG  = "wireless_generate_config"

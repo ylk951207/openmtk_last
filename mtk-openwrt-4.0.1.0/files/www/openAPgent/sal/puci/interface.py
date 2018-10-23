@@ -1,9 +1,9 @@
 import fileinput
 
 from puci import *
-from common.log import *
 from common.env import *
-from common.response import *
+from common.misc import *
+from common.message import *
 
 UCI_NETWORK_FILE="network"
 UCI_INTERFACE_COMMON_CONFIG = "interface_config"
@@ -28,7 +28,6 @@ def puci_interface_config_list():
     iflist=['lan', 'wan', 'wan6']
 
     for i in range (0, len(iflist)):
-        log_info(UCI_NETWORK_FILE, "[ifname] : " + iflist[i])
         rc = puci_interface_config_retrieve(iflist[i], 0)
         if i == 0:
             iflist_body = [rc]

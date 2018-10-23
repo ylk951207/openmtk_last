@@ -60,24 +60,36 @@ def sal_system_time_info(method, request, pk):
 
 
 '''
- Define hardware_interface_info SAL function
+ Define interface_info SAL function
 '''
-def sal_hardware_interface_info(method, request, pk):
+def sal_interface_info(method, request, pk):
   # For Python APIs
   if method == SAL_METHOD_LIST:
-    return py_hardware_interface_info_list()
+    return py_interface_info_list()
 
   if method == SAL_METHOD_RETRIEVE:
-    return py_hardware_interface_info_retrieve(pk, 1)
+    return py_interface_info_retrieve(pk, 1)
 
 
 '''
- Define hardware_wireless_info SAL function
+ Define interface_address_info SAL function
 '''
-def sal_hardware_wireless_info(method, request, pk):
+def sal_interface_address_info(method, request, pk):
   # For Python APIs
   if method == SAL_METHOD_LIST:
-    return py_hardware_wireless_info_list()
+    return py_interface_address_info_list()
+
+  if method == SAL_METHOD_RETRIEVE:
+    return py_interface_address_info_retrieve(pk, 1)
+
+
+'''
+ Define wireless_info SAL function
+'''
+def sal_wireless_info(method, request, pk):
+  # For Python APIs
+  if method == SAL_METHOD_LIST:
+    return py_wireless_info_list()
 
 
 '''

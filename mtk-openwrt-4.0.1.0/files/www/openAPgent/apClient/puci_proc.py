@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 import docker
 
-from common.log import *
 from common.env import *
-from common.request import *
 from common.misc import *
-from apClient.device_info import device_info_get_serial_num
+from common.message import *
 
 
+'''
+Python UCI module restart 
+'''
 class PuciModuleRestart(object):
     def __init__(self, request):
         if not request : return

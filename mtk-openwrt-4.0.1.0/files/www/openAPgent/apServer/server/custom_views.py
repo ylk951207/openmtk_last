@@ -8,7 +8,7 @@ import json
 from rest_framework import status, viewsets
 from rest_framework.response import Response
 from sal.sal import *
-from common.log import *
+from common.misc import *
 
 
 '''
@@ -47,27 +47,42 @@ class SystemTimeInfoViewSet(viewsets.ViewSet):
 
 
 '''
- Define Class HardwareInterfaceInfo
+ Define Class InterfaceInfo
 '''
-class HardwareInterfaceInfoViewSet(viewsets.ViewSet):
+class InterfaceInfoViewSet(viewsets.ViewSet):
   def list(self, request):
-    log_info(LOG_MODULE_APSERVER, "*** HardwareInterfaceInfo list() ***")
-    data = sal_hardware_interface_info(SAL_METHOD_LIST, request.data, None)
+    log_info(LOG_MODULE_APSERVER, "*** InterfaceInfo list() ***")
+    data = sal_interface_info(SAL_METHOD_LIST, request.data, None)
     return Response(data, content_type='application/json')
 
   def retrieve(self, request, pk):
-    log_info(LOG_MODULE_APSERVER, "*** HardwareInterfaceInfo retrieve(), pk = " + pk + " ***")
-    data = sal_hardware_interface_info(SAL_METHOD_RETRIEVE, request.data, pk)
+    log_info(LOG_MODULE_APSERVER, "*** InterfaceInfo retrieve(), pk = " + pk + " ***")
+    data = sal_interface_info(SAL_METHOD_RETRIEVE, request.data, pk)
     return Response(data, content_type='application/json')
 
 
 '''
- Define Class HardwareWirelessInfo
+ Define Class InterfaceAddressInfo
 '''
-class HardwareWirelessInfoViewSet(viewsets.ViewSet):
+class InterfaceAddressInfoViewSet(viewsets.ViewSet):
   def list(self, request):
-    log_info(LOG_MODULE_APSERVER, "*** HardwareWirelessInfo list() ***")
-    data = sal_hardware_wireless_info(SAL_METHOD_LIST, request.data, None)
+    log_info(LOG_MODULE_APSERVER, "*** InterfaceAddressInfo list() ***")
+    data = sal_interface_address_info(SAL_METHOD_LIST, request.data, None)
+    return Response(data, content_type='application/json')
+
+  def retrieve(self, request, pk):
+    log_info(LOG_MODULE_APSERVER, "*** InterfaceAddressInfo retrieve(), pk = " + pk + " ***")
+    data = sal_interface_address_info(SAL_METHOD_RETRIEVE, request.data, pk)
+    return Response(data, content_type='application/json')
+
+
+'''
+ Define Class WirelessInfo
+'''
+class WirelessInfoViewSet(viewsets.ViewSet):
+  def list(self, request):
+    log_info(LOG_MODULE_APSERVER, "*** WirelessInfo list() ***")
+    data = sal_wireless_info(SAL_METHOD_LIST, request.data, None)
     return Response(data, content_type='application/json')
 
 

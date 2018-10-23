@@ -1,13 +1,13 @@
 #!/usr/bin/env python
-import os, sys
-import time
-import logging
 import socket
+
+from common.env import *
+from common.misc import *
+from common.sysinfo import *
+
 from apClient.docker_proc import *
 from apClient.puci_proc import *
 from apClient.wifi_proc import *
-from common.log import *
-from common.env import *
 
 
 class CommandSocket():

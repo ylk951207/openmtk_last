@@ -1,10 +1,9 @@
-import fileinput
 from random import *
 
 from puci import *
-from common.log import *
 from common.env import *
 from common.misc import *
+
 
 UCI_SNMP_CONFIG_FILE = "snmpd"
 UCI_SNNP_COMMUNITY_CONFIG = "snmp_community_config"

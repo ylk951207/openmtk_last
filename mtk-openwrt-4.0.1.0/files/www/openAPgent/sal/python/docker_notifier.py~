@@ -6,9 +6,9 @@ import os
 import docker
 import subprocess
 import getopt
-from common.log import *
+from common.miscimport *
 from common.env import *
-from common.request import *
+from common.message import *
 from apClient.device_info import ProcDeviceInfo
 import time
 

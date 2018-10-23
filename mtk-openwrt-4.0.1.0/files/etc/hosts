@@ -4,5 +4,5 @@
 ff02::1 ip6-allnodes
 ff02::2 ip6-allrouters
 
-14.35.205.119 capc.withusp.com
-#192.168.1.191 capc.withusp.com
+192.168.1.182 capc.withusp.com
+#128.134.187.161 capc.withusp.com

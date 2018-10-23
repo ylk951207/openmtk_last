@@ -1,8 +1,8 @@
 from puci import *
-from common.log import *
 from common.env import *
-from common.request import *
-from common.response import *
+from common.misc import *
+from common.message import *
+
 
 UCI_SYSTEM_CONFIG_FILE = "system"
 UCI_SYSTEM_CONFIG_COMMON_CONFIG = "system_config_common"

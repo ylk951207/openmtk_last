@@ -1,10 +1,7 @@
-import fileinput
-import shlex
-
 from puci import *
-from common.log import *
 from common.env import *
 from common.misc import *
+
 
 UCI_NETWORK_FILE="network"
 UCI_VLAN_COMMON_CONFIG_CONFIG = "vlan_common_config"
