@@ -111,6 +111,20 @@ class DeviceNetifacesInfo(object):
 		return ""
 
 
+def device_get_lan_ipaddr_netmask():
+	ni_addrs = DeviceNetifacesInfo()
+	isBridge, bridgeList = device_get_if_bridge_mode()
+	if isBridge == True:
+		ifname = 'br-lan'
+	else:
+		ifname = 'eth0'
+
+	addr_data = dict()
+	addr_data['ifname'] = ifname
+	addr_data['ipv4_addr'] = ni_addrs.get_ipv4_addr(ifname)
+	addr_data['ipv4_netmask'] = ni_addrs.get_ipv4_netmask(ifname)
+	return addr_data
+
 '''
 Device Information class
 '''
