@@ -25,6 +25,7 @@ def puci_system_config_list():
 
     system_common_data = system_config_uci_get(UCI_SYSTEM_CONFIG_COMMON_CONFIG, system_common_data)
     system_log_data = system_config_uci_get(UCI_SYSTEM_CONFIG_LOGGING_CONFIG, system_log_data)
+    system_log_data = convert_get_system_logging_output_cron_data(system_log_data)
     system_ntp_data = system_config_uci_get(UCI_SYSTEM_CONFIG_NTP_CONFIG, system_ntp_data)
 
     data = {
@@ -51,6 +52,7 @@ def puci_system_config_retrieve(command, add_header):
         system_data = system_config_uci_get(UCI_SYSTEM_CONFIG_COMMON_CONFIG, system_data)
     elif command == 'logging':
         system_data = system_config_uci_get(UCI_SYSTEM_CONFIG_LOGGING_CONFIG, system_data)
+        system_data = convert_get_system_logging_output_cron_data(system_data)
     elif command == 'ntp':
         system_data = system_config_uci_get(UCI_SYSTEM_CONFIG_NTP_CONFIG, system_data)
     else:
@@ -91,8 +93,8 @@ def system_config_set(request):
         system_config_uci_set(UCI_SYSTEM_CONFIG_COMMON_CONFIG, request['common'])
 
     if 'logging' in request.keys():
-        log_leq = convert_system_logging_output_data(request['logging'])
-        system_config_uci_set(UCI_SYSTEM_CONFIG_LOGGING_CONFIG, log_leq)
+        log_req = convert_set_system_logging_output_cron_data(request['logging'])
+        system_config_uci_set(UCI_SYSTEM_CONFIG_LOGGING_CONFIG, log_req)
 
     if 'ntp' in request.keys():
         system_config_uci_set(UCI_SYSTEM_CONFIG_NTP_CONFIG, request['ntp'])
@@ -115,7 +117,7 @@ def system_config_detail_set(request, command):
     if command == 'common':
         system_config_uci_set(UCI_SYSTEM_CONFIG_COMMON_CONFIG, request)
     elif command == 'logging':
-        request = convert_system_logging_output_data(request)
+        request = convert_set_system_logging_output_cron_data(request)
         system_config_uci_set(UCI_SYSTEM_CONFIG_LOGGING_CONFIG, request)
     elif command == 'ntp':
         system_config_uci_set(UCI_SYSTEM_CONFIG_NTP_CONFIG, request)
@@ -165,7 +167,7 @@ def system_config_uci_set(uci_file, req_data):
 
 
 
-def convert_system_logging_output_data(log_req):
+def convert_set_system_logging_output_cron_data(log_req):
 
     if log_req['loggingOutputLevel'] == 'emergency':
         log_req['loggingOutputLevel'] = '1'
@@ -183,5 +185,40 @@ def convert_system_logging_output_data(log_req):
         log_req['loggingOutputLevel'] = '7'
     elif log_req['loggingOutputLevel'] == 'debug':
         log_req['loggingOutputLevel'] = '8'
+
+    if log_req['loggingCronLogLevel'] == 'debug':
+        log_req['loggingCronLogLevel'] = '5'
+    elif log_req['loggingCronLogLevel'] == 'normal':
+        log_req['loggingCronLogLevel'] = '8'
+    elif log_req['loggingCronLogLevel'] == 'critical':
+        log_req['loggingCronLogLevel'] = '9'
+
+    return log_req
+
+def convert_get_system_logging_output_cron_data(log_req):
+
+    if log_req['loggingOutputLevel'] == '1':
+        log_req['loggingOutputLevel'] = 'emergency'
+    elif log_req['loggingOutputLevel'] == '2':
+        log_req['loggingOutputLevel'] = 'alert'
+    elif log_req['loggingOutputLevel'] == '3':
+        log_req['loggingOutputLevel'] = 'critical'
+    elif log_req['loggingOutputLevel'] == '4':
+        log_req['loggingOutputLevel'] = 'error'
+    elif log_req['loggingOutputLevel'] == '5':
+        log_req['loggingOutputLevel'] = 'warning'
+    elif log_req['loggingOutputLevel'] == '6':
+        log_req['loggingOutputLevel'] = 'notice'
+    elif log_req['loggingOutputLevel'] == '7':
+        log_req['loggingOutputLevel'] = 'info'
+    elif log_req['loggingOutputLevel'] == '8':
+        log_req['loggingOutputLevel'] = 'debug'
+
+    if log_req['loggingCronLogLevel'] == '5':
+        log_req['loggingCronLogLevel'] = 'debug'
+    elif log_req['loggingCronLogLevel'] == '8':
+        log_req['loggingCronLogLevel'] = 'normal'
+    elif log_req['loggingCronLogLevel'] == '9':
+        log_req['loggingCronLogLevel'] = 'critical'
 
     return log_req
