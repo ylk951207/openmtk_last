@@ -183,7 +183,7 @@ METHODLIST=create,detail_create
 #
 DEFINE_FIELD_system_config_common= {
     'hostname'     : CONFIG_TYPE_SCALAR : 'system.@system[0].hostname'
-    'timezone'     : CONFIG_TYPE_SCALAR : 'system.@system[0].timezone'
+    'timezone'     : CONFIG_TYPE_SCALAR : 'system.@system[0].zonename'
 };
 
 DEFINE_FIELD_system_config_logging= {
