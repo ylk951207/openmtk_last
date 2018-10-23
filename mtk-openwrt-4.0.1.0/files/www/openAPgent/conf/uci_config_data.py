@@ -28,8 +28,8 @@ def uci_get_section_map(config_name, *args):
         'loggingServerPort'      :  [ CONFIG_TYPE_SCALAR  , 'system.@system[0].log_port'                 ,' ' ],
         'loggingServerProtocol'  :  [ CONFIG_TYPE_SCALAR  , 'system.@system[0].log_proto'                ,' ' ],
         'loggingFilename'        :  [ CONFIG_TYPE_SCALAR  , 'system.@system[0].log_file'                 ,' ' ],
-        'loggingOutputLevel'     :  [ CONFIG_TYPE_SCALAR  , ''                                           ,' ' ],
-        'loggingCronLogLevel'    :  [ CONFIG_TYPE_SCALAR  , ''                                           ,' ' ],
+        'loggingOutputLevel'     :  [ CONFIG_TYPE_SCALAR  , 'system.@system[0].conloglevel'              ,' ' ],
+        'loggingCronLogLevel'    :  [ CONFIG_TYPE_SCALAR  , 'system.@system[0].cronloglevel'              ,' ' ],
       }
       return section_map
 
