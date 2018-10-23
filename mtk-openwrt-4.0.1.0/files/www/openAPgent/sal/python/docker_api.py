@@ -255,7 +255,7 @@ class DockerContainerProc():
             params_dic['command'] = None
 
         if len(dest_port_list) > 0:
-            params_dic['environment'] = ['ARGS=' + " ".join(dest_port_list)]
+            params_dic['environment'] = {'SNMP_ARGS' : " ".join(dest_port_list)}
 
         log_info(LOG_MODULE_DOCKER, "container params_dic: " + str(params_dic))
         return params_dic
@@ -297,48 +297,6 @@ class DockerContainerProc():
         return None
 
 
-    def _docker_container_stop_previous(self, req_container):
-        if not "containerName" in req_container: return None
-
-        prev_container_list = self._docker_container_get_by_image_name(req_container['containerName'])
-        if prev_container_list == None: return None
-
-        for i in range(0, len(prev_container_list)):
-            prev_container_name = prev_container_list[i].strip()
-
-            if req_container['containerName'] == prev_container_name:
-                log_info(LOG_MODULE_DOCKER, "Skip the same container %s" %(prev_container_name))
-                continue
-
-            log_info(LOG_MODULE_DOCKER, "Stop the previous container '%s'" %(str(prev_container_name)))
-
-            try:
-                prev_container = self.client.containers.get(prev_container_name)
-            except docker.errors.DockerException as e:
-                log_error(LOG_MODULE_DOCKER, "*** docker previous container stop() error ***")
-                log_error(LOG_MODULE_DOCKER, "*** error: " + str(e))
-                return e.response.status_code
-            else:
-                if prev_container.status == "exited":
-                    log_info(LOG_MODULE_DOCKER, "Skip the already stopped container %s" %prev_container.name)
-                    continue
-
-                mgt_command = "stop"
-                self._docker_container_mgt_proc(mgt_command, prev_container, None)
-                if prev_container.status == "running":
-                    self.prev_container_name = prev_container.name
-                    log_info(LOG_MODULE_DOCKER, "Set prev.container_name to '%s'" %self.prev_container_name)
-
-                '''
-                if prev_container.name == req_container['containerName']:
-                    if req_container['replaceFlag']:
-                        mgt_command = "rename"
-                        params = {"rename" : prev_container.name + CONTAINER_BACKUP_STR}
-                        log_info(LOG_MODULE_DOCKER, "Rename the duplicated container %s --> %s%s" %(prev_container.name, prev_container.name, CONTAINER_BACKUP_STR))
-                        self._docker_container_mgt_proc(mgt_command, prev_container, params)
-                        self.prev_container_name = prev_container.name + CONTAINER_BACKUP_STR
-                '''
-
     def _docker_container_get_by_name(self, container_name):
         if not container_name: return None
         container_name = container_name.strip()
@@ -353,96 +311,46 @@ class DockerContainerProc():
 
         return container
 
-    def _docker_container_rollback_previous(self, container_name, rollback_data):
-        prev_container = self._docker_container_get_by_name(self.prev_container_name)
-        if prev_container:
-            '''
-            if CONTAINER_BACKUP_STR in prev_container.name:
-                current_container = self._docker_container_get_by_name(container_name)
-                if current_container:
-                    mgt_command = "stop"
-                    self._docker_container_mgt_proc(mgt_command, current_container, None)
-                mgt_command = "rename"
-                new_name = prev_container.name.replace('.old_container', "")
-                params = {"rename": new_name}
-                log_info(LOG_MODULE_DOCKER, "Rename container '%s' --> '%s'" %(prev_container.name, new_name))
-                self._docker_container_mgt_proc(mgt_command, prev_container, params)
-            '''
-
-            mgt_command = "restart"
-            status_code = self._docker_container_mgt_proc(mgt_command, prev_container, None)
-            log_info(LOG_MODULE_DOCKER, "_docker_container_mgt_proc() return %d for container(%s)" %(status_code, prev_container.name))
-            if status_code == 200:
-                rollback_data['rollback'] = {
-                    'rollbackFlag': True,
-                    'rollbackContainer': prev_container.name
-                }
-        return rollback_data
-
-    def _docker_container_remove_unused_container(self, prev_container, error, req_container_name):
+    def _docker_container_remove_unused_container(self, prev_container, error, dest_port_list):
         if not error:
             if prev_container:
+                prev_dest_port_list = []
+                for dest_port in dest_port_list:
+                    src_port = dest_port[2:]
+
+                    if dest_port[:2] == DEST_PORT_PREFIX_PRIMARY:
+                        prev_dest_port_list.append(DEST_PORT_PREFIX_SECONDARY + src_port)
+                    else:
+                        prev_dest_port_list.append(DEST_PORT_PREFIX_PRIMARY + src_port)
+
                 mgt_command = "stop"
-                self._docker_container_mgt_proc(mgt_command, prev_container, None)
+                self._docker_container_mgt_proc(mgt_command, prev_container, None, None)
 
                 mgt_command = "remove"
-                self._docker_container_mgt_proc(mgt_command, prev_container, None)
+                self._docker_container_mgt_proc(mgt_command, prev_container, prev_dest_port_list, None)
                 log_info(LOG_MODULE_DOCKER, "Remove the deprecated containers for %s" % prev_container.name)
 
-    def _docker_container_remove_others(self, rollback_body, error, req_container_name):
-        rollback_data = rollback_body['rollback']
-        if rollback_data['rollbackFlag'] == True:
-            current_container_name = rollback_data['rollbackContainer']
-            error = False
-        else:
-            current_container_name = req_container_name
-
-        log_info(LOG_MODULE_DOCKER, "** Remove the deprecated containers for '%s', error: %s **" %(current_container_name, str(error)))
-
-        container_list = self._docker_container_get_by_image_name(current_container_name)
-        if container_list == None: return None
-
-        for i in range(0, len(container_list)):
-            container_name = container_list[i].strip()
-
-            if current_container_name == container_name and error == False:
-                log_info(LOG_MODULE_DOCKER, "Skip the same container %s" %(current_container_name))
-                continue
-
-            try:
-                container = self.client.containers.get(container_name)
-            except docker.errors.DockerException as e:
-                log_error(LOG_MODULE_DOCKER, "*** docker previous container stop() error ***")
-                log_error(LOG_MODULE_DOCKER, "*** error: " + str(e))
-                continue
-
-            if container.status != "stop":
-                mgt_command = "stop"
-            self._docker_container_mgt_proc(mgt_command, container, None)
-
-            mgt_command = "remove"
-            self._docker_container_mgt_proc(mgt_command, container, None)
-            log_info(LOG_MODULE_DOCKER, "Remove the deprecated containers for %s" % container_name)
-
     def _docker_container_iptables_proc(self, prev_container, dest_port_list, is_add):
+        log_info(LOG_MODULE_DOCKER, "iptables port list: " + str(dest_port_list))
         for dest_port in dest_port_list:
             src_port = dest_port[2:]
 
-            if dest_port[:2] == DEST_PORT_PREFIX_PRIMARY:
-                prev_dest_port = DEST_PORT_PREFIX_SECONDARY + src_port
-            else:
-                prev_dest_port = DEST_PORT_PREFIX_PRIMARY + src_port
-
-            log_info(LOG_MODULE_DOCKER, "Proc iptables : is_add: %s, prev_dest_port: %s, src_port:%s" %(str(is_add), prev_dest_port, src_port))
+            log_info(LOG_MODULE_DOCKER,
+                     "Proc iptables : is_add: %s, src_port:%s, dest_port:%s" % (str(is_add), src_port, dest_port))
 
             if is_add:
+                if dest_port[:2] == DEST_PORT_PREFIX_PRIMARY:
+                    prev_dest_port = DEST_PORT_PREFIX_SECONDARY + src_port
+                else:
+                    prev_dest_port = DEST_PORT_PREFIX_PRIMARY + src_port
+
                 if prev_container:
+                    log_info(LOG_MODULE_DOCKER, "Proc iptables :  prev_dest_port: %s" % prev_dest_port)
                     cmd_str = "iptables -t nat -D PREROUTING -p UDP --dport %s -j REDIRECT --to-port %s" % (src_port, prev_dest_port)
                     log_info(LOG_MODULE_DOCKER, "[ADD] iptables-cmd: " + cmd_str)
                     output, error = subprocess_open(cmd_str)
                     if error:
                         log_error(LOG_MODULE_DOCKER, "command(%s) error(%s)" %(cmd_str, error))
-
 
                 cmd_str = "iptables -t nat -A PREROUTING -p UDP --dport %s -j REDIRECT --to-port %s" %(src_port, dest_port)
                 log_info(LOG_MODULE_DOCKER, "[ADD] iptables-cmd: " + cmd_str)
@@ -450,7 +358,7 @@ class DockerContainerProc():
                 if error:
                     log_error(LOG_MODULE_DOCKER, "command(%s) error(%s)" % (cmd_str, error))
             else:
-                cmd_str = "iptables -t nat -D PREROUTING -p UDP --dport %s -j REDIRECT --to-port %s" % (src_port, prev_dest_port)
+                cmd_str = "iptables -t nat -D PREROUTING -p UDP --dport %s -j REDIRECT --to-port %s" % (src_port, dest_port)
                 log_info(LOG_MODULE_DOCKER, "[DELETE] iptables-cmd: " + cmd_str)
                 output, error = subprocess_open(cmd_str)
                 if error:
@@ -466,12 +374,11 @@ class DockerContainerProc():
             for src_port in src_port_list:
                 # TOOD: not found dest port
                 dest_port = "".join([DEST_PORT_PREFIX_PRIMARY, str(src_port)])
-                if self._check_docker_container_available_port(dest_port) == True:
+                if self._check_docker_container_iptables_portt(dest_port) == True:
                     dest_port_list.append(dest_port)
                 else:
                     dest_port = "".join([DEST_PORT_PREFIX_SECONDARY, str(src_port)])
                     dest_port_list.append(dest_port)
-                break
 
             if len(dest_port_list) <= 0:
                 dest_port_list = src_port_list
@@ -479,7 +386,7 @@ class DockerContainerProc():
         log_info(LOG_MODULE_DOCKER, "container(%s) dest_port_list[%s]" %(container_prefix, str(dest_port_list)))
         return dest_port_list
 
-    def _check_docker_container_available_port(self, port_number):
+    def _check_docker_container_iptables_portt(self, port_number):
         log_info(LOG_MODULE_DOCKER, "Check the available container port_number(" + port_number + ")")
         cmd_str = "iptables -t nat -L | grep %s" %port_number
         output, error = subprocess_open(cmd_str)
@@ -492,16 +399,6 @@ class DockerContainerProc():
         else:
             log_info(LOG_MODULE_DOCKER, "Port number is available")
             return True
-
-        '''
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        result = sock.connect_ex(('127.0.0.1', int(port_number)))
-        if result == 0:
-            return False
-        else:
-            return True
-        '''
-
 
     def _docker_container_create(self):
         error = False
@@ -543,61 +440,38 @@ class DockerContainerProc():
                 log_info(LOG_MODULE_DOCKER, "containers.run() success for %s" %image_name)
                 self._docker_container_iptables_proc(prev_container, dest_port_list, True)
 
-        self._docker_container_remove_unused_container(prev_container, error, req_container['containerName'])
+        self._docker_container_remove_unused_container(prev_container, error, dest_port_list)
         log_info(LOG_MODULE_DOCKER, "rollback data : " + str(resp_body))
 
         lock.release()
 
         return self.response.make_response_body(resp_body)
 
-    def xxxxxx_docker_container_create(self):
-        error = False
-        rollback_body = dict()
-        rollback_body['rollback'] = {
-            'rollbackFlag' : False,
-            'rollbackContainer' : ""
-        }
+    def _docker_container_remove_iptables_proc(self, container_name, dest_port_list):
+        container_prefix = container_name.split("_")[0]
 
-        while len(self.req_container_list) > 0:
-            req_container = self.req_container_list.pop(0)
+        if dest_port_list:
+            self._docker_container_iptables_proc(None, dest_port_list, False)
+        else:
+            port_list = []
+            for key, src_port_list in MODULE_PORT_MAPPING_TABLE.items():
+                if container_prefix != key:
+                    continue
 
-            lock = FileLock("container_lock", dir="/tmp")
-            lock.acquire()
+                for src_port in src_port_list:
+                    port_list.append("".join([DEST_PORT_PREFIX_PRIMARY, str(src_port)]))
+                    port_list.append("".join([DEST_PORT_PREFIX_SECONDARY, str(src_port)]))
 
-            self._docker_container_stop_previous(req_container)
+                self._docker_container_iptables_proc(None, port_list, False)
 
-            try:
-                image_name = _get_docker_image_name(req_container['imageName'], req_container['imageTag'], req_container['registry'])
-                params_dic = self._docker_container_get_parameter_parse(req_container)
-
-                self.client.containers.run(image_name, **params_dic)
-            except docker.errors.DockerException as e:
-                log_error(LOG_MODULE_DOCKER, "*** docker containers.run() error ***")
-                log_error(LOG_MODULE_DOCKER, "*** error: " + str(e))
-                self.response.set_response_value(e.response.status_code, e, False)
-                # Skip the conflict name error
-                if e.response.status_code != 409:
-                    error = True
-                rollback_body = self._docker_container_rollback_previous(req_container['containerName'], rollback_body)
-                break
-            else:
-                log_info(LOG_MODULE_DOCKER, "containers.run() success for %s" %image_name)
-
-        self._docker_container_remove_others(rollback_body, error, req_container['containerName'])
-        log_info(LOG_MODULE_DOCKER, "rollback data : " + str(rollback_body))
-
-        lock.release()
-
-        return self.response.make_response_body(rollback_body)
-
-    def _docker_container_mgt_proc(self, mgt_command, container, options):
+    def _docker_container_mgt_proc(self, mgt_command, container, dest_port_list, options):
         if options:
             params_dic = options
         else:
             params_dic = dict()
 
         log_info(LOG_MODULE_DOCKER, "Container : " + str(container) +
-                 " (status:%s, name: %s)" % (str(container.status), str(container.name)))
+                 " (status:%s, name: %s) <- command %s" % (str(container.status), str(container.name), mgt_command))
         try:
             if mgt_command == 'start':
                 container.start()
@@ -616,9 +490,20 @@ class DockerContainerProc():
                     container.remove(**params_dic)
                 else:
                     container.remove()
-                container_prefix = container.name.strip("=")[0]
-                dest_port_list = self._get_docker_container_available_port(container_prefix)
-                self._docker_container_iptables_proc(None, dest_port_list, False)
+
+                self._docker_container_remove_iptables_proc(container.name, dest_port_list)
+            elif mgt_command == 'stop-remove':
+                if params_dic:
+                    container.stop(**params_dic)
+                else:
+                    container.stop()
+
+                if params_dic:
+                    container.remove(**params_dic)
+                else:
+                    container.remove()
+
+                self._docker_container_remove_iptables_proc(container.name, dest_port_list)
             elif mgt_command == 'rename':
                 container.rename(params_dic['rename'])
         except docker.errors.DockerException as e:
@@ -646,7 +531,7 @@ class DockerContainerProc():
                 self.response.set_response_value(e.response.status_code, e, False)
                 break
             else:
-                self._docker_container_mgt_proc(mgt_command, container, req_container['options'])
+                self._docker_container_mgt_proc(mgt_command, container, None, req_container['options'])
 
         return self.response.make_response_body(None)
 
