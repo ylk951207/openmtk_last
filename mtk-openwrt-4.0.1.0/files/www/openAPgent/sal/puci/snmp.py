@@ -175,8 +175,6 @@ def snmp_config_initialize():
     traphost_list = snmp_config_get_uci_section_value("trap_HostName")
 
     uci_config = ConfigUCI(UCI_SNMP_CONFIG_FILE, UCI_SNNP_COMMUNITY_CONFIG, None)
-    if uci_config.section_map == None:
-        return response_make_simple_error_body(500, "Not found UCI config", None)
 
     for i in range(0, len(community_list)):
         uci_config.delete_uci_config("snmpd." + community_list[i])
