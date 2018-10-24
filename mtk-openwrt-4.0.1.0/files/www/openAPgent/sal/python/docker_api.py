@@ -255,7 +255,7 @@ class DockerContainerProc():
             params_dic['command'] = None
 
         if len(dest_port_list) > 0:
-            params_dic['environment'] = {'SNMP_ARGS' : " ".join(dest_port_list)}
+            params_dic['environment'] = {'ARGS' : " ".join(dest_port_list)}
 
         log_info(LOG_MODULE_DOCKER, "container params_dic: " + str(params_dic))
         return params_dic
@@ -374,7 +374,7 @@ class DockerContainerProc():
             for src_port in src_port_list:
                 # TOOD: not found dest port
                 dest_port = "".join([DEST_PORT_PREFIX_PRIMARY, str(src_port)])
-                if self._check_docker_container_iptables_portt(dest_port) == True:
+                if self._check_docker_container_iptables_port(dest_port) == True:
                     dest_port_list.append(dest_port)
                 else:
                     dest_port = "".join([DEST_PORT_PREFIX_SECONDARY, str(src_port)])
@@ -386,7 +386,7 @@ class DockerContainerProc():
         log_info(LOG_MODULE_DOCKER, "container(%s) dest_port_list[%s]" %(container_prefix, str(dest_port_list)))
         return dest_port_list
 
-    def _check_docker_container_iptables_portt(self, port_number):
+    def _check_docker_container_iptables_port(self, port_number):
         log_info(LOG_MODULE_DOCKER, "Check the available container port_number(" + port_number + ")")
         cmd_str = "iptables -t nat -L | grep %s" %port_number
         output, error = subprocess_open(cmd_str)
@@ -415,14 +415,13 @@ class DockerContainerProc():
             lock.acquire()
 
             prev_container = self._docker_get_previous_run_container(req_container['containerName'])
+            image_name = _get_docker_image_name(req_container['imageName'], req_container['imageTag'],
+                                                req_container['registry'])
+            dest_port_list = self._get_docker_container_available_port(req_container['imageName'])
+            params_dic = self._docker_container_get_parameter_parse(req_container, dest_port_list)
 
             try:
-                image_name = _get_docker_image_name(req_container['imageName'], req_container['imageTag'], req_container['registry'])
-                dest_port_list = self._get_docker_container_available_port(req_container['imageName'])
-                params_dic = self._docker_container_get_parameter_parse(req_container, dest_port_list)
-
                 self.client.containers.run(image_name, **params_dic)
-
             except docker.errors.DockerException as e:
                 log_error(LOG_MODULE_DOCKER, "*** docker containers.run() error ***")
                 log_error(LOG_MODULE_DOCKER, "*** error: " + str(e))
