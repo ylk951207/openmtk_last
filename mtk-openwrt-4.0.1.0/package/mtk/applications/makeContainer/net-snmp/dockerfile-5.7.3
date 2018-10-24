@@ -2,5 +2,5 @@ FROM scratch
 COPY /start.sh /start.sh
 COPY /net-snmp-5.7.3 /net-snmp-5.7.3
 COPY /snmpd.* /
-ENV  SNMP_ARGS=161
+ENV  ARGS=161
 CMD  ["/start.sh"]
