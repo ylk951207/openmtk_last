@@ -375,7 +375,7 @@ class DockerContainerProc():
                 wfile.write(wline)
 
                 for cmd_str in add_cmd_list:
-                    wfile.write(cmd_str)
+                    wfile.write(cmd_str + "\n")
 
             os.rename (TEMP_FIREWALL_USER_FILE, FIREWALL_USER_FILE)
             output, error = subprocess_open("/etc/init.d/firewall restart")
