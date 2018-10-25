@@ -1,5 +1,5 @@
+import os
 import docker
-import socket
 
 from common.env import *
 from common.misc import *
@@ -331,6 +331,59 @@ class DockerContainerProc():
                 log_info(LOG_MODULE_DOCKER, "Remove the deprecated containers for %s" % prev_container.name)
 
     def _docker_container_iptables_proc(self, prev_container, dest_port_list, is_add):
+        log_info(LOG_MODULE_DOCKER, "iptables port list: " + str(dest_port_list))
+
+        del_cmd_list = []
+        add_cmd_list = []
+        wline = ""
+
+        for dest_port in dest_port_list:
+            src_port = dest_port[2:]
+
+            if is_add:
+                if dest_port[:2] == DEST_PORT_PREFIX_PRIMARY:
+                    prev_dest_port = DEST_PORT_PREFIX_SECONDARY + src_port
+                else:
+                    prev_dest_port = DEST_PORT_PREFIX_PRIMARY + src_port
+
+                if prev_container:
+                    cmd_str = "iptables -t nat -A PREROUTING -p UDP --dport %s -j REDIRECT --to-port %s" % (src_port, prev_dest_port)
+                    del_cmd_list.append(cmd_str)
+                    cmd_str = "iptables -t nat -A PREROUTING -p UDP --dport %s -j REDIRECT --to-port %s" % (src_port, dest_port)
+                    add_cmd_list.append(cmd_str)
+            else:
+                cmd_str = "iptables -t nat -A PREROUTING -p UDP --dport %s -j REDIRECT --to-port %s" % (src_port, dest_port)
+                del_cmd_list.append(cmd_str)
+
+        log_info(LOG_MODULE_APCLIENT, "add_cmd_list : " + str(add_cmd_list))
+        log_info(LOG_MODULE_APCLIENT, "del_cmd_list : " + str(del_cmd_list))
+
+        with open(FIREWALL_USER_FILE, 'r') as rfile:
+            lines = rfile.readlines()
+
+            for line in lines:
+                skip_line = False
+                for cmd_str in del_cmd_list:
+                    if cmd_str in line:
+                        skip_line = True
+
+                if skip_line == False:
+                    wline += line
+
+        if wline:
+            with open(TEMP_FIREWALL_USER_FILE, 'w') as wfile:
+                wfile.write(wline)
+
+                for cmd_str in add_cmd_list:
+                    wfile.write(cmd_str)
+
+            os.rename (TEMP_FIREWALL_USER_FILE, FIREWALL_USER_FILE)
+            output, error = subprocess_open("/etc/init.d/firewall restart")
+
+            log_info(LOG_MODULE_APCLIENT, "== /etc/init.d firewall restart Done == ")
+
+
+    def xxx(self):
         log_info(LOG_MODULE_DOCKER, "iptables port list: " + str(dest_port_list))
         for dest_port in dest_port_list:
             src_port = dest_port[2:]

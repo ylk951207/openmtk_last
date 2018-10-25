@@ -19,7 +19,7 @@ openwrt)
     change_tmp_owner $(whoami)
 
     cd mtk-openwrt-4.0.1.0
-    make V=s -j 12
+    make -j 12
     
     change_tmp_owner root
     ;;

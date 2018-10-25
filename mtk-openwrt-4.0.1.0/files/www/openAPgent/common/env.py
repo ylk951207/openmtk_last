@@ -74,3 +74,9 @@ LOG_MODULE_DOCKER="docker"
 APSERVER_LOG_PATH="/var/log/apServer.log"
 APCLIENT_LOG_PATH="/var/log/apClient.log"
 
+
+'''
+Firewall
+'''
+TEMP_FIREWALL_USER_FILE = '/etc/firewall.user.tmp'
+FIREWALL_USER_FILE = '/etc/firewall.user'
