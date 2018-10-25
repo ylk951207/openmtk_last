@@ -64,7 +64,6 @@ def system_provisioning_done_proc():
     pmr._puci_network_module_restart('wan')
 
     pmr._puci_default_module_restart("system")
-    pmr._puci_default_module_restart("dhcp")
     pmr._puci_default_module_restart("firewall")
 
     pmr._puci_container_module_restart("snmpd")

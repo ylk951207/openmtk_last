@@ -1,3 +1,4 @@
+import os
 from common.env import *
 from common.misc import *
 from common.file import*
@@ -307,14 +308,16 @@ def wireless_convert_number_to_mode_type(mode_num):
 
 
 def wireless_module_restart(enable, ifname, devname):
-    noti_data = dict()
-    noti_data['enable'] = enable
-    noti_data['ifname'] = ifname
-    noti_data['devname'] = devname
-    server_msg = ApServerLocalMassage(APNOTIFIER_CMD_PORT)
-    server_msg.send_message_to_apnotifier(SAL_WIFI_MODULE_RESTART, noti_data)
-    log_info("WIFI", "** Send wifi module restart message to apClient **")
-
+    if os.path.exists(PROVISIONING_DONE_FILE):
+        noti_data = dict()
+        noti_data['enable'] = enable
+        noti_data['ifname'] = ifname
+        noti_data['devname'] = devname
+        server_msg = ApServerLocalMassage(APNOTIFIER_CMD_PORT)
+        server_msg.send_message_to_apnotifier(SAL_WIFI_MODULE_RESTART, noti_data)
+        log_info(WIRELESS_COMMON_CONFIG, "** Send wifi module restart message to apClient **")
+    else:
+        log_info(WIRELESS_COMMON_CONFIG, "Cannot find provisioining file(%s)" % PROVISIONING_DONE_FILE)
 
 def wireless_add_new_field(config_file_name, field_data_num):
 
