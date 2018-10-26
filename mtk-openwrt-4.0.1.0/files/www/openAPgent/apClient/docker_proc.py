@@ -8,6 +8,75 @@ from common.message import *
 from common.sysinfo import *
 
 
+LOG_MODULE_DOCKER_INIT="InitDocker"
+
+def initialize_docker_containers():
+    client = docker.from_env()
+    container_list = client.containers.list(all=True)
+    while container_list:
+        container = container_list.pop()
+
+        log_info(LOG_MODULE_DOCKER_INIT, "*** Docker container (%s) ***" % (container.name))
+
+        try:
+            container.stop()
+        except docker.errors.DockerException as e:
+            log_info(LOG_MODULE_DOCKER_INIT, "*** docker container '%s' stop error ***" %(container.name))
+            log_info(LOG_MODULE_DOCKER_INIT, "*** error: " + str(e))
+
+        log_info(LOG_MODULE_DOCKER_INIT, "*** Docker container (%s) stop done  ***" % (container.name))
+        try:
+            container.remove()
+        except docker.errors.DockerException as e:
+            log_info(LOG_MODULE_DOCKER_INIT, "*** docker container '%s' stop error ***" % (container.name))
+            log_info(LOG_MODULE_DOCKER_INIT, "*** error: " + str(e))
+
+        log_info(LOG_MODULE_DOCKER_INIT, "*** Docker container (%s) remove done  ***" % (container.name))
+
+    log_info(LOG_MODULE_DOCKER_INIT, "*** Check container list  ***")
+    container_list = client.containers.list(all=True)
+    while container_list:
+        container = container_list.pop()
+        log_info(LOG_MODULE_DOCKER_INIT, "*** Cannot remove docker container (%s) ***" % (container.name))
+
+    initialize_docker_container_iptables()
+
+
+def initialize_docker_container_iptables():
+    port_list = []
+    wline = ""
+    for key, src_port_list in MODULE_PORT_MAPPING_TABLE.items():
+        for src_port in src_port_list:
+            dest_port = "".join([DEST_PORT_PREFIX_PRIMARY, str(src_port)])
+            port_list.append(dest_port)
+            dest_port = "".join([DEST_PORT_PREFIX_SECONDARY, str(src_port)])
+            port_list.append(dest_port)
+
+    with open(FIREWALL_USER_FILE, 'r') as rfile:
+        lines = rfile.readlines()
+
+        for line in lines:
+            line_skip = False
+            token = line.split()
+            if token:
+                for port in port_list:
+                    if token[-1] == str(port):
+                        line_skip = True
+                        break
+            if line_skip == False:
+                wline += line
+
+    with open(TEMP_FIREWALL_USER_FILE, 'w') as wfile:
+        wfile.write(wline)
+
+    os.rename (TEMP_FIREWALL_USER_FILE, FIREWALL_USER_FILE)
+
+    log_info(LOG_MODULE_DOCKER_INIT, "*** Docker container iptables Initialization Done (port:%s) ***" %(str(port_list)))
+    '''
+    Firewall restart will be executed by system_provisioning_done_proc() function.
+    pmr._puci_default_module_restart("firewall")
+    '''
+
 def _get_docker_image_name(image_name, image_tag, registry):
     if registry:
         registry_ipaddr = registry['registryAddr']

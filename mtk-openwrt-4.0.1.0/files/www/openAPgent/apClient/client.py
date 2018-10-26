@@ -10,6 +10,7 @@ from apClient.puci_proc import *
 from apClient.wifi_proc import *
 
 
+
 class CommandSocket():
     def __init__(self, addr, port):
         self.sock=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -60,16 +61,20 @@ def system_provisioning_done_proc():
 
     pmr = PuciModuleRestart(None)
 
-    pmr._puci_network_module_restart('lan')
-    pmr._puci_network_module_restart('wan')
+    cmd_str = "ifdown lan; ifup lan; ifdown wan; ifup wan"
+    output, error = subprocess_open(cmd_str)
 
     pmr._puci_default_module_restart("system")
     pmr._puci_default_module_restart("firewall")
 
+    '''
     pmr._puci_container_module_restart("snmpd")
     pmr._puci_container_module_restart("dnsmasq")
+    '''
 
     wifi_module_reload_all_devices()
+
+    initialize_docker_containers()
 
     # Notification
     noti_req = APgentSendNotification()

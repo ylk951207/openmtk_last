@@ -80,3 +80,17 @@ Firewall
 '''
 TEMP_FIREWALL_USER_FILE = '/etc/firewall.user.tmp'
 FIREWALL_USER_FILE = '/etc/firewall.user'
+
+
+'''
+Virtualization
+'''
+CONTAINER_BACKUP_STR=".old_container"
+
+DEST_PORT_PREFIX_PRIMARY = "11"
+DEST_PORT_PREFIX_SECONDARY = "22"
+# TODO: Consider protocol UDP, TCP...
+MODULE_PORT_MAPPING_TABLE = {
+    'net-snmp' : [161],
+    'dnsmasq' : [53, 67],
+}

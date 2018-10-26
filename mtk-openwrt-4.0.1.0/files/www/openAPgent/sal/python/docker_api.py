@@ -6,16 +6,7 @@ from common.misc import *
 from common.file import *
 from common.message import *
 
-CONTAINER_BACKUP_STR=".old_container"
 
-
-DEST_PORT_PREFIX_PRIMARY = "11"
-DEST_PORT_PREFIX_SECONDARY = "22"
-# Consider protocol UDP, TCP...
-MODULE_PORT_MAPPING_TABLE = {
-    'net-snmp' : [161],
-    'dnsmasq' : [53, 67],
-}
 
 def _get_docker_image_name(image_name, image_tag, registry):
     if registry:
@@ -347,11 +338,17 @@ class DockerContainerProc():
                     prev_dest_port = DEST_PORT_PREFIX_PRIMARY + src_port
 
                 if prev_container:
+                    cmd_str = "iptables -t nat -A PREROUTING -p TCP --dport %s -j REDIRECT --to-port %s" % (src_port, prev_dest_port)
+                    del_cmd_list.append(cmd_str)
                     cmd_str = "iptables -t nat -A PREROUTING -p UDP --dport %s -j REDIRECT --to-port %s" % (src_port, prev_dest_port)
                     del_cmd_list.append(cmd_str)
-                    cmd_str = "iptables -t nat -A PREROUTING -p UDP --dport %s -j REDIRECT --to-port %s" % (src_port, dest_port)
-                    add_cmd_list.append(cmd_str)
+                cmd_str = "iptables -t nat -A PREROUTING -p TCP --dport %s -j REDIRECT --to-port %s" % (src_port, dest_port)
+                add_cmd_list.append(cmd_str)
+                cmd_str = "iptables -t nat -A PREROUTING -p UDP --dport %s -j REDIRECT --to-port %s" % (src_port, dest_port)
+                add_cmd_list.append(cmd_str)
             else:
+                cmd_str = "iptables -t nat -A PREROUTING -p TCP --dport %s -j REDIRECT --to-port %s" % (src_port, dest_port)
+                del_cmd_list.append(cmd_str)
                 cmd_str = "iptables -t nat -A PREROUTING -p UDP --dport %s -j REDIRECT --to-port %s" % (src_port, dest_port)
                 del_cmd_list.append(cmd_str)
 

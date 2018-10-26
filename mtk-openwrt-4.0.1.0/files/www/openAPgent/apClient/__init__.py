@@ -4,7 +4,6 @@ from common.misc import *
 
 from apClient.client import *
 from apClient.device_info import *
-from apClient.docker_container_init import *
 
 '''
 Main Routine

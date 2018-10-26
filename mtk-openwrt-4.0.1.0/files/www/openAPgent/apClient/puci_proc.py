@@ -64,8 +64,8 @@ class PuciModuleRestart(object):
 
     def _puci_network_module_restart(self, ifname):
         log_info(LOG_MODULE_APCLIENT, "ifdown/ifup for ifname: " + ifname)
-        output, error = subprocess_open('ifdown ' + ifname)
-        output, error = subprocess_open('ifup ' + ifname)
+        cmd_str = "ifdown %s; ifup %s" %(ifname, ifname)
+        output, error = subprocess_open(cmd_str)
 
     def _puci_default_module_restart(self, config_file):
         command = '/etc/init.d/' + config_file + ' restart'
