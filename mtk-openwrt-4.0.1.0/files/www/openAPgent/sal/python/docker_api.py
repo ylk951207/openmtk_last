@@ -379,41 +379,6 @@ class DockerContainerProc():
 
             log_info(LOG_MODULE_APCLIENT, "== /etc/init.d firewall restart Done == ")
 
-
-    def xxx(self):
-        log_info(LOG_MODULE_DOCKER, "iptables port list: " + str(dest_port_list))
-        for dest_port in dest_port_list:
-            src_port = dest_port[2:]
-
-            log_info(LOG_MODULE_DOCKER,
-                     "Proc iptables : is_add: %s, src_port:%s, dest_port:%s" % (str(is_add), src_port, dest_port))
-
-            if is_add:
-                if dest_port[:2] == DEST_PORT_PREFIX_PRIMARY:
-                    prev_dest_port = DEST_PORT_PREFIX_SECONDARY + src_port
-                else:
-                    prev_dest_port = DEST_PORT_PREFIX_PRIMARY + src_port
-
-                if prev_container:
-                    log_info(LOG_MODULE_DOCKER, "Proc iptables :  prev_dest_port: %s" % prev_dest_port)
-                    cmd_str = "iptables -t nat -D PREROUTING -p UDP --dport %s -j REDIRECT --to-port %s" % (src_port, prev_dest_port)
-                    log_info(LOG_MODULE_DOCKER, "[ADD] iptables-cmd: " + cmd_str)
-                    output, error = subprocess_open(cmd_str)
-                    if error:
-                        log_error(LOG_MODULE_DOCKER, "command(%s) error(%s)" %(cmd_str, error))
-
-                cmd_str = "iptables -t nat -A PREROUTING -p UDP --dport %s -j REDIRECT --to-port %s" %(src_port, dest_port)
-                log_info(LOG_MODULE_DOCKER, "[ADD] iptables-cmd: " + cmd_str)
-                output, error = subprocess_open(cmd_str)
-                if error:
-                    log_error(LOG_MODULE_DOCKER, "command(%s) error(%s)" % (cmd_str, error))
-            else:
-                cmd_str = "iptables -t nat -D PREROUTING -p UDP --dport %s -j REDIRECT --to-port %s" % (src_port, dest_port)
-                log_info(LOG_MODULE_DOCKER, "[DELETE] iptables-cmd: " + cmd_str)
-                output, error = subprocess_open(cmd_str)
-                if error:
-                    log_error(LOG_MODULE_DOCKER, "command(%s) error(%s)" % (cmd_str, error))
-
     def _get_docker_container_available_port(self, container_prefix):
         dest_port_list = []
 
@@ -450,6 +415,33 @@ class DockerContainerProc():
             log_info(LOG_MODULE_DOCKER, "Port number is available")
             return True
 
+    def _docker_container_remove_failed_container(self, container_name):
+        try:
+            container = self.client.containers.get(container_name)
+        except docker.errors.DockerException as e:
+            log_error(LOG_MODULE_DOCKER,
+                      "*** docker %s container processing error ***" %(container_name))
+            log_error(LOG_MODULE_DOCKER, "*** error: " + str(e))
+            return
+
+        log_error(LOG_MODULE_DOCKER,
+                  "*** Clean up the failed container(%s) ***" % (container.name))
+        try:
+            container.stop()
+        except docker.errors.DockerException as e:
+            log_error(LOG_MODULE_DOCKER,
+                      "*** docker %s container STOP processing error ***" % (container.name))
+            log_error(LOG_MODULE_DOCKER, "*** error: " + str(e))
+            return
+
+        try:
+            container.remove()
+        except docker.errors.DockerException as e:
+            log_error(LOG_MODULE_DOCKER,
+                      "*** docker %s container REMOVE processing error ***" % (container.name))
+            log_error(LOG_MODULE_DOCKER, "*** error: " + str(e))
+            return
+
     def _docker_container_create(self):
         error = False
         resp_body = dict()
@@ -484,6 +476,7 @@ class DockerContainerProc():
                         'rollbackFlag': True,
                         'rollbackContainer': prev_container.name
                     }
+                self._docker_container_remove_failed_container(req_container['containerName'])
                 break
             else:
                 log_info(LOG_MODULE_DOCKER, "containers.run() success for %s" %image_name)
