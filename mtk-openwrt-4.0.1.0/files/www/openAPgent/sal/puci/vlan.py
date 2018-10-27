@@ -178,8 +178,6 @@ def vlan_config_uci_get(vlan_info, uci_config_file):
 def vlan_config_uci_add(vlan_str, vlan_id):
 	vlan_info = dict()
 	uci_config = ConfigUCI(UCI_NETWORK_FILE, UCI_VLAN_CONFIG_CONFIG, None)
-	if uci_config.section_map == None:
-		return response_make_simple_error_body(500, "Not found UCI config", None)
 
 	uci_config.add_uci_config(vlan_str)
 

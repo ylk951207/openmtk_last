@@ -158,13 +158,9 @@ def port_forwarding_config_detail_destroy(name):
 def port_forwarding_config_uci_add(host_str, name):
     name_info = dict()
     uci_config = ConfigUCI(UCI_FIREWALL_CONFIG_FILE, UCI_PORT_FORWARDING_CONFIG, None)
-    if uci_config.section_map == None:
-        return response_make_simple_error_body(500, "Not found UCI config", None)
-
     uci_config.add_uci_config(host_str)
 
     output, error = subprocess_open(UCI_SHOW_CMD + UCI_FIREWALL_CONFIG_FILE + "| tail -1")
-
     if error:
         return name_info
 

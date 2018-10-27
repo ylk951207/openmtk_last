@@ -374,8 +374,6 @@ def dhcp_static_leases_config_uci_get(host_info):
 
 def dhcp_static_leases_config_uci_add(host_str, name):
     uci_config = ConfigUCI(UCI_DHCP_CONFIG_FILE, UCI_DHCP_STATIC_LEASE_CONFIG, None)
-    if uci_config.section_map == None:
-        return response_make_simple_error_body(500, "Not found UCI config", None)
 
     uci_config.add_uci_config(host_str)
 
