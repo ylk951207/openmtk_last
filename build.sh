@@ -11,10 +11,9 @@ change_tmp_owner()
     sudo chown $1:$1 /tmp
 }
 
-
-case $1 in
-openwrt)
-    echo "Compile openwrt"
+compile_openwrt()
+{
+    echo "\nCompile openwrt(mtk-openwrt-4.0.1.0)\n"
    
     change_tmp_owner $(whoami)
 
@@ -22,6 +21,22 @@ openwrt)
     make -j 12
     
     change_tmp_owner root
+}
+
+
+case $1 in
+openwrt-build)
+    # Compile for the official version
+    compile_openwrt
+    ;;
+openwrt)
+    # Compile for the development version
+		cp mtk-openwrt-4.0.1.0/files/www/openAPgent/common/env.py env.py~
+		sed -e s/CAPC_SERVER_IP=\'capc.withusp.com\'/CAPC_SERVER_IP=\'192.168.1.182\'/g env.py~  > \
+				mtk-openwrt-4.0.1.0/files/www/openAPgent/common/env.py
+    echo "++++++++++++++ Modify mtk-openwrt-4.0.1.0/files/www/openAPgent/common/env.py +++++++++++++++"
+
+    compile_openwrt
     ;;
 bootloader)
     echo "Compile bootloader"
