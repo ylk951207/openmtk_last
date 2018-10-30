@@ -1,4 +1,6 @@
 #!/usr/bin/pyhton
+import time
+
 from common.env import *
 from common.misc import *
 from common.message import *
@@ -6,7 +8,8 @@ from common.sysinfo import *
 from apClient.client import *
 
 
-MAX_REGISTER_DEVICE_RETRIES = 60
+MAX_REGISTER_DEVICE_INIT_RETRIES = 180
+MAX_DEVICE_REGISTER_SLEEP_TIME = 20
 
 
 def request_post_device_info(device_info, url):
@@ -18,8 +21,9 @@ def request_post_device_info(device_info, url):
 def register_device_info():
     device_info = DeviceInformation(0)
     is_registerd = False
+    count = 0
 
-    for i in range (0, MAX_REGISTER_DEVICE_RETRIES):
+    while True:
         device_info.update_device_info()
         status_code = request_post_device_info(device_info, CAPC_DEVICE_INFO_POST_URL)
         if status_code == 200:
@@ -31,8 +35,15 @@ def register_device_info():
             is_registerd = True
             break
 
-    if is_registerd == False:
+        count += 1
+        if count > MAX_REGISTER_DEVICE_INIT_RETRIES:
+            time.sleep (MAX_DEVICE_REGISTER_SLEEP_TIME)
+
+    '''
+        if is_registerd == False:
         log_info(LOG_MODULE_APCLIENT, "** Device registration to cAPC is failed. **")
         puci_provisioning_done_file_create()
+    '''
+
 
 
