@@ -92,5 +92,18 @@ DEST_PORT_PREFIX_SECONDARY = "22"
 # TODO: Consider protocol UDP, TCP...
 MODULE_PORT_MAPPING_TABLE = {
     'net-snmp' : ['161'],
-    'dnsmasq' : ['053', '067'],
+    'dnsmasq' : ['53', '67'],
 }
+
+
+'''
+Wireless
+'''
+WIRELESS_MEDIATEK_CONFIG_PATH='/etc/wireless/mediatek/'
+
+MT7615_1_DAT_CONFIG_FILE="mt7615e.1.dat"
+MT7622_1_DAT_CONFIG_FILE="mt7622.1.dat"
+
+FIVE_GIGA_DEVICE_NAME = "MT7615.1"
+TWO_GIGA_DEVICE_NAME = "MT7622.1"
+

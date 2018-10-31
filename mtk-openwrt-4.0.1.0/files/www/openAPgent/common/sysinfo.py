@@ -52,6 +52,8 @@ class DeviceNetifacesInfo(object):
 					self.ipv4_gateways.append(ni_gateways['default'][ni.AF_INET])
 
 	def get_interface_addresses(self, ifname):
+		if not ifname in self.addresses.keys():
+			return {}
 		return self.addresses[ifname]['addrs']
 
 	def get_hwaddr(self, ifname):
@@ -186,11 +188,11 @@ class DeviceInformation(object):
 
 def device_info_get_ip_address(ifname):
 	ni_addrs = DeviceNetifacesInfo()
-	return ni_addrs.wan_ipv4_addr
+	return ni_addrs.get_ipv4_addr(ifname)
 
 def device_info_get_hwaddr(ifname):
 	ni_addrs = DeviceNetifacesInfo()
-	return ni_addrs.wan_hwaddr
+	return ni_addrs.get_hwaddr(ifname)
 
 def device_info_get_serial_num():
 	mac_addr = device_info_get_hwaddr(WAN_ETHDEV)

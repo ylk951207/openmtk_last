@@ -329,13 +329,17 @@ class DockerContainerProc():
         wline = ""
 
         for dest_port in dest_port_list:
-            src_port = dest_port[2:]
+            src_temp_port = dest_port[2:]
+            if src_temp_port[0] == '0':
+                src_port = src_temp_port[1:]
+            else:
+                src_port = src_temp_port
 
             if is_add:
                 if dest_port[:2] == DEST_PORT_PREFIX_PRIMARY:
-                    prev_dest_port = DEST_PORT_PREFIX_SECONDARY + src_port
+                    prev_dest_port = DEST_PORT_PREFIX_SECONDARY + src_temp_port
                 else:
-                    prev_dest_port = DEST_PORT_PREFIX_PRIMARY + src_port
+                    prev_dest_port = DEST_PORT_PREFIX_PRIMARY + src_temp_port
 
                 if prev_container:
                     cmd_str = "iptables -t nat -A PREROUTING -p TCP --dport %s -j REDIRECT --to-port %s" % (src_port, prev_dest_port)
@@ -388,6 +392,7 @@ class DockerContainerProc():
 
             for src_port in src_port_list:
                 # TOOD: not found dest port
+                src_port = src_port.zfill(3)
                 dest_port = "".join([DEST_PORT_PREFIX_PRIMARY, str(src_port)])
                 if self._check_docker_container_iptables_port(dest_port) == True:
                     dest_port_list.append(dest_port)
@@ -501,6 +506,7 @@ class DockerContainerProc():
                     continue
 
                 for src_port in src_port_list:
+                    src_port = src_port.zfill(3)
                     port_list.append("".join([DEST_PORT_PREFIX_PRIMARY, str(src_port)]))
                     port_list.append("".join([DEST_PORT_PREFIX_SECONDARY, str(src_port)]))
 

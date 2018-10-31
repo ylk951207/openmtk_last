@@ -87,6 +87,36 @@ class WirelessInfoViewSet(viewsets.ViewSet):
 
 
 '''
+ Define Class WirelessStation
+'''
+class WirelessStationViewSet(viewsets.ViewSet):
+  def list(self, request):
+    log_info(LOG_MODULE_APSERVER, "*** WirelessStation list() ***")
+    data = sal_wireless_station(SAL_METHOD_LIST, request.data, None)
+    return Response(data, content_type='application/json')
+
+
+'''
+ Define Class WirelessSearch
+'''
+class WirelessSearchViewSet(viewsets.ViewSet):
+  def list(self, request):
+    log_info(LOG_MODULE_APSERVER, "*** WirelessSearch list() ***")
+    data = sal_wireless_search(SAL_METHOD_LIST, request.data, None)
+    return Response(data, content_type='application/json')
+
+
+'''
+ Define Class DhcpLeases
+'''
+class DhcpLeasesViewSet(viewsets.ViewSet):
+  def list(self, request):
+    log_info(LOG_MODULE_APSERVER, "*** DhcpLeases list() ***")
+    data = sal_dhcp_leases(SAL_METHOD_LIST, request.data, None)
+    return Response(data, content_type='application/json')
+
+
+'''
  Define Class ProvisioningDone
 '''
 class ProvisioningDoneViewSet(viewsets.ViewSet):
@@ -330,21 +360,6 @@ class SNMPConfigViewSet(viewsets.ViewSet):
     data = sal_snmp_config(SAL_METHOD_UPDATE, request.data, None)
     return Response(data, content_type='application/json')
 
-  def retrieve(self, request, pk):
-    log_info(LOG_MODULE_APSERVER, "*** SNMPConfig retrieve(), pk = " + pk + " ***")
-    data = sal_snmp_config(SAL_METHOD_RETRIEVE, request.data, pk)
-    return Response(data, content_type='application/json')
-
-  def detail_create(self, request, pk):
-    log_info(LOG_MODULE_APSERVER, "*** SNMPConfig detail_create(), pk = " + pk + " ***")
-    data = sal_snmp_config(SAL_METHOD_DETAIL_CREATE, request.data, pk)
-    return Response(data, content_type='application/json')
-
-  def detail_update(self, request, pk):
-    log_info(LOG_MODULE_APSERVER, "*** SNMPConfig detail_update(), pk = " + pk + " ***")
-    data = sal_snmp_config(SAL_METHOD_DETAIL_UPDATE, request.data, pk)
-    return Response(data, content_type='application/json')
-
 
 '''
  Define Class WirelessConfig
@@ -378,16 +393,6 @@ class WirelessConfigViewSet(viewsets.ViewSet):
   def detail_update(self, request, pk):
     log_info(LOG_MODULE_APSERVER, "*** WirelessConfig detail_update(), pk = " + pk + " ***")
     data = sal_wireless_config(SAL_METHOD_DETAIL_UPDATE, request.data, pk)
-    return Response(data, content_type='application/json')
-
-
-'''
- Define Class WirelessSearch
-'''
-class WirelessSearchViewSet(viewsets.ViewSet):
-  def list(self, request):
-    log_info(LOG_MODULE_APSERVER, "*** WirelessSearch list() ***")
-    data = sal_wireless_search(SAL_METHOD_LIST, request.data, None)
     return Response(data, content_type='application/json')
 
 

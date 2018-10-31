@@ -93,6 +93,33 @@ def sal_wireless_info(method, request, pk):
 
 
 '''
+ Define wireless_station SAL function
+'''
+def sal_wireless_station(method, request, pk):
+  # For Python APIs
+  if method == SAL_METHOD_LIST:
+    return py_wireless_station_list()
+
+
+'''
+ Define wireless_search SAL function
+'''
+def sal_wireless_search(method, request, pk):
+  # For Python APIs
+  if method == SAL_METHOD_LIST:
+    return py_wireless_search_list()
+
+
+'''
+ Define dhcp_leases SAL function
+'''
+def sal_dhcp_leases(method, request, pk):
+  # For Python APIs
+  if method == SAL_METHOD_LIST:
+    return py_dhcp_leases_list()
+
+
+'''
  Define provisioning_done SAL function
 '''
 def sal_provisioning_done(method, request, pk):
@@ -280,15 +307,6 @@ def sal_snmp_config(method, request, pk):
   if method == SAL_METHOD_UPDATE:
     return puci_snmp_config_update(request)
 
-  if method == SAL_METHOD_RETRIEVE:
-    return puci_snmp_config_retrieve(pk, 1)
-
-  if method == SAL_METHOD_DETAIL_CREATE:
-    return puci_snmp_config_detail_create(request, pk)
-
-  if method == SAL_METHOD_DETAIL_UPDATE:
-    return puci_snmp_config_detail_update(request, pk)
-
 
 '''
  Define wireless_config SAL function
@@ -312,15 +330,6 @@ def sal_wireless_config(method, request, pk):
 
   if method == SAL_METHOD_DETAIL_UPDATE:
     return py_wireless_config_detail_update(request, pk)
-
-
-'''
- Define wireless_search SAL function
-'''
-def sal_wireless_search(method, request, pk):
-  # For Python APIs
-  if method == SAL_METHOD_LIST:
-    return py_wireless_search_list()
 
 
 '''

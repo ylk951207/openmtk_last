@@ -15,11 +15,10 @@ LOG_MODULE_FILE = "file"
 I/O files of a specific path
 '''
 class ConfigFileProc:
-	def __init__(self, field_name, config_path, config_name, *args):
-		self.config_path = config_path
-		self.config_name = config_name
+	def __init__(self, field_name, config_file, *args):
+		self.config_file = config_file
 		self.section_map = file_config_data_get_section_map(field_name, *args)
-		log_info(LOG_MODULE_FILE, "Section_map(" + config_name + "): " + str(self.section_map))
+		log_info(LOG_MODULE_FILE, "Section_map(" + config_file + "): " + str(self.section_map))
 
 	'''
 	Get section map
@@ -41,7 +40,7 @@ class ConfigFileProc:
 	'''
 	def read_file_data(self, delimiter):
 		file_data = dict()
-		with open(self.config_path + self.config_name, 'r') as f:
+		with open(self.config_file, 'r') as f:
 			lines = f.readlines()
 			for line in lines:
 				line = line.strip()
@@ -58,12 +57,14 @@ class ConfigFileProc:
 	Rewrite to a file of a specific path using the request value
 	'''
 	def write_file_data(self, req_data, delimiter, header, add_header = True):
+		temp_file = ".".join([self.config_file, 'temp'])
 		log_info(LOG_MODULE_FILE, "request_data = " + str(req_data))
 
 		apply_req_data = self.apply_request_data(req_data, add_header)
-		with open(self.config_path + self.config_name, 'r') as f:
+		with open(self.config_file, 'r') as f:
 			lines = f.readlines()
-		with open(self.config_path + 'temp', 'w') as fw:
+
+		with open(temp_file, 'w') as fw:
 			fw.write(header)
 			for line in lines:
 				if '#' in line:	continue
@@ -73,13 +74,13 @@ class ConfigFileProc:
 					for key, val in apply_req_data.items():
 						if tokens[0] == key:
 							tokens[1] = val
-					if tokens[1] == None:
+					if not tokens[1]:
 						tokens[1] = '\n'
 					else:
-						tokens[1] = tokens[1] + '\n'
+						tokens[1] = str(tokens[1]) + '\n'
 					fw.write('='.join(tokens))
 
-		os.rename(self.config_path + 'temp', self.config_path + self.config_name)
+		os.rename(temp_file, self.config_file)
 
 	'''
 	Apply data using request value
@@ -100,6 +101,8 @@ class ConfigFileProc:
 	Changes the string to a different type
 	'''
 	def convert_get_config_value(self, type, val):
+		if not val:
+			return val
 		if type == CONFIG_TYPE_INTEGER:
 			if isinstance(val, str) and val != '\n':
 				val = int(val)

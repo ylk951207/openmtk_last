@@ -143,8 +143,6 @@ def port_forwarding_config_destroy(request):
 
 def port_forwarding_config_detail_destroy(name):
     uci_config = ConfigUCI(UCI_FIREWALL_CONFIG_FILE, UCI_PORT_FORWARDING_CONFIG, None)
-    if uci_config.section_map == None:
-        return response_make_simple_error_body(500, "Not found UCI config", None)
 
     name_list = port_forwarding_get_name_info(name)
 
