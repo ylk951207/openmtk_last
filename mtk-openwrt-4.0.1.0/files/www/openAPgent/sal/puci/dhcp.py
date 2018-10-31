@@ -1,7 +1,11 @@
+import socket
+import struct
+
 from puci import *
 from common.env import *
 from common.misc import *
 from common.sysinfo import *
+from common.message import *
 
 UCI_DHCP_CONFIG_FILE = "dhcp"
 UCI_DHCP_COMMON_CONFIG = "dhcp_common"
@@ -9,6 +13,7 @@ UCI_DHCP_INTERFACE_POOL_CONFIG = "dhcp_interface_pool"
 UCI_DHCP_INTERFACE_V6POOL_CONFIG = "dhcp_interface_v6pool"
 UCI_DHCP_STATIC_LEASE_CONFIG = "dhcp_static_leases"
 UCI_DHCP_V6POOL_STR = "v6Settings"
+ERROR_MESSEGE = "error"
 
 
 def dhcp_puci_module_restart():
@@ -119,12 +124,13 @@ def puci_dhcp_pool_config_retrieve(ifname, add_header):
     ip_addr = addr_data['ipv4_addr']
 
     if dhcp_data['v4Netmask'] != ' ':
-        sub_mask = dhcp_data['v4Netmask']
+        netmask = dhcp_data['v4Netmask']
     else:
-        sub_mask = addr_data['ipv4_netmask']
+        netmask = addr_data['ipv4_netmask']
 
-    if start !=' ' and limit !=' ':
-        start_addr, end_addr = dhcp_pool_get_start_end_addr(start, limit, ip_addr, sub_mask)
+    pool_config = GetDhcpPoolData()
+    if start !=" "  and limit !=" ":
+        start_addr, end_addr = pool_config.get_start_and_end_address(start, limit, ip_addr, netmask)
 
         dhcp_data['addrStartAddr'] = start_addr
         dhcp_data['addrEndAddr'] = end_addr
@@ -162,9 +168,12 @@ def dhcp_pool_config_set(request):
 
         ifname = ifdata['ifname']
 
-        dhcp_pool_config_uci_set(ifdata, ifname)
+        error_data = dhcp_pool_config_uci_set(ifdata, ifname)
         if UCI_DHCP_V6POOL_STR in ifdata:
             dhcp_pool_v6pool_config_uci_set(ifdata[UCI_DHCP_V6POOL_STR], ifname)
+
+    if error_data:
+        return error_data
 
     data = {
         'header': {
@@ -179,9 +188,12 @@ def dhcp_pool_config_detail_set(request, ifname):
     if not ifname:
         return response_make_simple_error_body(500, "Not found interface name", None)
 
-    dhcp_pool_config_uci_set(request, ifname)
+    error_data = dhcp_pool_config_uci_set(request, ifname)
     if UCI_DHCP_V6POOL_STR in request:
         dhcp_pool_v6pool_config_uci_set(request[UCI_DHCP_V6POOL_STR], ifname)
+
+    if error_data:
+        return error_data
 
     data = {
         'header': {
@@ -210,14 +222,26 @@ def dhcp_pool_config_uci_set(req_data, ifname):
     if not ifname:
         return response_make_simple_error_body(500, "Not found interface name", None)
 
-    log_info('DHCP-POOL', 'dhcp_pool_req = ' + str(req_data))
+    log_info(UCI_DHCP_CONFIG_FILE, 'dhcp_pool_req = ' + str(req_data))
+
+    addr_data = device_get_lan_ipaddr_netmask()
+    br_addr = addr_data['ipv4_addr']
 
     start_addr = req_data['addrStartAddr']
     end_addr = req_data['addrEndAddr']
-    sub_mask = req_data['v4Netmask']
-    if start_addr != '' and end_addr != '':
-        req_data['addrStartAddr'], req_data['addrEndAddr'] = dhcp_pool_get_start_limit(start_addr, end_addr, sub_mask)
+    if req_data['v4Netmask'] != " " and req_data['v4Netmask']:
+        netmask = req_data['v4Netmask']
+    else:
+        netmask = addr_data['ipv4_netmask']
 
+    pool_config = GetDhcpPoolData()
+    if start_addr != " " and end_addr != " ":
+        req_data['addrStartAddr'], req_data['addrEndAddr'] = pool_config.get_start_limit_data(start_addr, end_addr, br_addr, netmask)
+
+    if req_data['addrStartAddr'] == ERROR_MESSEGE or req_data['addrEndAddr'] == ERROR_MESSEGE:
+        return response_make_simple_error_body(500, "Invalid Start End Addr Value", None)
+
+    log_info(UCI_DHCP_CONFIG_FILE, 'dhcp_pool_set_req = ' + str(req_data))
     uci_config = ConfigUCI(UCI_DHCP_CONFIG_FILE, UCI_DHCP_INTERFACE_POOL_CONFIG, ifname)
     if uci_config.section_map == None:
         return response_make_simple_error_body(500, "Not found UCI config", None)
@@ -255,15 +279,15 @@ def dhcp_pool_v6pool_config_uci_set(req_data, ifname):
 DHCP_Static_leases
 '''
 def puci_dhcp_static_leases_config_list():
-    leases_body = list()
+    sl_body = list()
     host_info_list = dhcp_static_leases_config_get_info(None)
 
     for host_key, host_name in host_info_list.items():
-        leases_data = dhcp_static_leases_config_uci_get(host_key)
-        leases_body.append(leases_data)
+        sl_data = dhcp_static_leases_config_uci_get(host_key)
+        sl_body.append(sl_data)
 
     data = {
-        "static-lease-list": leases_body,
+        "static-lease-list": sl_body,
         'header': {
             'resultCode': 200,
             'resultMessage': 'Success.',
@@ -275,13 +299,14 @@ def puci_dhcp_static_leases_config_list():
 
 def puci_dhcp_static_leases_config_retrieve(name, add_header):
     host_info_list = dhcp_static_leases_config_get_info(name)
+    log_info(UCI_DHCP_CONFIG_FILE, "host_info data = " + str(host_info_list))
 
     for host_key, host_name in host_info_list.items():
         if host_name == name:
-            leases_data = dhcp_static_leases_config_uci_get(host_key)
+            sl_data = dhcp_static_leases_config_uci_get(host_key)
 
     data = {
-        'static-lease': leases_data,
+        'static-lease': sl_data,
         'header': {
             'resultCode': 200,
             'resultMessage': 'Success.',
@@ -305,25 +330,60 @@ def puci_dhcp_static_leases_config_detail_update(request, name):
     return dhcp_static_leases_config_detail_set(request, name)
 
 
+def puci_dhcp_static_leases_config_destroy(request):
+
+    static_leases_list = request['static-lease-list']
+    for sl_data in static_leases_list:
+        host_info_list = dhcp_static_leases_config_get_info(sl_data['name'])
+        log_info(UCI_DHCP_CONFIG_FILE, 'host info list = ' + str(host_info_list))
+
+        for host_key, host_name in host_info_list.items():
+            dhcp_static_leases_config_uci_destroy(host_key)
+
+    data = {
+        'header': {
+            'resultCode': 200,
+            'resultMessage': 'Success.',
+            'isSuccessful': 'true'
+        }
+    }
+    return data
+
+def puci_dhcp_static_leases_config_detail_destroy(request, name):
+    host_info_list = dhcp_static_leases_config_get_info(name)
+
+    for host_key, host_name in host_info_list.items():
+        if host_name == name:
+            dhcp_static_leases_config_uci_destroy(host_key)
+
+    data = {
+        'header': {
+            'resultCode': 200,
+            'resultMessage': 'Success.',
+            'isSuccessful': 'true'
+        }
+    }
+    return data
+
 def dhcp_static_leases_config_set(request):
-    leases_list = request['static-lease-list']
+    sl_list = request['static-lease-list']
 
     host_info_list = dhcp_static_leases_config_get_info(None)
 
-    while len(leases_list) > 0:
-        leases_data = leases_list.pop(0)
+    while len(sl_list) > 0:
+        sl_data = sl_list.pop(0)
         found = False
 
         for host_key, host_name in host_info_list.items():
-            if host_name == leases_data['name']:
-                dhcp_static_leases_config_uci_set(leases_data, host_key)
+            if host_name == sl_data['name']:
+                dhcp_static_leases_config_uci_set(sl_data, host_key)
                 found = True
 
         if found == False:
-            host_info_list = dhcp_static_leases_config_uci_add(' host', leases_data['name'])
+            host_info_list = dhcp_static_leases_config_uci_add(' host', sl_data['name'])
 
             for host_key, host_name in host_info_list.items():
-                dhcp_static_leases_config_uci_set(leases_data, host_key)
+                dhcp_static_leases_config_uci_set(sl_data, host_key)
 
     dhcp_puci_module_restart()
 
@@ -359,7 +419,7 @@ def dhcp_static_leases_config_detail_set(request, name):
 
 
 def dhcp_static_leases_config_uci_get(host_info):
-    leases_data = dict()
+    sl_data = dict()
     uci_config = ConfigUCI(UCI_DHCP_CONFIG_FILE, UCI_DHCP_STATIC_LEASE_CONFIG, host_info)
     if uci_config.section_map == None:
         return response_make_simple_error_body(500, "Not found UCI config", None)
@@ -368,9 +428,9 @@ def dhcp_static_leases_config_uci_get(host_info):
 
     for map_key in uci_config.section_map.keys():
         map_val = uci_config.section_map[map_key]
-        leases_data[map_key] = map_val[2]
+        sl_data[map_key] = map_val[2]
 
-    return leases_data
+    return sl_data
 
 def dhcp_static_leases_config_uci_add(host_str, name):
     uci_config = ConfigUCI(UCI_DHCP_CONFIG_FILE, UCI_DHCP_STATIC_LEASE_CONFIG, None)
@@ -393,6 +453,14 @@ def dhcp_static_leases_config_uci_set(req_data, host_key):
         return response_make_simple_error_body(500, "Not found UCI config", None)
 
     uci_config.set_uci_config(req_data)
+
+def dhcp_static_leases_config_uci_destroy(host_key):
+
+    uci_config = ConfigUCI(UCI_DHCP_CONFIG_FILE, UCI_DHCP_STATIC_LEASE_CONFIG, host_key)
+    if uci_config.section_map == None:
+        return response_make_simple_error_body(500, "Not found UCI config", None)
+
+    uci_config.delete_uci_config('dhcp.' + host_key)
 
 
 def dhcp_static_leases_config_get_info(name):
@@ -423,59 +491,94 @@ def dhcp_static_leases_config_get_info(name):
     else:
         return host_info
 
-def dhcp_pool_get_start_limit(start_addr, end_addr, sub_mask):
-    start_ip = map(int, start_addr.split('.'))
-    end_ip = map(int, end_addr.split('.'))
+class GetDhcpPoolData:
     '''
-    ['xxx','xxx','xxx','xxx'] -> [xxx,xxx,xxx,xxx]
+    Process data needed for DHCP Pool
     '''
-    start = start_ip[3]
-    limit = 0
+    log_info(UCI_DHCP_CONFIG_FILE, "GetDhcpPoolData")
 
-    if sub_mask == '255.255.255.0':
-        limit = end_ip[3] - start + 1
+    def get_start_limit_data(self, start_addr, end_addr, addr, netmask):
+        '''
+        GET the start number and the number of the IP to lease by the start address and the end address.
+        ex) start_addr = xxx.xxx.xxx.100, end_addr = xxx.xxx.xxx.249 --> start = 100, limit = 150
+        '''
+        min_addr, max_addr = self.get_max_and_min_address(addr, netmask)
 
-    elif sub_mask == '255.255.0.0':
-        token = end_ip[3] - start + 1
-        end_num = end_ip[2] + 1
-        limit = token + (end_num - start_ip[2]) * 256
+        int_min_addr = self.ip2int(min_addr)
+        int_max_addr = self.ip2int(max_addr)
+        int_start_addr = self.ip2int(start_addr)
+        int_end_addr = self.ip2int(end_addr)
 
-    elif sub_mask == '255.0.0.0':
-        token = end_ip[3] - start + 1
-        end_num = end_ip[2] + 1
-        token = token + (end_num - start_ip[2]) * 256
-        end_num = end_ip[1] + 1
-        limit = token + (end_num - start_ip[1]) * 65536
+        if int_min_addr < int_start_addr and int_end_addr < int_max_addr and int_start_addr <= int_end_addr:
+            limit = self.ip2int(end_addr) - self.ip2int(start_addr) + 1
+            start = self.ip2int(start_addr) - self.ip2int(min_addr)
+            return start, limit
+        else:
+            return ERROR_MESSEGE, ERROR_MESSEGE
 
-    return start, limit
+    def get_start_and_end_address(self, start, limit, addr, netmask):
+        '''
+        GET start address and end address to lease through DHCP with starting number and IP number to lease.
+        ex) start = 100, limit = 150 --> start_addr = xxx.xxx.xxx.100, end_addr = xxx.xxx.xxx.249
+        '''
+        min_addr, max_adddr = self.get_max_and_min_address(addr, netmask)
 
-def dhcp_pool_get_start_end_addr(start, limit, ip_addr, sub_mask):
+        start = int(start)
+        limit = int(limit)
+        int_addr = self.ip2int(min_addr)
+        int_start_addr = int_addr + start
+        start_addr = self.int2ip(int_start_addr)
 
-    token = ip_addr.split('.')
-    token[3] = start
-    start_addr = '.'.join(token)
-    end_addr = '.'.join(token)
-    start = int(start)
-    limit = int(limit)
+        int_end_addr = int_start_addr + limit - 1
+        limit_addr = self.int2ip(int_end_addr)
 
-    if sub_mask == '255.255.255.0':
-        token[3] = limit + start - 1
-        end_addr = '.'.join(list(map(str, token)))
-
-    elif sub_mask == '255.255.0.0':
-        token[2] = limit/255
-        token[3] = limit - ((limit/255) * 256) + start - 1
-        end_addr = '.'.join(list(map(str, token)))
-
-    elif sub_mask == '255.0.0.0':
-        second_num = limit/65535
-        token[1] = second_num
-        third_num = (limit%65536)/256
-        token[2] = third_num
-        token[3] = (limit%65536) - third_num * 256 + start - 1
-        end_addr = '.'.join(list(map(str, token)))
+        return start_addr, limit_addr
 
 
-    return start_addr, end_addr
+    def get_max_and_min_address(self, ip_addr, netmask):
+        '''
+        Gets the largest, smallest IP address given a given IP and subnet mask.
+        '''
+        int_min = self.ip2int(netmask) & self.ip2int(ip_addr)
+        min_addr = self.int2ip(int_min)
 
+        wild_addr = self.get_wildcard_address(netmask)
+        int_max = int_min | self.ip2int(wild_addr)
+        max_addr = self.int2ip(int_max)
 
+        return min_addr, max_addr
+
+    def get_wildcard_address(self, netmask):
+        '''
+        Get wildcard address
+        ex) 255.255.0.0   --> 0.0.255.255
+        	255.255.192.0 --> 0.0.63.255
+        '''
+        sub_int = self.ip2int(netmask)
+        sub = bin(sub_int).replace('0b', '')
+        wild_addr = self.int2ip(int(self.reverse_binary_data(sub), 2))
+
+        return wild_addr
+
+    def reverse_binary_data(self, bin_data):
+        '''
+        Reverse binary data ex)1100101 --> 0011010
+        '''
+        token = []
+        for i in range(0, len(bin_data)):
+            token.append(str(1 - int(bin_data[i])))
+        token = ''.join(token)
+
+        return token
+
+    def ip2int(self, addr):
+        '''
+        Compute IP to integer
+        '''
+        return struct.unpack("!I", socket.inet_aton(addr))[0]
+
+    def int2ip(self, addr):
+        '''
+        Compute integer to IP
+        '''
+        return socket.inet_ntoa(struct.pack("!I", addr))

@@ -39,24 +39,6 @@ CLASSNAME=WirelessInfo
 SAL_FUNCTION=py
 METHODLIST=list
 
-URI=v1/infos/wireless/wireless-stations
-BASENAME=wireless_station
-CLASSNAME=WirelessStation
-SAL_FUNCTION=py
-METHODLIST=list
-
-URI=v1/infos/wireless/wireless-search
-BASENAME=wireless_search
-CLASSNAME=WirelessSearch
-SAL_FUNCTION=py
-METHODLIST=list
-
-URI=v1/infos/dhcp/dhcp-leases
-BASENAME=dhcp_leases
-CLASSNAME=DhcpLeases
-SAL_FUNCTION=py
-METHODLIST=list
-
 URI=v1/configs/provisioning-done
 BASENAME=provisioning_done
 CLASSNAME=ProvisioningDone
@@ -127,7 +109,7 @@ BASENAME=snmp_config
 CLASSNAME=SNMPConfig
 SAL_FUNCTION=puci
 SAL_IMPORT_FILE=puci.snmp
-METHODLIST=list,create,update
+METHODLIST=list,create,update,retrieve,detail_create,detail_update
 
 URI=v1/configs/wireless
 BASENAME=wireless_config
@@ -135,6 +117,12 @@ CLASSNAME=WirelessConfig
 SAL_FUNCTION=py
 SAL_IMPORT_FILE=python.wireless
 METHODLIST=list,create,update,retrieve,detail_create,detail_update
+
+URI=v1/configs/wireless-search
+BASENAME=wireless_search
+CLASSNAME=WirelessSearch
+SAL_FUNCTION=py
+METHODLIST=list
 
 URI=v1/configs/firewall/port-forwarding
 BASENAME=port_forwarding
@@ -204,8 +192,8 @@ DEFINE_FIELD_system_config_logging= {
     'loggingServerPort'     : CONFIG_TYPE_SCALAR : 'system.@system[0].log_port'
     'loggingServerProtocol' : CONFIG_TYPE_SCALAR : 'system.@system[0].log_proto'
     'loggingFilename'       : CONFIG_TYPE_SCALAR : 'system.@system[0].log_file'
-    'loggingOutputLevel'    : CONFIG_TYPE_SCALAR : ''
-    'loggingCronLogLevel'   : CONFIG_TYPE_SCALAR : ''
+    'loggingOutputLevel'    : CONFIG_TYPE_SCALAR : 'system.@system[0].conloglevel'
+    'loggingCronLogLevel'   : CONFIG_TYPE_SCALAR : 'system.@system[0].cronloglevel'
 };
 
 DEFINE_FIELD_system_config_ntp= {
