@@ -47,6 +47,7 @@ def initialize_docker_container_iptables():
     wline = ""
     for key, src_port_list in MODULE_PORT_MAPPING_TABLE.items():
         for src_port in src_port_list:
+            src_port = src_port.zfill(3)
             dest_port = "".join([DEST_PORT_PREFIX_PRIMARY, str(src_port)])
             port_list.append(dest_port)
             dest_port = "".join([DEST_PORT_PREFIX_SECONDARY, str(src_port)])

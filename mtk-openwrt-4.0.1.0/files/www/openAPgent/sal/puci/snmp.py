@@ -54,8 +54,6 @@ def puci_snmp_config_update(request):
     return snmp_config_set(request)
 
 def snmp_config_set(request):
-    log_info(UCI_SNMP_CONFIG_FILE, "request data = ", request)
-
     community_list = request['community']
     version_list = request['snmpVersion']
     traphost_list = request['traphost']

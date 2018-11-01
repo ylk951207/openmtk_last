@@ -83,8 +83,6 @@ def puci_interface_config_detail_update(request, ifname):
 
 
 def interface_config_common_set(request):
-    log_info(UCI_NETWORK_FILE, "request data = ", str(request))
-
     interface_list = request[UCI_INTERFACE_LIST_STR]
 
     while len(interface_list) > 0:
@@ -111,7 +109,7 @@ def interface_config_common_detail_set(request, ifname):
     if not ifname:
         return response_make_simple_error_body(500, "Not found interface name", None)
 
-    log_info(UCI_NETWORK_FILE, "ifname[" + ifname + "], " + "request data = ", str(request))
+    log_info(UCI_NETWORK_FILE, "ifname[%s]" %ifname)
 
     interface_config_common_uci_set(request, ifname)
     if UCI_INTERFACE_V4ADDR_STR in request:

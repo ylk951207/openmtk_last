@@ -17,6 +17,10 @@ from python.firmware import *
 from python.docker_api import *
 
 
+import json
+from common.misc import *
+
+
 SAL_METHOD_LIST           = 1
 SAL_METHOD_CREATE         = 2
 SAL_METHOD_UPDATE         = 3
@@ -125,6 +129,7 @@ def sal_dhcp_leases(method, request, pk):
 def sal_provisioning_done(method, request, pk):
   # For Python APIs
   if method == SAL_METHOD_CREATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return py_provisioning_done_create(request)
 
 
@@ -146,18 +151,22 @@ def sal_system_config(method, request, pk):
     return puci_system_config_list()
 
   if method == SAL_METHOD_CREATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return puci_system_config_create(request)
 
   if method == SAL_METHOD_UPDATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return puci_system_config_update(request)
 
   if method == SAL_METHOD_RETRIEVE:
     return puci_system_config_retrieve(pk, 1)
 
   if method == SAL_METHOD_DETAIL_CREATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return puci_system_config_detail_create(request, pk)
 
   if method == SAL_METHOD_DETAIL_UPDATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return puci_system_config_detail_update(request, pk)
 
 
@@ -170,18 +179,22 @@ def sal_interface_config(method, request, pk):
     return puci_interface_config_list()
 
   if method == SAL_METHOD_CREATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return puci_interface_config_create(request)
 
   if method == SAL_METHOD_UPDATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return puci_interface_config_update(request)
 
   if method == SAL_METHOD_RETRIEVE:
     return puci_interface_config_retrieve(pk, 1)
 
   if method == SAL_METHOD_DETAIL_CREATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return puci_interface_config_detail_create(request, pk)
 
   if method == SAL_METHOD_DETAIL_UPDATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return puci_interface_config_detail_update(request, pk)
 
 
@@ -194,9 +207,11 @@ def sal_interface_v4addr_config(method, request, pk):
     return puci_interface_v4addr_config_list()
 
   if method == SAL_METHOD_CREATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return puci_interface_v4addr_config_create(request)
 
   if method == SAL_METHOD_UPDATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return puci_interface_v4addr_config_update(request)
 
 
@@ -209,18 +224,22 @@ def sal_vlan_config(method, request, pk):
     return puci_vlan_config_list()
 
   if method == SAL_METHOD_CREATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return puci_vlan_config_create(request)
 
   if method == SAL_METHOD_UPDATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return puci_vlan_config_update(request)
 
   if method == SAL_METHOD_RETRIEVE:
     return puci_vlan_config_retrieve(pk, 1)
 
   if method == SAL_METHOD_DETAIL_CREATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return puci_vlan_config_detail_create(request, pk)
 
   if method == SAL_METHOD_DETAIL_UPDATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return puci_vlan_config_detail_update(request, pk)
 
 
@@ -233,9 +252,11 @@ def sal_dhcp_common_config(method, request, pk):
     return puci_dhcp_common_config_list()
 
   if method == SAL_METHOD_CREATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return puci_dhcp_common_config_create(request)
 
   if method == SAL_METHOD_UPDATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return puci_dhcp_common_config_update(request)
 
 
@@ -248,18 +269,22 @@ def sal_dhcp_pool_config(method, request, pk):
     return puci_dhcp_pool_config_list()
 
   if method == SAL_METHOD_CREATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return puci_dhcp_pool_config_create(request)
 
   if method == SAL_METHOD_UPDATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return puci_dhcp_pool_config_update(request)
 
   if method == SAL_METHOD_RETRIEVE:
     return puci_dhcp_pool_config_retrieve(pk, 1)
 
   if method == SAL_METHOD_DETAIL_CREATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return puci_dhcp_pool_config_detail_create(request, pk)
 
   if method == SAL_METHOD_DETAIL_UPDATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return puci_dhcp_pool_config_detail_update(request, pk)
 
 
@@ -272,24 +297,30 @@ def sal_dhcp_static_leases_config(method, request, pk):
     return puci_dhcp_static_leases_config_list()
 
   if method == SAL_METHOD_CREATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return puci_dhcp_static_leases_config_create(request)
 
   if method == SAL_METHOD_UPDATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return puci_dhcp_static_leases_config_update(request)
 
   if method == SAL_METHOD_RETRIEVE:
     return puci_dhcp_static_leases_config_retrieve(pk, 1)
 
   if method == SAL_METHOD_DETAIL_CREATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return puci_dhcp_static_leases_config_detail_create(request, pk)
 
   if method == SAL_METHOD_DETAIL_UPDATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return puci_dhcp_static_leases_config_detail_update(request, pk)
 
   if method == SAL_METHOD_DESTROY:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return puci_dhcp_static_leases_config_destroy(request)
 
   if method == SAL_METHOD_DETAIL_DESTROY:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return puci_dhcp_static_leases_config_detail_destroy(request, pk)
 
 
@@ -302,9 +333,11 @@ def sal_snmp_config(method, request, pk):
     return puci_snmp_config_list()
 
   if method == SAL_METHOD_CREATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return puci_snmp_config_create(request)
 
   if method == SAL_METHOD_UPDATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return puci_snmp_config_update(request)
 
 
@@ -317,18 +350,22 @@ def sal_wireless_config(method, request, pk):
     return py_wireless_config_list()
 
   if method == SAL_METHOD_CREATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return py_wireless_config_create(request)
 
   if method == SAL_METHOD_UPDATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return py_wireless_config_update(request)
 
   if method == SAL_METHOD_RETRIEVE:
     return py_wireless_config_retrieve(pk, 1)
 
   if method == SAL_METHOD_DETAIL_CREATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return py_wireless_config_detail_create(request, pk)
 
   if method == SAL_METHOD_DETAIL_UPDATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return py_wireless_config_detail_update(request, pk)
 
 
@@ -341,24 +378,30 @@ def sal_port_forwarding(method, request, pk):
     return puci_port_forwarding_list()
 
   if method == SAL_METHOD_CREATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return puci_port_forwarding_create(request)
 
   if method == SAL_METHOD_UPDATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return puci_port_forwarding_update(request)
 
   if method == SAL_METHOD_RETRIEVE:
     return puci_port_forwarding_retrieve(pk, 1)
 
   if method == SAL_METHOD_DETAIL_CREATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return puci_port_forwarding_detail_create(request, pk)
 
   if method == SAL_METHOD_DETAIL_UPDATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return puci_port_forwarding_detail_update(request, pk)
 
   if method == SAL_METHOD_DESTROY:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return puci_port_forwarding_destroy(request)
 
   if method == SAL_METHOD_DETAIL_DESTROY:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return puci_port_forwarding_detail_destroy(request, pk)
 
 
@@ -371,6 +414,7 @@ def sal_firmware_management(method, request, pk):
     return py_firmware_management_list()
 
   if method == SAL_METHOD_CREATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return py_firmware_management_create(request)
 
 
@@ -380,6 +424,7 @@ def sal_firmware_management(method, request, pk):
 def sal_system_reboot(method, request, pk):
   # For Python APIs
   if method == SAL_METHOD_CREATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return py_system_reboot_create(request)
 
 
@@ -404,9 +449,11 @@ def sal_docker_images(method, request, pk):
     return py_docker_images_list()
 
   if method == SAL_METHOD_CREATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return py_docker_images_create(request)
 
   if method == SAL_METHOD_DETAIL_CREATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return py_docker_images_detail_create(request, pk)
 
 
@@ -416,9 +463,11 @@ def sal_docker_images(method, request, pk):
 def sal_container_creation(method, request, pk):
   # For Python APIs
   if method == SAL_METHOD_CREATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return py_container_creation_create(request)
 
   if method == SAL_METHOD_DETAIL_CREATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return py_container_creation_detail_create(request, pk)
 
 
@@ -440,8 +489,10 @@ def sal_container_get(method, request, pk):
 def sal_container_management(method, request, pk):
   # For Python APIs
   if method == SAL_METHOD_CREATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return py_container_management_create(request)
 
   if method == SAL_METHOD_DETAIL_CREATE:
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
     return py_container_management_detail_create(request, pk)
 

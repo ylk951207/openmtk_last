@@ -1,5 +1,6 @@
 import datetime
 import time
+import os
 import netifaces as ni
 import socket, json
 
@@ -296,8 +297,8 @@ def device_get_if_bridge_mode():
 			if len(token) > 3 and token[3]:
 				ifBridgeList.append(token[3])
 
-	log_info(LOG_MODULE_SYSINFO, "ifBridge :" + str(ifBridge))
-	log_info(LOG_MODULE_SYSINFO, "ifBridgeList :" + str(ifBridgeList))
+	log_debug(LOG_MODULE_SYSINFO, "ifBridge :" + str(ifBridge))
+	log_debug(LOG_MODULE_SYSINFO, "ifBridgeList :" + str(ifBridgeList))
 	return ifBridge, ifBridgeList
 
 def device_get_interface_operstate(ifname):
@@ -414,4 +415,79 @@ def device_get_lan_interface_info():
 		"ifUptime" : ""
 	}
 	return data
+
+
+'''
+Wireless Stations
+'''
+class WirelessStation(object):
+	def __init__(self):
+		self.wireless_2g_station_file = "/tmp/wireless_station_2g_"
+		self.wireless_5g_station_file = "/tmp/wireless_station_5g_"
+
+		self.wirless_config_map = {
+			"macAddr"         : "macAddr",
+			"TxRate_MCS"      : "TxRateMCS",
+			"TxRate_BW"       : "TxRateBW",
+			"TxRate_GI"       : "TxRateGI",
+			"TxRate_PhyMode" : "TxRateMode",
+			"AvgRssi0"        : "rssi",
+			"connectTime"     : "connectTime"
+		}
+
+	def make_wireless_station_data_file(self, ifname, file_name):
+		if os.path.exists(file_name):
+			os.remove(file_name)
+		ln.wireless_station_get(ifname, file_name)
+
+	def get_wireless_station_data(self, ap_type, ifname, list_data):
+		dict_data = dict()
+		if "5g_" in ap_type:
+			file_name = self.wireless_2g_station_file + ifname
+		else:
+			file_name = self.wireless_5g_station_file + ifname
+
+		self.make_wireless_station_data_file(ifname, file_name)
+
+		if not os.path.exists(file_name):
+			log_info(LOG_MODULE_SYSINFO, "Not exist file name(%s)" %file_name)
+			return list_data
+
+		with open(file_name, 'r') as rfile:
+			lines = rfile.readlines()
+
+			for line in lines:
+				if line.strip() == '':
+					# End of a instance
+					list_data.append(dict_data)
+					dict_data = dict()
+					continue
+
+				line = line.split(':', 1)
+				if len(line) < 2: continue
+
+				line_key = line[0].strip()
+				line_value = line[1].strip()
+
+				for key, value in self.wirless_config_map.items():
+					if key.strip() != line_key:
+						continue
+
+					if value == 'connectTime':
+						temp_time = int(line_value)
+						hr = temp_time / 3600
+						min = (temp_time % 3600) / 60
+						sec = (temp_time - (hr * 3600) - (min * 60))
+						dict_data['connectTime'] = "%sh %sm %ss" % (hr, min, sec)
+					elif value == 'rssi':
+						line_value = int(line_value)
+						dict_data[value] = (line_value / 2) - 100
+						dict_data[value] = str(line_value) + "dBm"
+					else:
+						dict_data[value] = line_value
+
+		log_info(LOG_MODULE_SYSINFO, "Get wireless stations : %s for ifname(%s)" %(str(list_data), ifname))
+		return list_data
+
+
 

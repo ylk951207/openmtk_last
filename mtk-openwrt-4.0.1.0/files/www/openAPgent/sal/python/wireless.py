@@ -288,8 +288,6 @@ def wireless_chagne_auth_request_data_to_file_config(mod_request, auth_mode, pri
     return mod_request
 
 def wireless_config_detail_set(request, ap_type):
-    log_info(WIRELESS_COMMON_CONFIG, "request data = ", str(request))
-
     if not ap_type == request["type"]:
         return response_make_simple_error_body(500, "Invalid AP Type", None)
 
@@ -365,4 +363,20 @@ def wireless_convert_integer_to_mode_type(mode_id):
 Wireless Station GET
 '''
 def py_wireless_station_list():
-    pass
+    station_data = list()
+    ws = WirelessStation()
+
+    for ap_type, if_name in ap_type_list.items():
+        log_info(WIRELESS_COMMON_CONFIG, "AP Type(%s) : %s" %(ap_type, if_name))
+
+        station_data = ws.get_wireless_station_data(ap_type, if_name, station_data)
+
+    data = {
+        "station-list" : station_data,
+        'header': {
+            'resultCode': 200,
+            'resultMessage': 'Success.',
+            'isSuccessful': 'true'
+        }
+    }
+    return data

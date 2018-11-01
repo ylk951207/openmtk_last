@@ -1,5 +1,6 @@
 import socket
 import struct
+import time
 
 from puci import *
 from common.env import *
@@ -45,8 +46,6 @@ def puci_dhcp_common_config_update(request):
     return dhcp_common_config_set(request)
 
 def dhcp_common_config_set(request):
-    log_info(UCI_DHCP_CONFIG_FILE, "request data = ", request)
-
     dhcp_common_config_uci_set(request, UCI_DHCP_COMMON_CONFIG)
 
     dhcp_puci_module_restart()
@@ -73,8 +72,6 @@ def dhcp_config_common_uci_get(uci_file, dhcp_data):
     return dhcp_data
 
 def dhcp_common_config_uci_set(req_data, uci_file):
-    log_info(UCI_DHCP_CONFIG_FILE, "request data = ", req_data)
-
     uci_config = ConfigUCI(UCI_DHCP_CONFIG_FILE, uci_file)
     if uci_config.section_map == None:
         return response_make_simple_error_body(500, "Not found UCI config", None)
@@ -582,3 +579,36 @@ class GetDhcpPoolData:
         Compute integer to IP
         '''
         return socket.inet_ntoa(struct.pack("!I", addr))
+
+
+def py_dhcp_leases_list():
+    dhcp_lease_list = list()
+
+    if os.path.exists(DHCP_LEASE_FILE):
+        with open(DHCP_LEASE_FILE, "r") as rfile:
+            lines = rfile.readlines()
+            for line in lines:
+                if line.strip() == '':
+                    continue
+                line = line.split()
+
+                expiry_time = int(line[0])
+                expiry_time = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(expiry_time))
+
+                dhcp_lease_data = {
+                    'hostname' : line[3],
+                    'v4Addr' : line[2],
+                    'macAddr' : line[1],
+                    'leaseExpiryTime' : expiry_time
+                }
+                dhcp_lease_list.append(dhcp_lease_data)
+
+    data = {
+        'dhcp-leases' : dhcp_lease_list,
+        'header': {
+            'resultCode': 200,
+            'resultMessage': 'Success.',
+            'isSuccessful': 'true'
+        }
+    }
+    return data

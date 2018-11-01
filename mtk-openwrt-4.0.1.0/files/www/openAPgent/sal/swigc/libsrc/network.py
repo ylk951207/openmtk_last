@@ -73,6 +73,10 @@ except AttributeError:
 def network_link_status_get(*args):
   return _network.network_link_status_get(*args)
 network_link_status_get = _network.network_link_status_get
+
+def wireless_station_get(*args):
+  return _network.wireless_station_get(*args)
+wireless_station_get = _network.wireless_station_get
 # This file is compatible with both classic and new-style classes.
 
 

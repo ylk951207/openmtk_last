@@ -87,8 +87,6 @@ def puci_system_config_detail_update(request, command):
     return system_config_detail_set(request, command)
 
 def system_config_set(request):
-
-    log_info(UCI_SYSTEM_CONFIG_FILE, "request data = ", request)
     if 'common' in request.keys():
         system_config_uci_set(UCI_SYSTEM_CONFIG_COMMON_CONFIG, request['common'])
 
@@ -112,7 +110,6 @@ def system_config_set(request):
 
 def system_config_detail_set(request, command):
     log_info(UCI_SYSTEM_CONFIG_FILE, "command = ", command)
-    log_info(UCI_SYSTEM_CONFIG_FILE, "request data = ", request)
 
     if command == 'common':
         system_config_uci_set(UCI_SYSTEM_CONFIG_COMMON_CONFIG, request)
@@ -151,7 +148,6 @@ def system_config_uci_get(uci_file, system_data):
 
 def system_config_uci_set(uci_file, req_data):
     system_data = dict()
-    log_info(UCI_SYSTEM_CONFIG_FILE, "request data = ", req_data)
     uci_config = ConfigUCI(UCI_SYSTEM_CONFIG_FILE, uci_file)
     if uci_config.section_map == None:
         return response_make_simple_error_body(500, "Not found UCI config", None)
