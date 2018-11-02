@@ -3,6 +3,7 @@
 START=19
 USE_PROCD=1
 QUIET=""
+IPTABLES_TMP_SAVE=/root/iptables_tmp_save
 
 validate_firewall_redirect()
 {
@@ -38,11 +39,15 @@ service_triggers() {
 }
 
 restart() {
+    iptables-save > $IPTABLES_TMP_SAVE
 	fw3 restart
+	iptables-restore < $IPTABLES_TMP_SAVE
 }
 
 start_service() {
+    iptables-save > $IPTABLES_TMP_SAVE
 	fw3 ${QUIET} start
+	iptables-restore < $IPTABLES_TMP_SAVE
 }
 
 stop_service() {
@@ -50,7 +55,9 @@ stop_service() {
 }
 
 reload_service() {
+    iptables-save > $IPTABLES_TMP_SAVE
 	fw3 reload
+	iptables-restore < $IPTABLES_TMP_SAVE
 }
 
 boot() {
