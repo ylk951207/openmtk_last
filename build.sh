@@ -27,6 +27,10 @@ compile_openwrt()
 case $1 in
 openwrt-build)
     # Compile for the official version
+    cp mtk-openwrt-4.0.1.0/files/www/openAPgent/common/env.py env.py~
+    sed -e s/CAPC_SERVER_IP=\'192.168.1.182\'/CAPC_SERVER_IP=\'capc.withusp.com\'/g env.py~  > \
+        mtk-openwrt-4.0.1.0/files/www/openAPgent/common/env.py
+    echo "++++++++++++++ Modify mtk-openwrt-4.0.1.0/files/www/openAPgent/common/env.py +++++++++++++++"
     compile_openwrt
     ;;
 openwrt)

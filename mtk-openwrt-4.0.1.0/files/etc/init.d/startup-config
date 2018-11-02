@@ -12,15 +12,6 @@ stop() {
 
 start() {
 	#
-	# Firewall Configuration
-	#
-	uci set firewall.@zone[1].input='ACCEPT'
-	uci set firewall.@zone[1].forward='ACCEPT'
-
-	uci commit firewall
-	/etc/init.d/firewall restart
-
-	#
 	# Network Configuration
 	#
 	uci set network.lan.ipaddr='172.33.1.1'

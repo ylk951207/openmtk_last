@@ -87,6 +87,7 @@ def py_interface_address_info_list():
             "ipv4Netmask": ni_addrs.get_ipv4_netmask(ifname),
             "ipv4Gateway": ni_addrs.get_ipv4_gateway_addr(ifname),
             "ipv4Broadcast": ni_addrs.get_ipv4_broadcast(ifname),
+            "dnsServer" : device_info_get_dns_server(ifname),
         }
         iflist_body.append(interface_data)
 
@@ -114,6 +115,7 @@ def py_interface_address_info_retrieve(ifname, add_header):
         "ipv4Netmask": ni_addrs.get_ipv4_netmask(ifname),
         "ipv4Gateway": ni_addrs.get_ipv4_gateway_addr(ifname),
         "ipv4Broadcast": ni_addrs.get_ipv4_broadcast(ifname),
+        "dnsServer": device_info_get_dns_server(ifname),
     }
 
     data = {

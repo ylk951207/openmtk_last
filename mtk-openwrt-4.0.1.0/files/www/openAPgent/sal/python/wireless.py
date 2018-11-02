@@ -231,16 +231,11 @@ def wireless_config_set(request):
         wireless_field = wireless_list.pop(0)
         for ap_type, value in ap_type_list.items():
             if wireless_field['type'] == ap_type:
-                wireless_config_detail_set(wireless_field, ap_type)
+                result = wireless_config_detail_set(wireless_field, ap_type)
+                if result['header']['resultCode'] != 200:
+                    return result
 
-    data = {
-        'header': {
-            'resultCode': 200,
-            'resultMessage': 'Success.',
-            'isSuccessful': 'true'
-        }
-    }
-    return data
+    return response_make_simple_success_body(None)
 
 def wireless_chagne_request_data_to_file_config(request):
     mod_request = request
@@ -255,12 +250,15 @@ def wireless_chagne_request_data_to_file_config(request):
             auth_mode = request['authMode']
             priv_mode = request['privacyMode']
             passwd = request['password']
-            mod_request = wireless_chagne_auth_request_data_to_file_config(mod_request, auth_mode, priv_mode, passwd)
+            wps_mode = request['wps']
+            mod_request = wireless_chagne_auth_request_data_to_file_config(mod_request, auth_mode, priv_mode, passwd, wps_mode)
             if not mod_request:
+                log_info(WIRELESS_COMMON_CONFIG, "Invalid auth/priv mode(%s, %s)" %(auth_mode, priv_mode))
                 return None
         elif req_key == 'mode':
             mod_request['mode'] = wireless_convert_mode_type_to_integer(req_val)
-            if not mod_request['mode']:
+            if mod_request['mode'] == -1:
+                log_info(WIRELESS_COMMON_CONFIG, "Invalid mode %s" %req_val)
                 return None
         else:
             continue
@@ -268,7 +266,7 @@ def wireless_chagne_request_data_to_file_config(request):
         log_info(WIRELESS_COMMON_CONFIG, "mod_request : " + str(mod_request))
     return mod_request
 
-def wireless_chagne_auth_request_data_to_file_config(mod_request, auth_mode, priv_mode, passwd):
+def wireless_chagne_auth_request_data_to_file_config(mod_request, auth_mode, priv_mode, passwd, wps_mode):
     type = wireless_get_auth_priv_type(auth_mode, priv_mode)
     if type == "Type1":
         if priv_mode == "WEP":
@@ -285,6 +283,14 @@ def wireless_chagne_auth_request_data_to_file_config(mod_request, auth_mode, pri
         mod_request['internal_RekeyMethod'] = 'TIME'
     else:
         return None
+
+    '''
+    if wps_mode == True:
+        if type != "Type2":
+            log_info(WIRELESS_COMMON_CONFIG, "WPS cannot be enabled when security is set as WEP")
+            return None
+    '''
+
     return mod_request
 
 def wireless_config_detail_set(request, ap_type):
@@ -346,7 +352,7 @@ def wireless_convert_mode_type_to_integer(mode_id):
     for key,val in wireless_mode_data.items():
         if val == mode_id:
             return key
-    return ""
+    return -1
 
 
 '''
@@ -356,7 +362,7 @@ def wireless_convert_integer_to_mode_type(mode_id):
     if mode_id in wireless_mode_data.keys():
         return wireless_mode_data[mode_id]
     else:
-        return None
+        return ""
 
 
 '''

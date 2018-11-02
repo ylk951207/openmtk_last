@@ -3,7 +3,6 @@
 START=19
 USE_PROCD=1
 QUIET=""
-IPTABLES_TMP_SAVE=/root/iptables_tmp_save
 
 validate_firewall_redirect()
 {
@@ -38,16 +37,19 @@ service_triggers() {
 	procd_close_validate
 }
 
+#Re-generate firewall.user file to include docker rules
+regenerate_firewall_user() {
+	python /etc/init.d/firewall-user-regen.py
+}
+
 restart() {
-    iptables-save > $IPTABLES_TMP_SAVE
+	regenerate_firewall_user
 	fw3 restart
-	iptables-restore < $IPTABLES_TMP_SAVE
 }
 
 start_service() {
-    iptables-save > $IPTABLES_TMP_SAVE
+	regenerate_firewall_user
 	fw3 ${QUIET} start
-	iptables-restore < $IPTABLES_TMP_SAVE
 }
 
 stop_service() {
@@ -55,9 +57,8 @@ stop_service() {
 }
 
 reload_service() {
-    iptables-save > $IPTABLES_TMP_SAVE
+	regenerate_firewall_user
 	fw3 reload
-	iptables-restore < $IPTABLES_TMP_SAVE
 }
 
 boot() {

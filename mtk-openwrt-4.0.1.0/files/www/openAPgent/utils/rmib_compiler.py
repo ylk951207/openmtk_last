@@ -258,7 +258,7 @@ def make_django_uci_data_pyfile(filename, header):
 
 	for line in lines:
 		if line.strip() == '': continue
-		if "#" in line: continue
+		if line[0] == "#": continue
 
 		line = line.splitlines()[0]
 

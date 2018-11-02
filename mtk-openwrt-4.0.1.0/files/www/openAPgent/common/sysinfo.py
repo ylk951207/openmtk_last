@@ -223,6 +223,17 @@ def device_info_get_all_time_info():
 	return data
 
 
+def device_info_get_dns_server(ifname):
+	dns_list = list()
+	if ifname == "wan":
+		with open("/tmp/resolve.conf", 'r') as rfile:
+			lines = rfile.readlines()
+			for line in lines:
+				if line[0] == "#": continue
+				line = line.split()
+				dns_list.append(line[1])
+	return dns_list
+
 
 '''
 Hardware Information Class
@@ -481,13 +492,10 @@ class WirelessStation(object):
 						dict_data['connectTime'] = "%sh %sm %ss" % (hr, min, sec)
 					elif value == 'rssi':
 						line_value = int(line_value)
-						dict_data[value] = (line_value / 2) - 100
-						dict_data[value] = str(line_value) + "dBm"
+						line_value = (line_value / 2) - 100
+						dict_data[value] = str(line_value) + " dBm"
 					else:
 						dict_data[value] = line_value
 
 		log_info(LOG_MODULE_SYSINFO, "Get wireless stations : %s for ifname(%s)" %(str(list_data), ifname))
 		return list_data
-
-
-
