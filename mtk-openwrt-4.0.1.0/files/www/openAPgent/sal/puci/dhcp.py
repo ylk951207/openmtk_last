@@ -172,6 +172,8 @@ def dhcp_pool_config_set(request):
     if error_data:
         return error_data
 
+    dhcp_puci_module_restart()
+
     data = {
         'header': {
             'resultCode': 200,
@@ -191,6 +193,8 @@ def dhcp_pool_config_detail_set(request, ifname):
 
     if error_data:
         return error_data
+    
+    dhcp_puci_module_restart()
 
     data = {
         'header': {
