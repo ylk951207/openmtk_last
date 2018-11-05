@@ -1,0 +1,93 @@
+#!/bin/sh /etc/rc.common
+
+CONTAINER_NAME=dnsmasq
+ARGS="53 67"
+
+START=93
+STOP=53
+
+WAIT_TIME=30
+
+
+run_dockerd()
+{
+	pidof dockerd
+}
+
+
+depend()
+{
+    after dockerd
+}
+
+
+start()
+{
+	echo "$CONTAINER_NAME container auot-start at system boot"
+	ver=""
+	con=""
+	loop=0
+	image_detect=0
+	container_detect=0
+	run_dockerd
+
+	while [[ $? -ne 0 -a $loop -lt $WAIT_TIME ]]; do
+		sleep 1
+		let "loop++"
+		run_dockerd
+	done
+
+	if [ $loop -lt $WAIT_TIME ]; then
+		echo "dockerd is running. Now start $CONTAINER_NAME container"
+		# Check docker image
+		tags=`docker images | awk '$1 ~ /'$CONTAINER_NAME'/ {print $2}'`
+		for ver in $tags; do
+			echo "$ver"
+			let image_detect++
+		done
+		echo "tags is $tags, image_detect is $image_detect"
+
+		# Check docker container
+		container=`docker ps -a | awk '$NF ~ /'$CONTAINER_NAME'/ { print $NF }'`
+		for con in $container; do
+			echo "$con"
+			let container_detect++
+		done
+		echo "con is $con, container_detect is $container_detect"
+
+		if [ $image_detect -lt 1 ]; then
+			echo "Not detect $CONTAINER_NAME container image"
+			echo "Make $CONTAINER_NAME container image"
+			cd /root/makeContainer/$CONTAINER_NAME;./build-2.78.sh
+			sleep 1
+			ver=`docker images | awk '$1 ~ /'$CONTAINER_NAME'/ {print $2}'`
+			run_$CONTAINER_NAME.sh $ver "$ARGS"
+			exit 0
+		else
+			if [ $container_detect -lt 1 ]; then
+				run_$CONTAINER_NAME.sh $ver "$ARGS"
+				exit 0
+			else
+				echo "Container($CONTAINER_NAME) exist. Just $con start."
+			    docker start $con
+				exit 0
+			fi
+		fi
+	else
+		echo "dockerd is not running"
+		exit 1
+	fi
+}
+
+
+stop()
+{
+	container=`docker ps -a | awk '$NF ~ /'$CONTAINER_NAME'/ {print $NF}'`
+
+	for con in $container; do
+		echo "$con container stop"
+		docker rm -f $con
+	done
+	exit 0
+}
+
