@@ -342,18 +342,18 @@ class DockerContainerProc():
                     prev_dest_port = DEST_PORT_PREFIX_PRIMARY + src_temp_port
 
                 if prev_container:
-                    cmd_str = "iptables -t nat -A PREROUTING -p TCP --dport %s -j REDIRECT --to-port %s" % (src_port, prev_dest_port)
+                    cmd_str = "iptables -t nat -I PREROUTING -p TCP --dport %s -j REDIRECT --to-port %s" % (src_port, prev_dest_port)
                     del_cmd_list.append(cmd_str)
-                    cmd_str = "iptables -t nat -A PREROUTING -p UDP --dport %s -j REDIRECT --to-port %s" % (src_port, prev_dest_port)
+                    cmd_str = "iptables -t nat -I PREROUTING -p UDP --dport %s -j REDIRECT --to-port %s" % (src_port, prev_dest_port)
                     del_cmd_list.append(cmd_str)
-                cmd_str = "iptables -t nat -A PREROUTING -p TCP --dport %s -j REDIRECT --to-port %s" % (src_port, dest_port)
+                cmd_str = "iptables -t nat -I PREROUTING -p TCP --dport %s -j REDIRECT --to-port %s" % (src_port, dest_port)
                 add_cmd_list.append(cmd_str)
-                cmd_str = "iptables -t nat -A PREROUTING -p UDP --dport %s -j REDIRECT --to-port %s" % (src_port, dest_port)
+                cmd_str = "iptables -t nat -I PREROUTING -p UDP --dport %s -j REDIRECT --to-port %s" % (src_port, dest_port)
                 add_cmd_list.append(cmd_str)
             else:
-                cmd_str = "iptables -t nat -A PREROUTING -p TCP --dport %s -j REDIRECT --to-port %s" % (src_port, dest_port)
+                cmd_str = "iptables -t nat -I PREROUTING -p TCP --dport %s -j REDIRECT --to-port %s" % (src_port, dest_port)
                 del_cmd_list.append(cmd_str)
-                cmd_str = "iptables -t nat -A PREROUTING -p UDP --dport %s -j REDIRECT --to-port %s" % (src_port, dest_port)
+                cmd_str = "iptables -t nat -I PREROUTING -p UDP --dport %s -j REDIRECT --to-port %s" % (src_port, dest_port)
                 del_cmd_list.append(cmd_str)
 
         log_info(LOG_MODULE_APCLIENT, "add_cmd_list : " + str(add_cmd_list))
