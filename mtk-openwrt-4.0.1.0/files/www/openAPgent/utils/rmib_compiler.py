@@ -83,7 +83,8 @@ def get_django_header(filename):
 		Add HEADER_STR after handle SAL_IMPORT_LIST
 		'''
 		header = "import json\n"
-		header += "from common.misc import *\n\n\n"
+		header += "from common.misc import *\n"
+		header += "from common.message import *\n\n\n"
 		header += "SAL_METHOD_LIST           = 1\n"
 		header += "SAL_METHOD_CREATE         = 2\n"
 		header += "SAL_METHOD_UPDATE         = 3\n"
@@ -153,11 +154,13 @@ def make_sal_lines(base_name, method_list, sal_func_list):
 			if method == 'list':
 				wline += "    return " + func_prefix + base_name + "_" + method + "()\n"
 			elif method == 'create' or method == 'update' or method == 'destroy':
+				wline += "    request = request_message_value_strip_all(request)\n"
 				wline += "    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))\n"
 				wline += "    return " + func_prefix + base_name + "_" + method + "(request)\n"
 			elif method == 'retrieve':
 				wline += "    return " + func_prefix + base_name + "_" + method + "(pk, 1)\n"
 			else:
+				wline += "    request = request_message_value_strip_all(request)\n"
 				wline += "    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))\n"
 				wline += "    return " + func_prefix + base_name + "_" + method + "(request, pk)\n"
 			wline += "\n"

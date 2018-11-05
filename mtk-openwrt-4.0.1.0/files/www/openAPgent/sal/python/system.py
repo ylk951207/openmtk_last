@@ -78,7 +78,7 @@ def py_interface_info_retrieve(if_type, add_header):
 def py_interface_address_info_list():
     iflist_body = []
 
-    ni_addrs = DeviceNetifacesInfo()
+    ni_addrs = DeviceNetifacesInfo(None)
 
     for ifname in ni_addrs.iflist:
         interface_data = {
@@ -107,7 +107,7 @@ def py_interface_address_info_retrieve(ifname, add_header):
 
     log_info(LOG_MODULE_SYSINFO, "[ifname] : " + ifname)
 
-    ni_addrs = DeviceNetifacesInfo()
+    ni_addrs = DeviceNetifacesInfo(None)
 
     interface_data = {
         "ifname": ifname,
@@ -155,14 +155,17 @@ def py_wireless_info_list():
 
 
 def py_system_reboot_create(request):
-    delay = request['delay']
+    delay = int(request['delay'])
 
     # Default delay for response
     if delay <= 0: delay = 2
 
-    cmd_str = "reboot -d %d" % delay
+    #cmd_str = "reboot -d %d" % delay
+    #subprocess_open(cmd_str)
 
-    subprocess_open(cmd_str)
+    req_data = {'delay' : delay}
+    server_msg = ApServerLocalMassage(APNOTIFIER_CMD_PORT)
+    server_msg.send_message_to_apnotifier(SAL_SYSTEM_REBOOT, req_data)
 
     data = {
         'header': {

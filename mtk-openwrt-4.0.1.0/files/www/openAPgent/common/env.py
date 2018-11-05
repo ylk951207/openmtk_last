@@ -46,6 +46,7 @@ SAL_PROVISIONING_DONE           = 1
 SAL_PUCI_MODULE_RESTART         = 2
 SAL_PYTHON_DOCKER_IMAGE_CREATE  = 3
 SAL_WIFI_MODULE_RESTART         = 4
+SAL_SYSTEM_REBOOT               = 5
 
 
 
@@ -92,9 +93,8 @@ DEST_PORT_PREFIX_SECONDARY = "22"
 # TODO: Consider protocol UDP, TCP...
 MODULE_PORT_MAPPING_TABLE = {
     'net-snmp' : ['161'],
-    'dnsmasq' : ['53', '67'],
 }
-
+#    'dnsmasq' : ['53', '67'],
 
 '''
 Wireless
@@ -111,3 +111,4 @@ TWO_GIGA_DEVICE_NAME = "MT7622.1"
 DHCP
 '''
 DHCP_LEASE_FILE="/tmp/dhcp.leases"
+DHCP_RESOLV_AUTO_CONFIG_FILE="/tmp/resolv.conf.auto"

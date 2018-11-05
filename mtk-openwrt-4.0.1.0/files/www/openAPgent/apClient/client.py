@@ -51,6 +51,8 @@ class ClientCmdApp():
                     puci_module_restart_proc(data['body'])
                 elif command == SAL_WIFI_MODULE_RESTART:
                     wifi_module_restart_proc(data['body'])
+                elif command == SAL_SYSTEM_REBOOT:
+                    system_reboot_proc(data['body'])
 
             log_info(LOG_MODULE_APCLIENT, '---- Socket close ----')
             sock.close()
@@ -93,3 +95,14 @@ def puci_provisioning_done_file_create():
     f.write("done")
     f.close()
     log_info(LOG_MODULE_APCLIENT, "** Create %s file **" %PROVISIONING_DONE_FILE)
+
+
+def system_reboot_proc(request):
+    if not 'delay' in request: return
+
+    delay = request['delay']
+
+    cmd_str = "reboot -d %d" % delay
+    subprocess_open(cmd_str)
+
+    log_info(LOG_MODULE_APCLIENT, "** System Reboot Done **")

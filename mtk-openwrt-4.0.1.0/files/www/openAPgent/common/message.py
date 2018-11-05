@@ -203,3 +203,30 @@ class ApServerLocalMassage():
         }
 
         self.send_request_apnotifier (data)
+
+
+'''
+Check Request Messages
+'''
+def strip_all(x):
+    if isinstance(x, unicode):
+        log_debug(LOG_MODULE_REQUEST, "UNICODE: for x" + str(x))
+        x = unicode.strip(x)
+    elif isinstance(x, str):  # if using python2 replace str with basestring to include unicode type
+        log_debug(LOG_MODULE_REQUEST, "STR: for x" + str(x))
+        x = x.strip()
+    elif isinstance(x, list):
+        log_debug(LOG_MODULE_REQUEST, "LIST: " + str(x))
+        x = [strip_all(v) for v in x]
+    elif isinstance(x, dict):
+        log_debug(LOG_MODULE_REQUEST, "DICT:" + str(x))
+        for k, v in x.iteritems():
+            x[k] = strip_all(v)
+    else:
+        log_debug(LOG_MODULE_REQUEST, "Type is " + str(type(x)) + " for value " + str(x))
+    return x
+
+def request_message_value_strip_all(request):
+    for key, value in request.items():
+        request[key] = strip_all(value)
+    return request

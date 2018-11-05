@@ -37,13 +37,21 @@ port_map = {
 Netifaces class
 '''
 class DeviceNetifacesInfo(object):
-	def __init__(self):
-		self.iflist = ni.interfaces()
+	def __init__(self, def_iflist):
+		if not def_iflist:
+			self.iflist = ni.interfaces()
+		else:
+			self.iflist = def_iflist
+
 		self.addresses = dict()
 
 		for interface in self.iflist:
 			self.addresses[interface] = dict()
-			self.addresses[interface]['addrs'] = ni.ifaddresses(interface)
+			try:
+				self.addresses[interface]['addrs'] = ni.ifaddresses(interface)
+			except Exception as e:
+				log_error(LOG_MODULE_REQUEST, "*** ni.ifaddresses() error: %s for %s" %(str(e), interface))
+				continue
 
 		ni_gateways = ni.gateways()
 		self.ipv4_gateways = []
@@ -55,7 +63,10 @@ class DeviceNetifacesInfo(object):
 	def get_interface_addresses(self, ifname):
 		if not ifname in self.addresses.keys():
 			return {}
-		return self.addresses[ifname]['addrs']
+		if 'addrs' in self.addresses[ifname].keys():
+			return self.addresses[ifname]['addrs']
+		else:
+			return {}
 
 	def get_hwaddr(self, ifname):
 		ni_addrs = self.get_interface_addresses(ifname)
@@ -115,7 +126,8 @@ class DeviceNetifacesInfo(object):
 
 
 def device_get_lan_ipaddr_netmask():
-	ni_addrs = DeviceNetifacesInfo()
+	iflist = ['eth0', 'br-lan']
+	ni_addrs = DeviceNetifacesInfo(iflist)
 	isBridge, bridgeList = device_get_if_bridge_mode()
 	if isBridge == True:
 		ifname = 'br-lan'
@@ -188,11 +200,11 @@ class DeviceInformation(object):
 
 
 def device_info_get_ip_address(ifname):
-	ni_addrs = DeviceNetifacesInfo()
+	ni_addrs = DeviceNetifacesInfo(None)
 	return ni_addrs.get_ipv4_addr(ifname)
 
 def device_info_get_hwaddr(ifname):
-	ni_addrs = DeviceNetifacesInfo()
+	ni_addrs = DeviceNetifacesInfo(None)
 	return ni_addrs.get_hwaddr(ifname)
 
 def device_info_get_serial_num():
@@ -222,16 +234,75 @@ def device_info_get_all_time_info():
 	}
 	return data
 
+def device_info_get_ifname_by_port_name(port_name):
+	iflist = ['lo', 'lan', 'wan', 'wan6']
 
-def device_info_get_dns_server(ifname):
+	for ifname in iflist:
+		compare_str = 'network.%s.ifname' % ifname
+		cmd_str = "uci show network.%s.ifname" % ifname
+
+		output, error = subprocess_open(cmd_str)
+		if compare_str in output:
+			output = output.split("=")[1]
+			output = output.strip("\n")
+			output = output.strip("'")
+			if output == port_name:
+				log_debug(LOG_MODULE_SYSINFO, "port name %s output %s" % (port_name, output))
+				return ifname
+
+	return None
+
+
+def device_info_get_dns_server(port_name):
+	dhcp_resolv_config_list = [DHCP_RESOLV_AUTO_CONFIG_FILE]
 	dns_list = list()
-	if ifname == "wan":
-		with open("/tmp/resolve.conf", 'r') as rfile:
+	append_dns = False
+
+	ifname = device_info_get_ifname_by_port_name(port_name)
+	if not ifname:
+		return dns_list
+
+	compare_str = "# Interface %s" %ifname
+
+	for config_file in dhcp_resolv_config_list:
+
+		if not os.path.exists(config_file): continue
+
+		with open(config_file, 'r') as rfile:
 			lines = rfile.readlines()
 			for line in lines:
-				if line[0] == "#": continue
-				line = line.split()
-				dns_list.append(line[1])
+				if append_dns == True and line[0] == '#':
+					append_dns = False
+					continue
+
+				if compare_str in line:
+					append_dns = True
+					continue
+
+				if append_dns == True:
+					line = line.split()
+					dns_list.append(line[1])
+
+				dns_list = list(set(dns_list))
+				if len(dns_list) > 2:
+					break
+
+	'''
+	cmd_str = "uci show network.%s.dns" %ifname
+	compare_str = "network.%s.dns" %ifname
+
+	output, error = subprocess_open(cmd_str)
+
+	if compare_str in output:
+		output = output.split("=")[1]
+		output = output.strip("\n")
+		output = output.split(' ')
+		for ip_addr in output:
+			ip_addr = ip_addr.strip("'")
+			dns_list.append(ip_addr)
+	'''
+
+	log_debug(LOG_MODULE_SYSINFO, "Interface %s's dns server : %s" %(ifname, str(dns_list)))
 	return dns_list
 
 
