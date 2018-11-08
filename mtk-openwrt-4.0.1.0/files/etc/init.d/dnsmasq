@@ -2,6 +2,7 @@
 
 CONTAINER_NAME=dnsmasq
 ARGS="53 67"
+VERSION=2.78
 
 START=93
 STOP=53
@@ -58,7 +59,7 @@ start()
 		if [ $image_detect -lt 1 ]; then
 			echo "Not detect $CONTAINER_NAME container image"
 			echo "Make $CONTAINER_NAME container image"
-			cd /root/makeContainer/$CONTAINER_NAME;./build-2.78.sh
+			cd /root/makeContainer/$CONTAINER_NAME;./build-$VERSION.sh
 			sleep 1
 			ver=`docker images | awk '$1 ~ /'$CONTAINER_NAME'/ {print $2}'`
 			run_$CONTAINER_NAME.sh $ver "$ARGS"
@@ -86,7 +87,7 @@ stop()
 
 	for con in $container; do
 		echo "$con container stop"
-		docker rm -f $con
+		#docker rm -f $con
 	done
 	exit 0
 }
