@@ -4,7 +4,7 @@ import docker
 from common.env import *
 from common.misc import *
 from common.message import *
-
+from apClient.wifi_proc import *
 
 '''
 Python UCI module restart 
@@ -85,6 +85,8 @@ class PuciModuleRestart(object):
             to apply interface config.
             '''
             self._puci_container_module_restart("dnsmasq")
+
+            wifi_module_reload_all_devices()
         else:
             self._puci_default_module_restart(self.config_file)
 
