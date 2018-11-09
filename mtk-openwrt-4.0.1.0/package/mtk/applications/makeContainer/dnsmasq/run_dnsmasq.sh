@@ -1,6 +1,6 @@
 #!/bin/sh
 docker run -d \
-	--name dnsmasq_$1 \
+	--name dnsmasq.$1 \
 	-e "ARGS=$2" \
 	-v /bin:/bin \
 	-v /dev:/dev \

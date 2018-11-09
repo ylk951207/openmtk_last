@@ -1,6 +1,6 @@
 #!/bin/sh
 docker run -d \
-	--name net-snmp_$1 \
+	--name net-snmp.$1 \
 	-e "ARGS=$2" \
 	-v /bin:/bin \
 	-v /dev:/dev \

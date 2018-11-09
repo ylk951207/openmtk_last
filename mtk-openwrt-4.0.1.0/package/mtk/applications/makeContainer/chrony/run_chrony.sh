@@ -1,7 +1,7 @@
 #!/bin/sh
 docker run -d \
-	--name chrony \
-	--restart always \
+	--name chrony.$1 \
+	-e "ARGS=$2" \
 	-v /bin:/bin \
 	-v /dev:/dev \
 	-v /etc:/etc \
