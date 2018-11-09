@@ -339,12 +339,11 @@ class DockerContainerProc():
                 #if dest_port[:2] == DEST_PORT_PREFIX_PRIMARY:
                 prev_dest_port_list = [DEST_PORT_PREFIX_SECONDARY + src_temp_port, DEST_PORT_PREFIX_PRIMARY + src_temp_port]
 
-                if prev_container:
-                    for prev_dest_port in prev_dest_port_list:
-                        cmd_str = "iptables -t nat -I PREROUTING -p TCP --dport %s -j REDIRECT --to-port %s" % (src_port, prev_dest_port)
-                        del_cmd_list.append(cmd_str)
-                        cmd_str = "iptables -t nat -I PREROUTING -p UDP --dport %s -j REDIRECT --to-port %s" % (src_port, prev_dest_port)
-                        del_cmd_list.append(cmd_str)
+                for prev_dest_port in prev_dest_port_list:
+                    cmd_str = "iptables -t nat -I PREROUTING -p TCP --dport %s -j REDIRECT --to-port %s" % (src_port, prev_dest_port)
+                    del_cmd_list.append(cmd_str)
+                    cmd_str = "iptables -t nat -I PREROUTING -p UDP --dport %s -j REDIRECT --to-port %s" % (src_port, prev_dest_port)
+                    del_cmd_list.append(cmd_str)
 
                 cmd_str = "iptables -t nat -I PREROUTING -p TCP --dport %s -j REDIRECT --to-port %s" % (src_port, dest_port)
                 add_cmd_list.append(cmd_str)
