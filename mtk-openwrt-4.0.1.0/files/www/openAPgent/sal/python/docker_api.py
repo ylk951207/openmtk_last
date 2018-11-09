@@ -303,23 +303,23 @@ class DockerContainerProc():
         return container
 
     def _docker_container_remove_unused_container(self, prev_container, error, dest_port_list):
-        if not error:
-            if prev_container:
-                prev_dest_port_list = []
-                for dest_port in dest_port_list:
-                    src_port = dest_port[2:]
+        if prev_container:
+            log_info(LOG_MODULE_DOCKER, "prev_continer exist")
+            prev_dest_port_list = []
+            for dest_port in dest_port_list:
+                src_port = dest_port[2:]
 
-                    if dest_port[:2] == DEST_PORT_PREFIX_PRIMARY:
-                        prev_dest_port_list.append(DEST_PORT_PREFIX_SECONDARY + src_port)
-                    else:
-                        prev_dest_port_list.append(DEST_PORT_PREFIX_PRIMARY + src_port)
+                if dest_port[:2] == DEST_PORT_PREFIX_PRIMARY:
+                    prev_dest_port_list.append(DEST_PORT_PREFIX_SECONDARY + src_port)
+                else:
+                    prev_dest_port_list.append(DEST_PORT_PREFIX_PRIMARY + src_port)
 
-                mgt_command = "stop"
-                self._docker_container_mgt_proc(mgt_command, prev_container, None, None)
+            mgt_command = "stop"
+            self._docker_container_mgt_proc(mgt_command, prev_container, None, None)
 
-                mgt_command = "remove"
-                self._docker_container_mgt_proc(mgt_command, prev_container, prev_dest_port_list, None)
-                log_info(LOG_MODULE_DOCKER, "Remove the deprecated containers for %s" % prev_container.name)
+            mgt_command = "remove"
+            self._docker_container_mgt_proc(mgt_command, prev_container, prev_dest_port_list, None)
+            log_info(LOG_MODULE_DOCKER, "Remove the deprecated containers for %s" % prev_container.name)
 
     def _docker_container_iptables_proc(self, prev_container, dest_port_list, is_add):
         log_info(LOG_MODULE_DOCKER, "iptables port list: " + str(dest_port_list))
@@ -336,16 +336,16 @@ class DockerContainerProc():
                 src_port = src_temp_port
 
             if is_add:
-                if dest_port[:2] == DEST_PORT_PREFIX_PRIMARY:
-                    prev_dest_port = DEST_PORT_PREFIX_SECONDARY + src_temp_port
-                else:
-                    prev_dest_port = DEST_PORT_PREFIX_PRIMARY + src_temp_port
+                #if dest_port[:2] == DEST_PORT_PREFIX_PRIMARY:
+                prev_dest_port_list = [DEST_PORT_PREFIX_SECONDARY + src_temp_port, DEST_PORT_PREFIX_PRIMARY + src_temp_port]
 
                 if prev_container:
-                    cmd_str = "iptables -t nat -I PREROUTING -p TCP --dport %s -j REDIRECT --to-port %s" % (src_port, prev_dest_port)
-                    del_cmd_list.append(cmd_str)
-                    cmd_str = "iptables -t nat -I PREROUTING -p UDP --dport %s -j REDIRECT --to-port %s" % (src_port, prev_dest_port)
-                    del_cmd_list.append(cmd_str)
+                    for prev_dest_port in prev_dest_port_list:
+                        cmd_str = "iptables -t nat -I PREROUTING -p TCP --dport %s -j REDIRECT --to-port %s" % (src_port, prev_dest_port)
+                        del_cmd_list.append(cmd_str)
+                        cmd_str = "iptables -t nat -I PREROUTING -p UDP --dport %s -j REDIRECT --to-port %s" % (src_port, prev_dest_port)
+                        del_cmd_list.append(cmd_str)
+
                 cmd_str = "iptables -t nat -I PREROUTING -p TCP --dport %s -j REDIRECT --to-port %s" % (src_port, dest_port)
                 add_cmd_list.append(cmd_str)
                 cmd_str = "iptables -t nat -I PREROUTING -p UDP --dport %s -j REDIRECT --to-port %s" % (src_port, dest_port)
@@ -421,6 +421,7 @@ class DockerContainerProc():
             return True
 
     def _docker_container_remove_failed_container(self, container_name):
+        log_info(LOG_MODULE_DOCKER, "*** docker %s continaer remove as failure ***" % (container_name))
         try:
             container = self.client.containers.get(container_name)
         except docker.errors.DockerException as e:
@@ -473,21 +474,32 @@ class DockerContainerProc():
                 log_error(LOG_MODULE_DOCKER, "*** docker containers.run() error ***")
                 log_error(LOG_MODULE_DOCKER, "*** error: " + str(e))
                 self.response.set_response_value(e.response.status_code, e, False)
-                # Skip the conflict name error
-                if e.response.status_code != 409:
-                    error = True
-                if prev_container:
+
+                # Error 409 is conflict name error
+                if e.response.status_code == 409:
+                    # Conflict name error, Do not remove the current container and response with rollback info.
                     resp_body['rollback'] = {
                         'rollbackFlag': True,
-                        'rollbackContainer': prev_container.name
+                        'rollbackContainer': req_container['containerName']
                     }
-                self._docker_container_remove_failed_container(req_container['containerName'])
+                else:
+                    error = True
+                    # If the previous container exists, Make response with rollback info.
+                    if prev_container:
+                        resp_body['rollback'] = {
+                            'rollbackFlag': True,
+                            'rollbackContainer': prev_container.name
+                        }
+
+                    if error == True:
+                        self._docker_container_remove_failed_container(req_container['containerName'])
                 break
             else:
                 log_info(LOG_MODULE_DOCKER, "containers.run() success for %s" %image_name)
                 self._docker_container_iptables_proc(prev_container, dest_port_list, True)
 
-        self._docker_container_remove_unused_container(prev_container, error, dest_port_list)
+        if error == False:
+            self._docker_container_remove_unused_container(prev_container, error, dest_port_list)
         log_info(LOG_MODULE_DOCKER, "rollback data : " + str(resp_body))
 
         lock.release()

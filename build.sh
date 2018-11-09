@@ -25,6 +25,9 @@ get_image_name()
 release_openwrt_image()
 {
 	echo "\nOpenwrt(mtk-openwrt-4.0.1.0) Compile Done\n"
+	if [ ! -d ${RELEASE_DIR} ]; then
+		mkdir ${RELEASE_DIR}
+	fi
 	ls -al mtk-openwrt-4.0.1.0/bin/targets/mediatek/mt7622-glibc
 
 	get_image_name

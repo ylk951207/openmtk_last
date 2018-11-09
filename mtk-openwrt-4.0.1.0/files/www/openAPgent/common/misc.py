@@ -2,6 +2,7 @@ import os, sys
 import shlex
 import subprocess
 import logging
+from logging.handlers import RotatingFileHandler
 
 from common.env import *
 
@@ -53,7 +54,8 @@ class GetLogger():
 		else:
 			log_file = APCLIENT_LOG_PATH
 
-		self.handler = logging.FileHandler(log_file)
+		#self.handler = logging.FileHandler(log_file)
+		self.handler = RotatingFileHandler(log_file, mode='a', maxBytes=(5 * 1024 * 1024), backupCount=2, encoding=None, delay=0)
 		self.handler.setFormatter(formatter)
 		self.logger.addHandler(self.handler)
 

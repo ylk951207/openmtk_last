@@ -76,7 +76,8 @@ def system_provisioning_done_proc():
 
     wifi_module_reload_all_devices()
 
-    initialize_docker_containers()
+    # [2018.11.09] Remove docker container clean up
+    #initialize_docker_containers()
 
     # Notification
     noti_req = APgentSendNotification()

@@ -79,6 +79,12 @@ class PuciModuleRestart(object):
             self._puci_container_module_restart(self.container_name)
         elif self.config_file == 'network' and self.ifname:
             self._puci_network_module_restart(self.ifname)
+
+            '''
+            When interface config is changed, the related container must be restarted
+            to apply interface config.
+            '''
+            self._puci_container_module_restart("dnsmasq")
         else:
             self._puci_default_module_restart(self.config_file)
 
