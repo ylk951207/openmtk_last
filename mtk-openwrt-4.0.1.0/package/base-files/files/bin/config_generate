@@ -71,6 +71,10 @@ generate_network() {
 	case "$1:$ifname" in
 		*\ * | lan:*) type="bridge" ;;
 	esac
+	# [2018.11.06] force igmp_snooping enable
+	case "$1:$ifname" in
+		lan:*) uci set network.$1.igmp_snooping='1' ;;
+	esac
 
 	uci -q batch <<-EOF
 		delete network.$1
@@ -91,8 +95,8 @@ generate_network() {
 		static)
 			local ipad
 			case "$1" in
-				lan) ipad=${ipaddr:-"192.168.1.1"} ;;
-				*) ipad=${ipaddr:-"192.168.$((addr_offset++)).1"} ;;
+				lan) ipad=${ipaddr:-"172.33.1.1"} ;;
+				*) ipad=${ipaddr:-"172.33.$((addr_offset++)).1"} ;;
 			esac
 
 			netm=${netmask:-"255.255.255.0"}

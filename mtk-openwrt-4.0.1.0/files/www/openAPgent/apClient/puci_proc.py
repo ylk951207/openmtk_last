@@ -62,6 +62,9 @@ class PuciModuleRestart(object):
         if container_list:
             self._docker_container_restart(client, container_list)
 
+        if container_name == 'dnsmasq':
+            wifi_module_reload_all_devices()
+
     def _puci_network_module_restart(self, ifname):
         log_info(LOG_MODULE_APCLIENT, "ifdown/ifup for ifname: " + ifname)
         cmd_str = "ifdown %s; ifup %s" %(ifname, ifname)
