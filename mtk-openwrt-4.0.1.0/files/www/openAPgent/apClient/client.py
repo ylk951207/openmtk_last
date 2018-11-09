@@ -69,10 +69,8 @@ def system_provisioning_done_proc():
     pmr._puci_default_module_restart("system")
     pmr._puci_default_module_restart("firewall")
 
-    '''
     pmr._puci_container_module_restart("snmpd")
     pmr._puci_container_module_restart("dnsmasq")
-    '''
 
     wifi_module_reload_all_devices()
 
