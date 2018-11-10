@@ -1,6 +1,12 @@
 #!/bin/sh
+if [ -z "$3" ]; then
+	CONTAINER_PATH=""
+else
+	CONTAINER_PATH=$3/
+fi
+
 docker run -d \
-	--name chrony.$1 \
+	--name chrony_$1 \
 	-e "ARGS=$2" \
 	-v /bin:/bin \
 	-v /dev:/dev \
@@ -10,4 +16,4 @@ docker run -d \
 	-v /tmp:/tmp \
 	-v /usr:/usr \
 	-v /var:/var \
-	--network host --privileged chrony:$1
+	--network host --privileged ${CONTAINER_PATH}chrony:$1

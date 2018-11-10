@@ -1,7 +1,7 @@
 #!/bin/sh /etc/rc.common
 
 CONTAINER_NAME=net-snmp
-ARGS=161
+ARGS="161"
 
 START=94
 STOP=54
@@ -17,59 +17,81 @@ run_dockerd()
 
 depend()
 {
-    after dockerd
+	after dockerd
 }
 
 
 start()
 {
 	echo "$CONTAINER_NAME container auot-start at system boot"
-	ver=""
 	con=""
+	Ver=""
 	loop=0
+	version=""
 	image_detect=0
 	container_detect=0
 	run_dockerd
 
-	while [[ $? -ne 0 -a $loop -lt $WAIT_TIME ]]; do
+	while [[ $? -ne 0 || $loop -lt 5 ]] && [[ $loop -lt $WAIT_TIME ]]; do
 		sleep 1
 		let "loop++"
+		echo "loop is $loop"
 		run_dockerd
 	done
 
-	if [ $loop -lt $WAIT_TIME ]; then
+	if [[ $loop -lt $WAIT_TIME ]]; then
 		echo "dockerd is running. Now start $CONTAINER_NAME container"
 		# Check docker image
+		isRemoteRepo=`docker images | awk '$1 ~ /\/'$CONTAINER_NAME'/ {print $1}'`
+
+		if [[ -z "$isRemoteRepo" ]]; then
+			repo=""
+		else
+			repo=$(dirname "${isRemoteRepo}")
+			Ver=`docker images | awk '$1 ~ /\/'$CONTAINER_NAME'/ {print $2}'`
+		fi
+
 		tags=`docker images | awk '$1 ~ /'$CONTAINER_NAME'/ {print $2}'`
-		for ver in $tags; do
-			echo "$ver"
+		sorted_tags=$(echo "$tags"|tr " " "\n"|sort|tr "\n" " ")
+
+		for version in $sorted_tags; do
+			echo "$version"
 			let image_detect++
 		done
-		echo "tags is $tags, image_detect is $image_detect"
+
+		if [[ $image_detect -gt 1 ]]; then
+			version=`echo $sorted_tags | awk -v ver="def" '{if($NF == ver) print $(NF-1)}'`
+		fi
+		echo "tags is $sorted_tags, image_detect is $image_detect, version is $version"
 
 		# Check docker container
 		container=`docker ps -a | awk '$NF ~ /'$CONTAINER_NAME'/ { print $NF }'`
-		for con in $container; do
+		sorted_container=$(echo "$container"|tr " " "\n"|sort|uniq|tr "\n" " ")
+
+		for con in $sorted_container; do
 			echo "$con"
 			let container_detect++
 		done
-		echo "con is $con, container_detect is $container_detect"
+		echo "container is $sorted_container, con is $con, container_detect is $container_detect"
 
-		if [ $image_detect -lt 1 ]; then
+		if [[ $image_detect -lt 1 ]]; then
 			echo "Not detect $CONTAINER_NAME container image"
 			echo "Make $CONTAINER_NAME container image"
-			cd /root/makeContainer/$CONTAINER_NAME;./build-2.78.sh
+			cd /root/makeContainer/$CONTAINER_NAME;./build-default.sh
 			sleep 1
-			ver=`docker images | awk '$1 ~ /'$CONTAINER_NAME'/ {print $2}'`
-			run_$CONTAINER_NAME.sh $ver "$ARGS"
+			run_$CONTAINER_NAME.sh "def" "$ARGS"
 			exit 0
 		else
-			if [ $container_detect -lt 1 ]; then
-				run_$CONTAINER_NAME.sh $ver "$ARGS"
+			if [[ $container_detect -lt 1 ]]; then
+				if [[ -z "$repo" ]]; then
+					run_$CONTAINER_NAME.sh "$version" "$ARGS"
+				else
+					run_$CONTAINER_NAME.sh $Ver "$ARGS" $repo
+				fi
 				exit 0
 			else
 				echo "Container($CONTAINER_NAME) exist. Just $con start."
-			    docker start $con
+				docker start $con
 				exit 0
 			fi
 		fi
@@ -86,7 +108,7 @@ stop()
 
 	for con in $container; do
 		echo "$con container stop"
-		docker rm -f $con
+		#docker rm -f $con
 	done
 	exit 0
 }
