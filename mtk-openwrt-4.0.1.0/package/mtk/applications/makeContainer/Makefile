@@ -50,7 +50,7 @@ define Package/makeContainer/install
 	$(INSTALL_BIN) ./dnsmasq/run_dnsmasq.sh $(1)/usr/sbin
 	$(INSTALL_BIN) ./chrony/* $(1)/root/makeContainer/chrony
 	$(INSTALL_BIN) ./dnsmasq/* $(1)/root/makeContainer/dnsmasq
-	$(INSTALL_BIN) ./net-snmp/run_snmpd.sh $(1)/usr/sbin
+	$(INSTALL_BIN) ./net-snmp/run_net-snmp.sh $(1)/usr/sbin
 	$(INSTALL_BIN) ./net-snmp/*.sh $(1)/root/makeContainer/net-snmp
 	$(INSTALL_BIN) ./net-snmp/dockerfile* $(1)/root/makeContainer/net-snmp
 	$(INSTALL_BIN) ./net-snmp/snmpd.* $(1)/root/makeContainer/net-snmp
