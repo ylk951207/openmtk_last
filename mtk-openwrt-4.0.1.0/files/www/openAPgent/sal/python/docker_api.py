@@ -193,6 +193,7 @@ class DockerContainerProc():
         container_data['containerName'] = container.name
         container_data['imageTag'] = list()
         tags = container.image.tags
+        container_data['imageFullName'] = tags[0]
         registryAddr = ""
         for name in tags:
            token = name.split('/')
