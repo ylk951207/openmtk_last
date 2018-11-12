@@ -217,11 +217,12 @@ def device_info_get_serial_num():
 
 def device_info_get_uptime():
 	with open('/proc/uptime', 'r') as f:
-		uptime_seconds = float(f.readline().split()[0])
+		uptime_seconds = float(f.readline().split()[0].split('.')[0])
+		uptime_seconds = str(datetime.timedelta(seconds=uptime_seconds))
 		return uptime_seconds
 
 def device_info_get_localtime():
-	return datetime.datetime.now()
+	return datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 def device_info_get_timezone():
 	return time.tzname[time.daylight]
@@ -229,7 +230,7 @@ def device_info_get_timezone():
 def device_info_get_all_time_info():
 	data = {
 		"uptime" : device_info_get_uptime(),
-		"localtime" : device_info_get_localtime(),
+		"localtime" : str(device_info_get_localtime()).replace('T',' '),
 		"timezone" : device_info_get_timezone()
 	}
 	return data

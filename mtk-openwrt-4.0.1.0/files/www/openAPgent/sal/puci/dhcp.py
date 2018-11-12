@@ -14,7 +14,8 @@ UCI_DHCP_INTERFACE_POOL_CONFIG = "dhcp_interface_pool"
 UCI_DHCP_INTERFACE_V6POOL_CONFIG = "dhcp_interface_v6pool"
 UCI_DHCP_STATIC_LEASE_CONFIG = "dhcp_static_leases"
 UCI_DHCP_V6POOL_STR = "v6Settings"
-ERROR_MESSEGE = "error"
+
+MAX_RETRY_COUNT = 3
 
 
 def dhcp_puci_module_restart():
@@ -127,7 +128,10 @@ def puci_dhcp_pool_config_retrieve(ifname, add_header):
 
     pool_config = GetDhcpPoolData()
     if start !=" "  and limit !=" ":
-        start_addr, end_addr = pool_config.get_start_and_end_address(start, limit, ip_addr, netmask)
+        start_addr, end_addr = pool_config.get_start_end_address_by_start_limit(start, limit, ip_addr, netmask)
+
+        if start_addr == None or end_addr == None:
+            return response_make_simple_error_body(500, "Not found UCI config start limit", None)
 
         dhcp_data['addrStartAddr'] = start_addr
         dhcp_data['addrEndAddr'] = end_addr
@@ -226,6 +230,15 @@ def dhcp_pool_config_uci_set(req_data, ifname):
     log_info(UCI_DHCP_CONFIG_FILE, 'dhcp_pool_req = ' + str(req_data))
 
     addr_data = device_get_lan_ipaddr_netmask()
+    log_info(UCI_DHCP_CONFIG_FILE, 'addr_data = ' + str(addr_data))
+    '''
+    When addr_data is None, it tries to fetch addr_data again.
+    '''
+    for i in range(MAX_RETRY_COUNT):
+        if addr_data['ipv4_addr'] == None or addr_data['ipv4_netmask'] == None:
+            addr_data = device_get_lan_ipaddr_netmask()
+            log_info(UCI_DHCP_CONFIG_FILE, 'addr_data = ' + str(addr_data) + ' ' + str(i) + 'rd Retry')
+
     br_addr = addr_data['ipv4_addr']
 
     start_addr = req_data['addrStartAddr']
@@ -237,9 +250,10 @@ def dhcp_pool_config_uci_set(req_data, ifname):
 
     pool_config = GetDhcpPoolData()
     if start_addr != " " and end_addr != " ":
-        req_data['addrStartAddr'], req_data['addrEndAddr'] = pool_config.get_start_limit_data(start_addr, end_addr, br_addr, netmask)
+        req_data['addrStartAddr'], req_data['addrEndAddr'] = \
+            pool_config.get_start_limit_by_start_end_addr(start_addr, end_addr, br_addr, netmask)
 
-    if req_data['addrStartAddr'] == ERROR_MESSEGE or req_data['addrEndAddr'] == ERROR_MESSEGE:
+    if req_data['addrStartAddr'] == None or req_data['addrEndAddr'] == None:
         return response_make_simple_error_body(500, "Invalid Start End Addr Value", None)
 
     log_info(UCI_DHCP_CONFIG_FILE, 'dhcp_pool_set_req = ' + str(req_data))
@@ -498,31 +512,46 @@ class GetDhcpPoolData:
     '''
     log_info(UCI_DHCP_CONFIG_FILE, "GetDhcpPoolData")
 
-    def get_start_limit_data(self, start_addr, end_addr, addr, netmask):
+    def get_start_limit_by_start_end_addr(self, start_addr, end_addr, addr, netmask):
         '''
         GET the start number and the number of the IP to lease by the start address and the end address.
         ex) start_addr = xxx.xxx.xxx.100, end_addr = xxx.xxx.xxx.249 --> start = 100, limit = 150
         '''
-        min_addr, max_addr = self.get_max_and_min_address(addr, netmask)
+        min_addr, max_addr = self.get_max_min_address(addr, netmask)
+        if min_addr == None or max_addr == None:
+            log_error(UCI_DHCP_CONFIG_FILE, "get_max_min_addr_error")
+            return None, None
 
         int_min_addr = self.ip2int(min_addr)
         int_max_addr = self.ip2int(max_addr)
-        int_start_addr = self.ip2int(start_addr)
-        int_end_addr = self.ip2int(end_addr)
+        if self.check_valid_ipv4_address(start_addr) and self.check_valid_ipv4_address(end_addr):
+            int_start_addr = self.ip2int(start_addr)
+            int_end_addr = self.ip2int(end_addr)
+        else:
+            int_start_addr = None
+            int_end_addr = None
+
+        if int_start_addr == None or int_end_addr == None:
+            log_error(UCI_DHCP_CONFIG_FILE, "Invalid_addr_type")
+            return None, None
 
         if int_min_addr < int_start_addr and int_end_addr < int_max_addr and int_start_addr <= int_end_addr:
             limit = self.ip2int(end_addr) - self.ip2int(start_addr) + 1
             start = self.ip2int(start_addr) - self.ip2int(min_addr)
+            log_info(UCI_DHCP_CONFIG_FILE,"start_data = " + str(start) + ", " + "limit_data = " + str(limit))
             return start, limit
         else:
-            return ERROR_MESSEGE, ERROR_MESSEGE
+            return None, None
 
-    def get_start_and_end_address(self, start, limit, addr, netmask):
+    def get_start_end_address_by_start_limit(self, start, limit, addr, netmask):
         '''
         GET start address and end address to lease through DHCP with starting number and IP number to lease.
         ex) start = 100, limit = 150 --> start_addr = xxx.xxx.xxx.100, end_addr = xxx.xxx.xxx.249
         '''
-        min_addr, max_adddr = self.get_max_and_min_address(addr, netmask)
+        min_addr, max_addr = self.get_max_min_address(addr, netmask)
+        if min_addr == None or max_addr == None:
+            log_error(UCI_DHCP_CONFIG_FILE, "get_max_min_addr_error")
+            return None, None
 
         start = int(start)
         limit = int(limit)
@@ -536,18 +565,31 @@ class GetDhcpPoolData:
         return start_addr, limit_addr
 
 
-    def get_max_and_min_address(self, ip_addr, netmask):
+    def get_max_min_address(self, ip_addr, netmask):
         '''
         Gets the largest, smallest IP address given a given IP and subnet mask.
         '''
-        int_min = self.ip2int(netmask) & self.ip2int(ip_addr)
-        min_addr = self.int2ip(int_min)
+        if ip_addr != None and netmask != None and ip_addr != ' ' and netmask != ' ':
+            if self.check_valid_ipv4_address(ip_addr) and self.check_valid_ipv4_address(netmask):
+                int_min = self.ip2int(netmask) & self.ip2int(ip_addr)
+                min_addr = self.int2ip(int_min)
 
-        wild_addr = self.get_wildcard_address(netmask)
-        int_max = int_min | self.ip2int(wild_addr)
-        max_addr = self.int2ip(int_max)
+                wild_addr = self.get_wildcard_address(netmask)
+                int_max = int_min | self.ip2int(wild_addr)
+                max_addr = self.int2ip(int_max)
 
-        return min_addr, max_addr
+                return min_addr, max_addr
+            else:
+                log_error(UCI_DHCP_CONFIG_FILE,
+                         "Invalid_ip_type = " + str(ip_addr) + ", " +
+                         "Invalid_netmask_type = " + str(netmask))
+                return None, None
+
+        else:
+            log_error(UCI_DHCP_CONFIG_FILE,
+                      "None_addr = " + str(ip_addr) + ", " +
+                      "None_netmask = "+ str(netmask))
+            return None, None
 
     def get_wildcard_address(self, netmask):
         '''
@@ -584,6 +626,24 @@ class GetDhcpPoolData:
         '''
         return socket.inet_ntoa(struct.pack("!I", addr))
 
+    def check_valid_ipv4_address(self, addr):
+        '''
+        Check that the ip address is valid.
+        '''
+        log_info(UCI_DHCP_CONFIG_FILE,"addr = " + str(addr) + " vaild check")
+        try:
+            socket.inet_pton(socket.AF_INET, addr)
+        except AttributeError:
+            try:
+                socket.inet_aton(addr)
+            except socket.error:
+                return False
+            return addr.count('.') == 3
+        except socket.error:
+            return False
+
+        return True
+
 
 def py_dhcp_leases_list():
     dhcp_lease_list = list()
@@ -595,9 +655,26 @@ def py_dhcp_leases_list():
                 if line.strip() == '':
                     continue
                 line = line.split()
-
                 expiry_time = int(line[0])
+                '''
+                Calculate the time the device was created and the current local time
+                '''
                 expiry_time = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(expiry_time))
+                current_time = time.strftime('%Y-%m-%d %H:%M:%S')
+                total_time = (datetime.datetime.strptime(expiry_time,'%Y-%m-%d %H:%M:%S')
+                              - datetime.datetime.strptime(current_time,'%Y-%m-%d %H:%M:%S'))
+                '''
+                ex) total_time = '1 day, 12:50:03'
+                '''
+                token = str(total_time).split(',')
+                if len(token) == 2:
+                    d_data = token[0].split(' ')[0]
+                    hms_data = token[1].strip().split(':')
+                    expiry_time = d_data + "d " + hms_data[0] + "h " + hms_data[1] + "m " + hms_data[2] + "s"
+
+                elif len(token) == 1:
+                    hms_data = token[0].strip().split(':')
+                    expiry_time = hms_data[0] + "h " + hms_data[1] + "m " + hms_data[2] + "s"
 
                 dhcp_lease_data = {
                     'hostname' : line[3],
@@ -616,3 +693,4 @@ def py_dhcp_leases_list():
         }
     }
     return data
+

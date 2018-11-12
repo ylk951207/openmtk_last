@@ -209,7 +209,7 @@ class DockerContainerProc():
                # image_name = registryAddr + "/" + name
                container_data['imageName'] = name
         container_data['command'] = ""
-        container_data['created'] = container.attrs['Created'].split(".")[0]
+        container_data['created'] = container.attrs['Created'].split(".")[0].replace('T', ' ')
         container_data['status'] = container.status
         container_data['ports'] = list()
         return container_data
