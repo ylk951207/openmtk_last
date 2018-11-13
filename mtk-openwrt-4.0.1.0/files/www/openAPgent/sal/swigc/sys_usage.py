@@ -85,6 +85,7 @@ def get_cpu_usage_from_top():
 
     usr_data = int(cpu_line.split('usr')[0].split(':')[1].strip().replace('%', ''))
     sys_data = int(cpu_line.split('sys')[0].split('usr')[1].strip().replace('%', ''))
+
     cpu_data = usr_data + sys_data
 
     if cpu_data == 0:
