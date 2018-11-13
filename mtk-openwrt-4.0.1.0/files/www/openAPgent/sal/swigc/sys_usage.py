@@ -13,8 +13,10 @@ SystemUsage
 """
 def swigc_system_usage_list():
 
-    system_cpu_usage = system_usage_get(SYSTEM_USAGE_CPU)
+    system_cpu_usage = get_cpu_usage_from_top()
     system_memory_usage = system_usage_get(SYSTEM_USAGE_MEMORY)
+    if system_cpu_usage == None or system_memory_usage == None:
+        return response_make_simple_error_body(500, "Failed to open /proc ", None)
 
     data = {
         "usages": {
@@ -34,7 +36,7 @@ def swigc_system_usage_retrieve(command, add_header):
     log_info(LOG_MODULE_SAL, "command = ", command)
 
     if command == 'cpu':
-        system_usage = system_usage_get(SYSTEM_USAGE_CPU)
+        system_usage = get_cpu_usage_from_top()
     elif command == 'memory':
         system_usage = system_usage_get(SYSTEM_USAGE_MEMORY)
     else:
@@ -67,3 +69,26 @@ def system_usage_get(command):
             'memoryFree'   : ls.sys_usage_get_memory_free(),
         }
         return memory_field
+
+def get_cpu_usage_from_top():
+    top_data, error = subprocess_open('top -b -n 1 | grep CPU')
+    if error:
+        return None
+    top_data = top_data.split('\n')
+    cpu_line = None
+    for i in range(len(top_data)):
+        if 'CPU:' and 'usr' and 'sys' in top_data[i]:
+            cpu_line = top_data[i]
+
+    if not cpu_line:
+        return None
+
+    usr_data = int(cpu_line.split('usr')[0].split(':')[1].strip().replace('%', ''))
+    sys_data = int(cpu_line.split('sys')[0].split('usr')[1].strip().replace('%', ''))
+    cpu_data = usr_data + sys_data
+
+    if cpu_data == 0:
+        cpu_data = get_cpu_usage_from_top()
+
+    log_info(SYSTEM_USAGE_CPU, 'cpu_usage = ' + str(cpu_data))
+    return cpu_data
