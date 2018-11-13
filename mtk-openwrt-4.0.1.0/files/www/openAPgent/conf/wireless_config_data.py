@@ -18,17 +18,18 @@ def file_config_data_get_section_map(field_name, *args):
 				'wps'              : [CONFIG_TYPE_STRING,   "WscConfMode",                   " "],
 				'password'         : [CONFIG_TYPE_STRING,  " ",           " "],
 				'ssid'             : [CONFIG_TYPE_STRING,  "".join(["SSID", args[0]]), " "],
-				'bssid'            : [CONFIG_TYPE_STRING,  " ",                         " "],
-				'devName'          : [CONFIG_TYPE_STRING,  " ",                         " "],
-				'type'             : [CONFIG_TYPE_STRING,  " ",                         " "],
-				'enable'           : [CONFIG_TYPE_BOOLEAN, " ",                         " "],
-				'status'           : [CONFIG_TYPE_STRING,  " ",                         " "],
+				'bssid'            : [CONFIG_TYPE_STRING,  " ", " "],
+				'devName'          : [CONFIG_TYPE_STRING,  " ", " "],
+				'type'             : [CONFIG_TYPE_STRING,  " ", " "],
+				'enable'           : [CONFIG_TYPE_BOOLEAN, " ", " "],
+				'status'           : [CONFIG_TYPE_STRING,  " ", " "],
 
 				'internal_DefaultKeyID':       [CONFIG_TYPE_INTEGER, "DefaultKeyID",     " "],
 				'internal_Key1Str1' :          [CONFIG_TYPE_STRING,  "Key1Str1",         " "],
 				'internal_WPAPSK1':            [CONFIG_TYPE_STRING,  "WPAPSK1",          " "],
 				'internal_WscModeOption':      [CONFIG_TYPE_INTEGER, "WscModeOption",    " "],
 				'internal_RekeyMethod':        [CONFIG_TYPE_STRING, "RekeyMethod", " "],
+				'internal_AutoChannelSelect':  [CONFIG_TYPE_INTEGER, "AutoChannelSelect",    " "],
 			}
 		return section_map
 

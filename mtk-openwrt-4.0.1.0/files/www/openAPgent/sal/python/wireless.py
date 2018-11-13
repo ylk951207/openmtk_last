@@ -191,13 +191,14 @@ def wireless_config_get(wireless_config_file, ap_type):
     '''
     Change password as auth/priv type
     '''
-    if auth_mode == "OPEN" and priv_mode == "NONE":
-        wireless_data['authMode'] = "DISABLE"
-
     if type == "Type1":
         wireless_data['password'] = file_config.section_map['internal_Key1Str1'][2]
     else:
         wireless_data['password'] = file_config.section_map['internal_WPAPSK1'][2]
+
+    if auth_mode == "OPEN" and priv_mode == "NONE":
+        wireless_data['authMode'] = "DISABLE"
+        wireless_data['password'] = None
 
     wireless_data['bssid'] = device_info_get_hwaddr(if_name)
     wireless_data['devName'] = device_name
@@ -246,8 +247,13 @@ def wireless_chagne_request_data_to_file_config(request):
                 mod_request['wps'] = WPS_ENABLE_SIGNAL
             else:
                 mod_request['wps'] = WPS_DISABLE_SIGNAL
+        elif req_key == 'channel':
+            if mod_request['channel'] == 0:
+                mod_request['internal_AutoChannelSelect'] = 3
+            else:
+                mod_request['internal_AutoChannelSelect'] = 0
         elif req_key == 'authMode':
-            auth_mode = request['authMode']
+
             priv_mode = request['privacyMode']
             passwd = request['password']
             wps_mode = request['wps']
