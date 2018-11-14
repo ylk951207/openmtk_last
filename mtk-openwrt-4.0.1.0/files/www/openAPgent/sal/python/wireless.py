@@ -253,7 +253,7 @@ def wireless_chagne_request_data_to_file_config(request):
             else:
                 mod_request['internal_AutoChannelSelect'] = 0
         elif req_key == 'authMode':
-
+            auth_mode = request['authMode']
             priv_mode = request['privacyMode']
             passwd = request['password']
             wps_mode = request['wps']

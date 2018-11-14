@@ -510,8 +510,6 @@ class GetDhcpPoolData:
     '''
     Process data needed for DHCP Pool
     '''
-    log_info(UCI_DHCP_CONFIG_FILE, "GetDhcpPoolData")
-
     def get_start_limit_by_start_end_addr(self, start_addr, end_addr, addr, netmask):
         '''
         GET the start number and the number of the IP to lease by the start address and the end address.
