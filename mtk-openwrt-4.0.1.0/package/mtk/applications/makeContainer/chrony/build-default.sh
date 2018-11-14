@@ -1,3 +1,3 @@
 #!/bin/sh
-docker build -f dockerfile-2.4 -t chrony:def .
+docker build -f dockerfile-2.4 -t chrony:default .
 
