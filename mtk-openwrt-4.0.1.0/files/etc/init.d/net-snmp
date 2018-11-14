@@ -60,7 +60,7 @@ start()
 		done
 
 		if [[ $image_detect -gt 1 ]]; then
-			version=`echo $sorted_tags | awk -v ver="def" '{if($NF == ver) print $(NF-1)}'`
+			version=`echo $sorted_tags | awk -v ver="default" '{if($NF == ver) print $(NF-1)}'`
 		fi
 		echo "tags is $sorted_tags, image_detect is $image_detect, version is $version"
 
@@ -79,7 +79,7 @@ start()
 			echo "Make $CONTAINER_NAME container image"
 			cd /root/makeContainer/$CONTAINER_NAME;./build-default.sh
 			sleep 1
-			run_$CONTAINER_NAME.sh "def" "$ARGS"
+			run_$CONTAINER_NAME.sh "default" "$ARGS"
 			exit 0
 		else
 			if [[ $container_detect -lt 1 ]]; then
