@@ -8,12 +8,6 @@ from common.misc import *
 from common.sysinfo import *
 from common.message import *
 
-UCI_DHCP_CONFIG_FILE = "dhcp"
-UCI_DHCP_COMMON_CONFIG = "dhcp_common"
-UCI_DHCP_INTERFACE_POOL_CONFIG = "dhcp_interface_pool"
-UCI_DHCP_INTERFACE_V6POOL_CONFIG = "dhcp_interface_v6pool"
-UCI_DHCP_STATIC_LEASE_CONFIG = "dhcp_static_leases"
-UCI_DHCP_V6POOL_STR = "v6Settings"
 
 MAX_RETRY_COUNT = 3
 

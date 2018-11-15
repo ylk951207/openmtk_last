@@ -24,6 +24,9 @@ def register_device_info():
     count = 0
 
     while True:
+        if os.path.exists(PROVISIONING_DONE_FILE):
+            break
+
         device_info.update_device_info()
         status_code = request_post_device_info(device_info, CAPC_DEVICE_INFO_POST_URL)
         if status_code == 200:
@@ -46,4 +49,26 @@ def register_device_info():
     '''
 
 
+def send_ip_address_change_notification(ifname):
+    noti_req = APgentSendNotification()
 
+    self.response['ifname'] = ifname
+
+    iflist = [ifname]
+    ni_addrs = DeviceNetifacesInfo(iflist)
+
+    self.response['ipv4Address'] = ni_addrs.get_ipv4_addr(ifname)
+    self.response['ipv4Netmask'] = ni_addrs.get_ipv4_netmask(ifname)
+
+    device_identify = dict()
+    device_identify['serialNumber'] = device_info_get_serial_num()
+    noti_req.response['deviceIdentity'] = device_identify
+
+    noti_req.send_notification(CAPC_NOTIFICATION_ADDRESS_CHANGE_URL)
+
+
+def initialize_device_mgr():
+    dns_data = device_info_get_dns_server(None)
+    with open("/tmp/auto_dns_server", "w") as f:
+        for dns_server in dns_data['wanDnsServer']:
+            f.write ("%s\n" %dns_server)

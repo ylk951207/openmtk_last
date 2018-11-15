@@ -4,6 +4,7 @@ from puci import *
 from common.env import *
 from common.misc import *
 from common.message import *
+from common.sysinfo import device_info_get_dns_server
 
 UCI_NETWORK_FILE="network"
 UCI_INTERFACE_COMMON_CONFIG = "interface_config"
@@ -14,12 +15,22 @@ UCI_INTERFACE_STR='interface'
 UCI_INTERFACE_V4ADDR_STR='v4Addr'
 UCI_INTERFACE_V6ADDR_STR='v6Addr'
 
+LAN_DNS_SERVER_KEY = "lanDnsServer"
+WAN_DNS_SERVER_KEY = "wanDnsServer"
+
 
 def interface_puci_module_restart(ifname):
     noti_data = dict()
     noti_data['config_file'] = UCI_NETWORK_FILE
     noti_data['ifname'] = ifname
     puci_send_message_to_apnotifier(SAL_PUCI_MODULE_RESTART, noti_data)
+
+def dhcp_puci_module_restart():
+    noti_data = dict()
+    noti_data['config_file'] = UCI_DHCP_CONFIG_FILE
+    noti_data['container_name'] = "dnsmasq"
+    puci_send_message_to_apnotifier(SAL_PUCI_MODULE_RESTART, noti_data)
+
 
 '''
 InterfaceConfig
@@ -81,14 +92,29 @@ def puci_interface_config_detail_create(request, ifname):
 def puci_interface_config_detail_update(request, ifname):
     return interface_config_common_detail_set(request, ifname)
 
-
 def interface_config_common_set(request):
     interface_list = request[UCI_INTERFACE_LIST_STR]
+    req_dns_data = dict()
 
     while len(interface_list) > 0:
         ifdata = interface_list.pop(0)
 
         ifname = ifdata['ifname']
+
+        req_dns_data = dict()
+        if ifname == 'wan':
+            if len(ifdata['v4Addr']['dnsServer']) > 0:
+                req_dns_data[WAN_DNS_SERVER_KEY] = list(ifdata['v4Addr']['dnsServer'])
+            else:
+                req_dns_data[WAN_DNS_SERVER_KEY] = []
+        elif ifname == 'lan':
+            if len(ifdata['v4Addr']['dnsServer']) > 0:
+                req_dns_data[LAN_DNS_SERVER_KEY] = list(ifdata['v4Addr']['dnsServer'])
+            else:
+                req_dns_data[LAN_DNS_SERVER_KEY] = []
+
+        if len(ifdata['v4Addr']['dnsServer']) > 0:
+            ifdata['v4Addr']['dnsServer'].reverse()
 
         interface_config_common_uci_set(ifdata, ifname)
         if UCI_INTERFACE_V4ADDR_STR in ifdata:
@@ -96,7 +122,11 @@ def interface_config_common_set(request):
 
         interface_puci_module_restart(ifname)
 
+    # To return current dns server
+    dns_data = interface_config_get_dns_data(req_dns_data)
+
     data = {
+        'interface' : dns_data,
         'header' : {
             'resultCode': 200,
             'resultMessage': 'Success.',
@@ -111,13 +141,32 @@ def interface_config_common_detail_set(request, ifname):
 
     log_info(UCI_NETWORK_FILE, "ifname[%s]" %ifname)
 
+    req_dns_data = dict()
+    if ifname == 'wan':
+        if len(request['v4Addr']['dnsServer']) > 0:
+            req_dns_data[WAN_DNS_SERVER_KEY] = list(request['v4Addr']['dnsServer'])
+        else:
+            req_dns_data[WAN_DNS_SERVER_KEY] = []
+    elif ifname == 'lan':
+        if len(request['v4Addr']['dnsServer']) > 0:
+            req_dns_data[LAN_DNS_SERVER_KEY] = list(request['v4Addr']['dnsServer'])
+        else:
+            req_dns_data[LAN_DNS_SERVER_KEY] = []
+
+    if len(request['v4Addr']['dnsServer']) > 0:
+        request['v4Addr']['dnsServer'].reverse()
+
     interface_config_common_uci_set(request, ifname)
     if UCI_INTERFACE_V4ADDR_STR in request:
         interface_config_v4addr_uci_set(request[UCI_INTERFACE_V4ADDR_STR], ifname)
 
     interface_puci_module_restart(ifname)
 
+    # To return current dns server
+    dns_data = interface_config_get_dns_data(req_dns_data)
+
     data = {
+        'interface': dns_data,
         'header' : {
             'resultCode': 200,
             'resultMessage': 'Success.',
@@ -125,7 +174,6 @@ def interface_config_common_detail_set(request, ifname):
         }
     }
     return data
-
 
 def interface_config_common_uci_get(ifname, interface_data):
     uci_config = ConfigUCI(UCI_NETWORK_FILE, UCI_INTERFACE_COMMON_CONFIG, ifname)
@@ -173,12 +221,34 @@ def puci_interface_v4addr_config_update(request, ifname):
     return interface_config_v4addr_set(request, ifname)
 
 def interface_config_v4addr_set(request, ifname):
+    req_dns_data = dict()
     if not ifname:
         return response_make_simple_error_body(500, "Not found interface name", None)
 
-    interface_config_v4addr_uci_set(request, ifname)
+    error_msg = interface_config_v4addr_uci_set(request, ifname)
+    if error_msg:
+        return error_msg
+
+    req_dns_data = dict()
+    if ifname == 'wan':
+        if len(request['dnsServer']) > 0:
+            req_dns_data[WAN_DNS_SERVER_KEY] = list(request['dnsServer'])
+        else:
+            req_dns_data[WAN_DNS_SERVER_KEY] = []
+    elif ifname == 'lan':
+        if len(request['dnsServer']) > 0:
+            req_dns_data[LAN_DNS_SERVER_KEY] = list(request['dnsServer'])
+        else:
+            req_dns_data[LAN_DNS_SERVER_KEY] = []
+
+    if len(request['dnsServer']) > 0:
+        request['dnsServer'].reverse()
+
+    # To return current dns server
+    dns_data = interface_config_get_dns_data(req_dns_data)
 
     data = {
+        'interface' : dns_data,
         'header' : {
             'resultCode': 200,
             'resultMessage': 'Success.',
@@ -213,6 +283,78 @@ def interface_config_v4addr_uci_set(req_data, ifname):
         return response_make_simple_error_body(500, "Not found UCI config", None)
 
     uci_config.set_uci_config(req_data)
+
+'''
+If dnsServer is changed, Update /etc/config/dhcp
+'''
+def interface_config_update_dhcp_config(req_dns_data):
+    ret_dns_data = dict()
+    dhcp_req_data = dict()
+
+    # Get dns server
+    dns_data = device_info_get_dns_server(None)
+
+    ret_dns_data[WAN_DNS_SERVER_KEY] = dns_data[WAN_DNS_SERVER_KEY]
+    ret_dns_data[LAN_DNS_SERVER_KEY] = dns_data[LAN_DNS_SERVER_KEY]
+
+    if LAN_DNS_SERVER_KEY in req_dns_data:
+        if len(req_dns_data[LAN_DNS_SERVER_KEY]) > 0:
+            dns_list = req_dns_data[LAN_DNS_SERVER_KEY]
+        else:
+            dns_list = dns_data[WAN_DNS_SERVER_KEY]
+        ret_dns_data[LAN_DNS_SERVER_KEY] = dns_list
+    elif WAN_DNS_SERVER_KEY in req_dns_data:
+        count = len(req_dns_data[WAN_DNS_SERVER_KEY])
+        if count < 2:
+            with open("/tmp/auto_dns_server", "r") as f:
+                lines = f.readlines()
+                for line in lines:
+                    line = line.strip()
+                    req_dns_data[WAN_DNS_SERVER_KEY].append(line)
+                    count += 1
+                    if count >= 2:
+                        break
+
+        dns_list = req_dns_data[WAN_DNS_SERVER_KEY]
+        ret_dns_data[WAN_DNS_SERVER_KEY] = dns_list
+    else:
+        return None
+
+    option_list = []
+    if len(dns_list) > 0:
+        option_str = "6"
+        for dns_server in dns_list:
+            if dns_server in option_str:
+                continue
+            option_str = option_str + "," + dns_server
+        option_list.append(option_str)
+
+    dhcp_req_data['dhcpOptions'] = option_list
+
+    uci_config = ConfigUCI(UCI_DHCP_CONFIG_FILE, UCI_DHCP_INTERFACE_POOL_CONFIG, 'lan')
+    if uci_config.section_map != None:
+        uci_config.set_uci_config(dhcp_req_data)
+
+    dhcp_puci_module_restart()
+
+    return dns_list
+
+def interface_config_get_dns_data(req_dns_data):
+    dns_data = interface_config_update_dhcp_config(req_dns_data)
+
+    '''
+    for dns_str in [WAN_DNS_SERVER_KEY, LAN_DNS_SERVER_KEY]:
+        if dns_str in req_dns_data:
+            if len(req_dns_data[dns_str]) >= 2:
+                continue
+            for i in range (0, len(dns_data[dns_str])):
+                if req_dns_data[dns_str][i] != dns_addr:
+                    req_dns_data[dns_str][i] = dns_addr
+        else:
+            req_dns_data[dns_str] = list(dns_data[dns_str])
+    '''
+
+    return req_dns_data
 
 '''
 GenericIfStats
