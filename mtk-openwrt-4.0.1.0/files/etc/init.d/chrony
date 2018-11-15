@@ -1,11 +1,11 @@
 #!/bin/sh /etc/rc.common
 
-CONTAINER_NAME=net-snmp
+CONTAINER_NAME=chrony
 IMG_TAG="default"
-ELAPS_TIME=0
+ELAPS_TIME=5
 
-START=94
-STOP=54
+START=92
+STOP=52
 
 WAIT_TIME=30
 

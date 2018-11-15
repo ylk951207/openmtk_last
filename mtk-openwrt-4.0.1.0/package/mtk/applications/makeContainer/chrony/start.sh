@@ -1,6 +1,9 @@
 #!/bin/sh
-/bin/cp /chrony.conf /etc/chrony/chrony.conf
-/bin/cp /chronyc-* /usr/bin/chronyc
-/bin/cp /chronyd-* /usr/sbin/chronyd
+/bin/cp -af /chrony.conf /etc/chrony/chrony.conf
+/bin/cp -af /chronyc-* /usr/bin/chronyc
+/bin/cp -af /chronyd-* /usr/sbin/chronyd
 /chronyd.init start
-/usr/sbin/chronyd -n -f /var/etc/chrony.conf
+echo "[start.sh] ARGS is $ARGS"
+NTP_PORT=`echo $ARGS | /usr/bin/awk '{print $1}'`
+CMD_PORT=`echo $ARGS | /usr/bin/awk '{print $2}'`
+/usr/sbin/chronyd -p $NTP_PORT -c $CMD_PORT -n -f /var/etc/chrony.conf
