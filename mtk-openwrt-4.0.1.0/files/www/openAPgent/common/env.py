@@ -27,8 +27,9 @@ CAPC_SERVER_URL='http://' + CAPC_SERVER_IP + ':' + CAPC_SERVER_PORT
 
 CAPC_DEVICE_INFO_POST_URL=CAPC_SERVER_URL+'/v1/devices/registration/'
 
-CAPC_NOTIFICATION_IMAGE_POST_URL = CAPC_SERVER_URL+'/v1/notifications/virtualization/images'
 CAPC_NOTIFICATION_PROVISIONING_FINISH_URL = CAPC_SERVER_URL+'/v1/notifications/provisioning-finish'
+CAPC_NOTIFICATION_IMAGE_POST_URL = CAPC_SERVER_URL+'/v1/notifications/virtualization/images'
+CAPC_NOTIFICATION_ADDRESS_CHANGE_URL = CAPC_SERVER_URL+'/v1/notifications/interfaces/address-change'
 
 '''
 apClient
@@ -110,5 +111,13 @@ TWO_GIGA_DEVICE_NAME = "MT7622.1"
 '''
 DHCP
 '''
+UCI_DHCP_CONFIG_FILE = "dhcp"
+UCI_DHCP_COMMON_CONFIG = "dhcp_common"
+UCI_DHCP_INTERFACE_POOL_CONFIG = "dhcp_interface_pool"
+UCI_DHCP_INTERFACE_V6POOL_CONFIG = "dhcp_interface_v6pool"
+UCI_DHCP_STATIC_LEASE_CONFIG = "dhcp_static_leases"
+UCI_DHCP_V6POOL_STR = "v6Settings"
+
+
 DHCP_LEASE_FILE="/tmp/dhcp.leases"
 DHCP_RESOLV_AUTO_CONFIG_FILE="/tmp/resolv.conf.auto"

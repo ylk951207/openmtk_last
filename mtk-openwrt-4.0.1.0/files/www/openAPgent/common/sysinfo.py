@@ -254,57 +254,58 @@ def device_info_get_ifname_by_port_name(port_name):
 	return None
 
 
-def device_info_get_dns_server(port_name):
+def device_info_get_dns_server(ifname):
 	dhcp_resolv_config_list = [DHCP_RESOLV_AUTO_CONFIG_FILE]
-	dns_list = list()
+	dns_data = dict()
 	append_dns = False
 
-	ifname = device_info_get_ifname_by_port_name(port_name)
-	if not ifname:
-		return dns_list
+	iftype_list = ['lan', 'wan']
 
-	compare_str = "# Interface %s" %ifname
+	for iftype in iftype_list:
+		dns_list = list()
 
-	for config_file in dhcp_resolv_config_list:
+		compare_str = "# Interface %s" %iftype
 
-		if not os.path.exists(config_file): continue
+		for config_file in dhcp_resolv_config_list:
+			if not os.path.exists(config_file): continue
 
-		with open(config_file, 'r') as rfile:
-			lines = rfile.readlines()
-			for line in lines:
-				if append_dns == True and line[0] == '#':
-					append_dns = False
-					continue
+			with open(config_file, 'r') as rfile:
+				lines = rfile.readlines()
+				for line in lines:
+					if append_dns == True and line[0] == '#':
+						append_dns = False
+						continue
 
-				if compare_str in line:
-					append_dns = True
-					continue
+					if compare_str in line:
+						append_dns = True
+						continue
 
-				if append_dns == True:
-					line = line.split()
-					dns_list.append(line[1])
+					if append_dns == True:
+						line = line.split()
+						if line in dns_list:
+							continue
+						dns_list.append(line[1])
 
-				dns_list = list(set(dns_list))
-				if len(dns_list) > 2:
-					break
+					#dns_list = list(set(dns_list))
+					if len(dns_list) >= 2:
+						break
 
-	'''
-	cmd_str = "uci show network.%s.dns" %ifname
-	compare_str = "network.%s.dns" %ifname
+		# wanDnsServer, lanDnsServer
+		key_str = iftype + "DnsServer"
+		dns_data[key_str] = dns_list
+		log_debug(LOG_MODULE_SYSINFO, "Interface %s dns server : %s" % (iftype, str(dns_list)))
 
-	output, error = subprocess_open(cmd_str)
+	# To return specific interface's dns server
+	if ifname:
+		if ifname == 'eth0' or ifname == 'br-lan':
+			dns_data[ifname] = dns_data['lanDnsServer']
+		elif ifname == 'eth1':
+			dns_data[ifname] = dns_data['wanDnsServer']
+		else:
+			dns_data[ifname] = []
 
-	if compare_str in output:
-		output = output.split("=")[1]
-		output = output.strip("\n")
-		output = output.split(' ')
-		for ip_addr in output:
-			ip_addr = ip_addr.strip("'")
-			dns_list.append(ip_addr)
-	'''
-
-	log_debug(LOG_MODULE_SYSINFO, "Interface %s's dns server : %s" %(ifname, str(dns_list)))
-	return dns_list
+	log_info(LOG_MODULE_SYSINFO, "DNS Servers : " + str(dns_data))
+	return dns_data
 
 
 '''

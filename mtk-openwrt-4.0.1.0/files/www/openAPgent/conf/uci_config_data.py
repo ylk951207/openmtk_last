@@ -115,6 +115,7 @@ def uci_get_section_map(config_name, *args):
         'dhcpLeaseMax'           :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].dhcpleasemax'              ,' ' ],
         'dnsPacketSizeMax'       :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].ednspacket_max'            ,' ' ],
         'dnsForwardMax'          :  [ CONFIG_TYPE_SCALAR  , 'dhcp.@dnsmasq[0].dnsforwardmax'             ,' ' ],
+        'dhcpOptions'            :  [ CONFIG_TYPE_LIST    , 'dhcp.@dnsmasq[0].dhcp_option'               ,' ' ],
       }
       return section_map
 

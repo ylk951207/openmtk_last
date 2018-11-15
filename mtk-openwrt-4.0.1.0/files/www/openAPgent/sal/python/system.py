@@ -81,13 +81,14 @@ def py_interface_address_info_list():
     ni_addrs = DeviceNetifacesInfo(None)
 
     for ifname in ni_addrs.iflist:
+        dns_data = device_info_get_dns_server(ifname)
         interface_data = {
             "ifname": ifname,
             "ipv4Address": ni_addrs.get_ipv4_addr(ifname),
             "ipv4Netmask": ni_addrs.get_ipv4_netmask(ifname),
             "ipv4Gateway": ni_addrs.get_ipv4_gateway_addr(ifname),
             "ipv4Broadcast": ni_addrs.get_ipv4_broadcast(ifname),
-            "dnsServer" : device_info_get_dns_server(ifname),
+            "dnsServer" : dns_data[ifname],
         }
         iflist_body.append(interface_data)
 
@@ -108,6 +109,7 @@ def py_interface_address_info_retrieve(ifname, add_header):
     log_info(LOG_MODULE_SYSINFO, "[ifname] : " + ifname)
 
     ni_addrs = DeviceNetifacesInfo(None)
+    dns_data = device_info_get_dns_server(ifname)
 
     interface_data = {
         "ifname": ifname,
@@ -115,7 +117,7 @@ def py_interface_address_info_retrieve(ifname, add_header):
         "ipv4Netmask": ni_addrs.get_ipv4_netmask(ifname),
         "ipv4Gateway": ni_addrs.get_ipv4_gateway_addr(ifname),
         "ipv4Broadcast": ni_addrs.get_ipv4_broadcast(ifname),
-        "dnsServer": device_info_get_dns_server(ifname),
+        "dnsServer": dns_data[ifname],
     }
 
     data = {
