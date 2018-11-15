@@ -1,7 +1,8 @@
 #!/bin/sh /etc/rc.common
 
 CONTAINER_NAME=dnsmasq
-ARGS="53 67"
+IMG_TAG="default"
+ELAPS_TIME=0
 
 START=93
 STOP=53
@@ -32,7 +33,7 @@ start()
 	container_detect=0
 	run_dockerd
 
-	while [[ $? -ne 0 || $loop -lt 5 ]] && [[ $loop -lt $WAIT_TIME ]]; do
+	while [[ $? -ne 0 || $loop -lt $ELAPS_TIME ]] && [[ $loop -lt $WAIT_TIME ]]; do
 		sleep 1
 		let "loop++"
 		echo "loop is $loop"
@@ -60,7 +61,7 @@ start()
 		done
 
 		if [[ $image_detect -gt 1 ]]; then
-			version=`echo $sorted_tags | awk -v ver="default" '{if($NF == ver) print $(NF-1)}'`
+			version=`echo $sorted_tags | awk -v ver="$IMG_TAG" '{if($NF == ver) print $(NF-1)}'`
 		fi
 		echo "tags is $sorted_tags, image_detect is $image_detect, version is $version"
 
@@ -74,26 +75,16 @@ start()
 		done
 		echo "container is $sorted_container, con is $con, container_detect is $container_detect"
 
-		if [[ $image_detect -lt 1 ]]; then
-			echo "Not detect $CONTAINER_NAME container image"
+		if [[ $container_detect -lt 1 ]]; then
 			echo "Make $CONTAINER_NAME container image"
-			cd /root/makeContainer/$CONTAINER_NAME;./build-default.sh
+			cd /root/makeContainer/$CONTAINER_NAME;./build-"$IMG_TAG".sh
 			sleep 1
-			run_$CONTAINER_NAME.sh "default" "$ARGS"
+			run_$CONTAINER_NAME.sh $IMG_TAG
 			exit 0
 		else
-			if [[ $container_detect -lt 1 ]]; then
-				if [[ -z "$repo" ]]; then
-					run_$CONTAINER_NAME.sh $version "$ARGS"
-				else
-					run_$CONTAINER_NAME.sh $Ver "$ARGS" $repo
-				fi
-				exit 0
-			else
-				echo "Container($CONTAINER_NAME) exist. Just $con start."
-				docker start $con
-				exit 0
-			fi
+			echo "Container($CONTAINER_NAME) exist. Just $con start."
+			docker start $con
+			exit 0
 		fi
 	else
 		echo "dockerd is not running"

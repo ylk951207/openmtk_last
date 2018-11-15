@@ -19,6 +19,7 @@ define Package/makeContainer
   CATEGORY:=Withus Planet Properties
   TITLE:=makeContainer
   SUBMENU:=Applications
+  DEPENDS:=+libcap +libpthread
 endef
 
 define Package/makeContainer/description
@@ -46,6 +47,7 @@ define Package/makeContainer/install
 	$(INSTALL_DIR) $(1)/root/makeContainer/net-snmp/net-snmp-5.8/mibs
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_DIR) $(1)/etc/docker
+	$(INSTALL_DIR) $(1)/etc/chrony
 	$(INSTALL_BIN) ./chrony/run_chrony.sh $(1)/usr/sbin
 	$(INSTALL_BIN) ./dnsmasq/run_dnsmasq.sh $(1)/usr/sbin
 	$(INSTALL_BIN) ./chrony/* $(1)/root/makeContainer/chrony
