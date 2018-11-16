@@ -92,4 +92,6 @@ def get_cpu_usage_from_top():
         cpu_data = get_cpu_usage_from_top()
 
     log_info(SYSTEM_USAGE_CPU, 'cpu_usage = ' + str(cpu_data))
-    return cpu_data
+
+    cpu_data_dict = {'cpuCurrent' : cpu_data}
+    return cpu_data_dict
