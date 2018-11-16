@@ -553,6 +553,8 @@ class WirelessStation(object):
 				line_key = line[0].strip()
 				line_value = line[1].strip()
 
+				dict_data['type'] = ap_type
+
 				for key, value in self.wirless_config_map.items():
 					if key.strip() != line_key:
 						continue
