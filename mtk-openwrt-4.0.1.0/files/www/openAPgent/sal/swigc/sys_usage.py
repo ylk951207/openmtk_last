@@ -13,9 +13,9 @@ SystemUsage
 """
 def swigc_system_usage_list():
 
-    system_cpu_usage = get_cpu_usage_from_top()
+    system_cpu_usage = {'cpuCurrent': get_cpu_usage_from_top()}
     system_memory_usage = system_usage_get(SYSTEM_USAGE_MEMORY)
-    if system_cpu_usage == None or system_memory_usage == None:
+    if system_cpu_usage['cpuCurrent'] == None or system_memory_usage == None:
         return response_make_simple_error_body(500, "Failed to open /proc ", None)
 
     data = {
@@ -36,7 +36,7 @@ def swigc_system_usage_retrieve(command, add_header):
     log_info(LOG_MODULE_SAL, "command = ", command)
 
     if command == 'cpu':
-        system_usage = get_cpu_usage_from_top()
+        system_usage = {'cpuCurrent': get_cpu_usage_from_top()}
     elif command == 'memory':
         system_usage = system_usage_get(SYSTEM_USAGE_MEMORY)
     else:
@@ -88,10 +88,4 @@ def get_cpu_usage_from_top():
 
     cpu_data = usr_data + sys_data
 
-    if cpu_data == 0:
-        cpu_data = get_cpu_usage_from_top()
-
-    log_info(SYSTEM_USAGE_CPU, 'cpu_usage = ' + str(cpu_data))
-
-    cpu_data_dict = {'cpuCurrent' : cpu_data}
-    return cpu_data_dict
+    return cpu_data
