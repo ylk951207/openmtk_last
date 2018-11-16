@@ -18,10 +18,6 @@ log_info (LOG_MODULE_APCLIENT, '----- Start Client Command Application  ----')
 if not os.path.exists(PROVISIONING_DONE_FILE):
     register_device_info()
 
-
-initialize_device_mgr()
-
-
 '''
  Main Loop
 '''

@@ -65,10 +65,3 @@ def send_ip_address_change_notification(ifname):
     noti_req.response['deviceIdentity'] = device_identify
 
     noti_req.send_notification(CAPC_NOTIFICATION_ADDRESS_CHANGE_URL)
-
-
-def initialize_device_mgr():
-    dns_data = device_info_get_dns_server(None)
-    with open("/tmp/auto_dns_server", "w") as f:
-        for dns_server in dns_data['wanDnsServer']:
-            f.write ("%s\n" %dns_server)

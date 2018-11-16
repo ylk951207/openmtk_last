@@ -22,6 +22,7 @@ endif
 # ----------------------------------------------------------------------------
 
 WORK_DIR=../../../../../../
+TARGET_BUILD_DIR=${WORK_DIR}/build_dir/target-aarch64_cortex-a53+neon-vfpv4_glibc-2.24
 
 PATH:=${PATH}:${WORK_DIR}/staging_dir/toolchain-aarch64_cortex-a53+neon-vfpv4_gcc-5.4.0_glibc-2.24/bin
 
@@ -54,8 +55,8 @@ RELEASE_DIR=${WORK_DIR}/files/www/openAPgent/common/libs
 all: ${TARGETS}
 
 CFLAGS = -I/usr/local/include/python2.7 \
-				 -I${WORK_DIR}/build_dir/toolchain-aarch64_cortex-a53+neon-vfpv4_gcc-5.4.0_glibc-2.24/linux-4.4.124/drivers/net/ethernet/raeth	\
-				 -fPIC
+		-I${TARGET_BUILD_DIR}/linux-mediatek_mt7622/linux-4.4.124/drivers/net/ethernet/raeth \
+		-fPIC
 
 sys_usage:
 	swig -python sys_usage.i
