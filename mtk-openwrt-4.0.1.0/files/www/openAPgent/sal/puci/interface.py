@@ -337,24 +337,11 @@ def interface_config_update_dhcp_config(req_dns_data):
 
     dhcp_puci_module_restart()
 
-    return dns_list
+    return ret_dns_data
 
 def interface_config_get_dns_data(req_dns_data):
-    dns_data = interface_config_update_dhcp_config(req_dns_data)
+    return interface_config_update_dhcp_config(req_dns_data)
 
-    '''
-    for dns_str in [WAN_DNS_SERVER_KEY, LAN_DNS_SERVER_KEY]:
-        if dns_str in req_dns_data:
-            if len(req_dns_data[dns_str]) >= 2:
-                continue
-            for i in range (0, len(dns_data[dns_str])):
-                if req_dns_data[dns_str][i] != dns_addr:
-                    req_dns_data[dns_str][i] = dns_addr
-        else:
-            req_dns_data[dns_str] = list(dns_data[dns_str])
-    '''
-
-    return req_dns_data
 
 '''
 GenericIfStats
