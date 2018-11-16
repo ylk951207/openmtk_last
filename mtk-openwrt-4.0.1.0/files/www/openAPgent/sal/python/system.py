@@ -11,7 +11,7 @@ def py_provisioning_done_create(request):
     server_msg = ApServerLocalMassage(APNOTIFIER_CMD_PORT)
     server_msg.send_message_to_apnotifier(SAL_PROVISIONING_DONE, noti_data)
     log_info(LOG_MODULE_SYSINFO, "** Send provisioning done message to apClient **")
-
+    return response_make_simple_success_body(None)
 
 def py_keepalive_check_list():
     return response_make_simple_success_body(None)

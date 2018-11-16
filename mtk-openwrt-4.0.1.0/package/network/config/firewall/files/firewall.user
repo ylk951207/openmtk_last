@@ -5,3 +5,6 @@
 # Internal uci firewall chains are flushed and recreated on reload, so
 # put custom rules into the root chains e.g. INPUT or FORWARD or into the
 # special user chains, e.g. input_wan_rule or postrouting_lan_rule.
+
+iptables -t nat -I PREROUTING -p TCP --dport 161 -j REDIRECT --to-port 11161
+iptables -t nat -I PREROUTING -p UDP --dport 161 -j REDIRECT --to-port 11161
