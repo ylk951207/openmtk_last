@@ -41,7 +41,7 @@ class ClientCmdApp():
             if data:
                 if 'netmgr' in data:
                     log_info(LOG_MODULE_APCLIENT, 'Recv message: ' + str(data))
-                    data = data.strip("netmgrd:")
+                    data = data.split(":")[1]
                     data=data.split()
                     send_ip_address_change_notification(data[0], data[1])
                     log_info(LOG_MODULE_APCLIENT, '---- Socket close ----')
@@ -123,29 +123,36 @@ class ClientInitialize():
         self.lan_dns_server_init()
 
     def lan_dns_server_init(self):
+        option_str = ""
         dns_data = device_info_get_dns_server(None)
 
         # Check LAN dhcp option
         output, error = subprocess_open("uci show dhcp.lan.dhcp_option")
         if 'dhcp.lan.dhcp_option' in output:
             # Already exist
+            log_info(LOG_MODULE_APCLIENT, "dhcp option already exist")
             return
 
         dns_list = dns_data[WAN_DNS_SERVER_KEY]
-        option_list = []
         if len(dns_list) > 0:
             option_str = "6"
             for dns_server in dns_list:
                 if dns_server in option_str:
                     continue
                 option_str = option_str + "," + dns_server
-            if "," in option_str:
-                option_list.append(option_str)
 
-        cmd_str = "uci set dhcp.lan.dhcp_option='%s'" %str(option_list)
+        if len(option_str) :
+            cmd_str = "uci set dhcp.lan.dhcp_option='%s'" %str(option_str)
+            output, error = subprocess_open(cmd_str)
+            log_info(LOG_MODULE_APCLIENT, "dhcp option = %s, outout:%s, error:%s" %(cmd_str, output, error))
 
-        output, error = subprocess_open(cmd_str)
-        log_info(LOG_MODULE_APCLIENT, "dhcp option = %s, outout:%s, error:%s" %(cmd_str, output, error))
+            cmd_str = "uci commit"
+            subprocess_open(cmd_str)
+
+            pmr = PuciModuleRestart(None)
+            pmr._puci_container_module_restart("dnsmasq")
+
+        log_info(LOG_MODULE_APCLIENT, "dhcp option string '%s'" %option_str)
         return
 
 

@@ -15,10 +15,10 @@ file(APCLIENT_PID_PATH, 'w').write(pid)
 
 log_info (LOG_MODULE_APCLIENT, '----- Start Client Command Application  ----')
 
+ClientInitialize()
+
 if not os.path.exists(PROVISIONING_DONE_FILE):
     register_device_info()
-
-ClientInitialize()
 
 '''
  Main Loop
