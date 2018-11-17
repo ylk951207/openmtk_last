@@ -121,3 +121,6 @@ UCI_DHCP_V6POOL_STR = "v6Settings"
 
 DHCP_LEASE_FILE="/tmp/dhcp.leases"
 DHCP_RESOLV_AUTO_CONFIG_FILE="/tmp/resolv.conf.auto"
+
+LAN_DNS_SERVER_KEY = "lanDnsServer"
+WAN_DNS_SERVER_KEY = "wanDnsServer"

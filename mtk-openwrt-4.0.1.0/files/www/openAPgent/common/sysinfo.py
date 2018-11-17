@@ -17,11 +17,11 @@ LOG_MODULE_SYSINFO="sysinfo"
 '''
 From left to right near wan port
 '''
-PORT_LAN_1_IDX = 0
-PORT_LAN_2_IDX = 1
-PORT_LAN_3_IDX = 2
-PORT_LAN_4_IDX = 3
-PORT_WAN_IDX = 4
+PORT_WAN_IDX = 0
+PORT_LAN_1_IDX = 1
+PORT_LAN_2_IDX = 2
+PORT_LAN_3_IDX = 3
+PORT_LAN_4_IDX = 4
 
 lan_port_idx_list = [PORT_LAN_1_IDX, PORT_LAN_2_IDX, PORT_LAN_3_IDX, PORT_LAN_4_IDX]
 

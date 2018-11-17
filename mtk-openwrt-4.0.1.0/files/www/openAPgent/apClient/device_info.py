@@ -49,19 +49,28 @@ def register_device_info():
     '''
 
 
-def send_ip_address_change_notification(ifname):
+def send_ip_address_change_notification(ifname, addr):
     noti_req = APgentSendNotification()
 
-    self.response['ifname'] = ifname
+    if ifname == 'eth0' or ifname == 'br-lan':
+        noti_req.response['ifname'] = 'lan'
+    elif ifname == 'eth1':
+        noti_req.response['ifname'] = 'wan'
+    else:
+        return
 
     iflist = [ifname]
     ni_addrs = DeviceNetifacesInfo(iflist)
 
-    self.response['ipv4Address'] = ni_addrs.get_ipv4_addr(ifname)
-    self.response['ipv4Netmask'] = ni_addrs.get_ipv4_netmask(ifname)
+    noti_req.response['ipv4Address'] = ni_addrs.get_ipv4_addr(ifname)
+    noti_req.response['ipv4Netmask'] = ni_addrs.get_ipv4_netmask(ifname)
 
     device_identify = dict()
     device_identify['serialNumber'] = device_info_get_serial_num()
     noti_req.response['deviceIdentity'] = device_identify
+
+
+    dns_data = device_info_get_dns_server(ifname)
+    noti_req.response['dnsServer'] = dns_data[ifname]
 
     noti_req.send_notification(CAPC_NOTIFICATION_ADDRESS_CHANGE_URL)

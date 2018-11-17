@@ -8,7 +8,7 @@ from common.sysinfo import *
 from apClient.docker_proc import *
 from apClient.puci_proc import *
 from apClient.wifi_proc import *
-
+from apClient.device_info import send_ip_address_change_notification
 
 
 class CommandSocket():
@@ -39,9 +39,18 @@ class ClientCmdApp():
             data = sock.recv(MAX_SOCK_MSG_LENGTH)
 
             if data:
-                log_info(LOG_MODULE_APCLIENT, 'data:', data, 'len:', len(data))
+                if 'netmgr' in data:
+                    log_info(LOG_MODULE_APCLIENT, 'Recv message: ' + str(data))
+                    data = data.strip("netmgrd:")
+                    data=data.split()
+                    send_ip_address_change_notification(data[0], data[1])
+                    log_info(LOG_MODULE_APCLIENT, '---- Socket close ----')
+                    sock.close()
+                    continue
+
                 data = eval(data)
                 command = data['command']
+                log_info(LOG_MODULE_APCLIENT, "command: " + str(command) + ", data : " + str(data) + "len: " + str(len))
 
                 if command == SAL_PROVISIONING_DONE:
                     system_provisioning_done_proc()
@@ -53,6 +62,8 @@ class ClientCmdApp():
                     wifi_module_restart_proc(data['body'])
                 elif command == SAL_SYSTEM_REBOOT:
                     system_reboot_proc(data['body'])
+                else:
+                    log_info(LOG_MODULE_APCLIENT, 'Unknown command ' + str(command))
 
             log_info(LOG_MODULE_APCLIENT, '---- Socket close ----')
             sock.close()
@@ -102,6 +113,43 @@ def system_reboot_proc(request):
     delay = request['delay']
 
     cmd_str = "reboot -d %d" % delay
-    subprocess_open(cmd_str)
+    output, error = subprocess_open(cmd_str)
 
-    log_info(LOG_MODULE_APCLIENT, "** System Reboot Done **")
+    log_info(LOG_MODULE_APCLIENT, "** System Reboot Done (output:%s, error:%s)**" %(output, error))
+
+
+class ClientInitialize():
+    def __init__(self):
+        self.lan_dns_server_init()
+
+    def lan_dns_server_init(self):
+        dns_data = device_info_get_dns_server(None)
+
+        # Check LAN dhcp option
+        output, error = subprocess_open("uci show dhcp.lan.dhcp_option")
+        if 'dhcp.lan.dhcp_option' in output:
+            # Already exist
+            return
+
+        dns_list = dns_data[WAN_DNS_SERVER_KEY]
+        option_list = []
+        if len(dns_list) > 0:
+            option_str = "6"
+            for dns_server in dns_list:
+                if dns_server in option_str:
+                    continue
+                option_str = option_str + "," + dns_server
+            if "," in option_str:
+                option_list.append(option_str)
+
+        cmd_str = "uci set dhcp.lan.dhcp_option='%s'" %str(option_list)
+
+        output, error = subprocess_open(cmd_str)
+        log_info(LOG_MODULE_APCLIENT, "dhcp option = %s, outout:%s, error:%s" %(cmd_str, output, error))
+        return
+
+
+
+
+
+

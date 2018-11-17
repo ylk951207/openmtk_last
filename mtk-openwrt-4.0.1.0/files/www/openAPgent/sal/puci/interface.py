@@ -15,8 +15,7 @@ UCI_INTERFACE_STR='interface'
 UCI_INTERFACE_V4ADDR_STR='v4Addr'
 UCI_INTERFACE_V6ADDR_STR='v6Addr'
 
-LAN_DNS_SERVER_KEY = "lanDnsServer"
-WAN_DNS_SERVER_KEY = "wanDnsServer"
+
 
 
 def interface_puci_module_restart(ifname):
@@ -260,8 +259,11 @@ def interface_config_update_dhcp_config(req_dns_data):
         if len(req_dns_data[LAN_DNS_SERVER_KEY]) > 0:
             dns_list = req_dns_data[LAN_DNS_SERVER_KEY]
 
+    '''
+    If LAN config doesn't include dns server, apply WAN dns servers.
+    '''
     if len(dns_list) <= 0:
-        dns_list = dns_data[LAN_DNS_SERVER_KEY]
+        dns_list = dns_data[WAN_DNS_SERVER_KEY]
 
     option_list = []
     if len(dns_list) > 0:
