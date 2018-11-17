@@ -255,6 +255,9 @@ def dhcp_pool_config_uci_set(req_data, ifname):
     if uci_config.section_map == None:
         return response_make_simple_error_body(500, "Not found UCI config", None)
 
+    if not req_data['dhcpOptions']:
+        del req_data['dhcpOptions']
+
     uci_config.set_uci_config(req_data)
 
 def dhcp_pool_v6pool_config_uci_get(ifname, dhcp_data):
