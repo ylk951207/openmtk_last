@@ -19,7 +19,7 @@ define Package/makeContainer
   CATEGORY:=Withus Planet Properties
   TITLE:=makeContainer
   SUBMENU:=Applications
-  DEPENDS:=+libcap +libpthread
+  DEPENDS:=+libcap +libpthread +libnettle
 endef
 
 define Package/makeContainer/description
