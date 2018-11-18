@@ -308,6 +308,39 @@ def device_info_get_dns_server(ifname):
 	return dns_data
 
 
+def device_update_lan_dns_server(self):
+	option_str = ""
+	dns_data = device_info_get_dns_server(None)
+
+	# Check LAN dhcp option
+	output, error = subprocess_open("uci show dhcp.lan.dhcp_option")
+	if 'dhcp.lan.dhcp_option' in output:
+		# Already exist
+		log_info(LOG_MODULE_APCLIENT, "dhcp option already exist")
+		return
+
+	dns_list = dns_data[WAN_DNS_SERVER_KEY]
+	if len(dns_list) > 0:
+		option_str = "6"
+		for dns_server in dns_list:
+			if dns_server in option_str:
+				continue
+			option_str = option_str + "," + dns_server
+
+	if len(option_str):
+		cmd_str = "uci set dhcp.lan.dhcp_option='%s'" % str(option_str)
+		output, error = subprocess_open(cmd_str)
+		log_info(LOG_MODULE_APCLIENT, "dhcp option = %s, outout:%s, error:%s" % (cmd_str, output, error))
+
+		cmd_str = "uci commit"
+		subprocess_open(cmd_str)
+
+		pmr = PuciModuleRestart(None)
+		pmr._puci_container_module_restart("dnsmasq", True)
+
+	log_info(LOG_MODULE_APCLIENT, "dhcp option string '%s'" % option_str)
+	return
+
 '''
 Hardware Information Class
 '''
