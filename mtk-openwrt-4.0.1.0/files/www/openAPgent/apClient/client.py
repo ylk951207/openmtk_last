@@ -8,7 +8,7 @@ from common.sysinfo import *
 from apClient.docker_proc import *
 from apClient.puci_proc import *
 from apClient.wifi_proc import *
-from apClient.device_info import send_ip_address_change_notification
+#from apClient.device_info import send_ip_address_change_notification
 
 
 class CommandSocket():
@@ -39,6 +39,7 @@ class ClientCmdApp():
             data = sock.recv(MAX_SOCK_MSG_LENGTH)
 
             if data:
+                '''
                 if 'netmgr' in data:
                     log_info(LOG_MODULE_APCLIENT, 'Recv message: ' + str(data))
                     data = data.split(":")[1]
@@ -47,6 +48,7 @@ class ClientCmdApp():
                     log_info(LOG_MODULE_APCLIENT, '---- Socket close ----')
                     sock.close()
                     continue
+                '''
 
                 data = eval(data)
                 command = data['command']

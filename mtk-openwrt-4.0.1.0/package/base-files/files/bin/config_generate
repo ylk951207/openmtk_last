@@ -235,6 +235,11 @@ generate_static_system() {
 		set system.@system[-1].ttylogin='0'
 		set system.@system[-1].log_size='64'
 		set system.@system[-1].urandom_seed='0'
+#if 1 /* [2018.11.17 hepark] */
+		set system.@system[-1].log_file='/var/log/messages'
+		set system.@system[-1].log_size='64'
+		set system.@system[-1].conloglevel='7'
+#endif
 
 		delete system.ntp
 		set system.ntp='timeserver'

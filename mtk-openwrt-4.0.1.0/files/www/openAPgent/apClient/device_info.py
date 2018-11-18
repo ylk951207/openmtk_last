@@ -48,7 +48,7 @@ def register_device_info():
         puci_provisioning_done_file_create()
     '''
 
-
+'''
 def send_ip_address_change_notification(ifname, addr):
     noti_req = APgentSendNotification()
 
@@ -74,3 +74,5 @@ def send_ip_address_change_notification(ifname, addr):
     noti_req.response['dnsServer'] = dns_data[ifname]
 
     noti_req.send_notification(CAPC_NOTIFICATION_ADDRESS_CHANGE_URL)
+'''
+
