@@ -12,6 +12,10 @@ LOG_MODULE_MISC="misc"
 '''
 Command Execution Functions
 '''
+
+def subprocess_open_nonblock(command):
+	return subprocess.Popen(shlex.split(command))
+
 def subprocess_open(command):
 	popen = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 	(stdoutdata, stderrdata) = popen.communicate()

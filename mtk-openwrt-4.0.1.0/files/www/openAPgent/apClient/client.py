@@ -82,8 +82,8 @@ def system_provisioning_done_proc():
     pmr._puci_default_module_restart("system")
     pmr._puci_default_module_restart("firewall")
 
-    pmr._puci_container_module_restart("snmpd")
-    pmr._puci_container_module_restart("dnsmasq")
+    pmr._puci_container_module_restart("snmpd", False)
+    pmr._puci_container_module_restart("dnsmasq", False)
 
     wifi_module_reload_all_devices()
 
@@ -152,7 +152,7 @@ class ClientInitialize():
             subprocess_open(cmd_str)
 
             pmr = PuciModuleRestart(None)
-            pmr._puci_container_module_restart("dnsmasq")
+            pmr._puci_container_module_restart("dnsmasq", True)
 
         log_info(LOG_MODULE_APCLIENT, "dhcp option string '%s'" %option_str)
         return

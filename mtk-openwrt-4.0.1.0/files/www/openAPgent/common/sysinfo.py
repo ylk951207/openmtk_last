@@ -534,7 +534,7 @@ class WirelessStation(object):
 		self.make_wireless_station_data_file(ifname, file_name)
 
 		if not os.path.exists(file_name):
-			log_info(LOG_MODULE_SYSINFO, "Not exist file name(%s)" %file_name)
+			log_debug(LOG_MODULE_SYSINFO, "Not exist file name(%s)" %file_name)
 			return list_data
 
 		with open(file_name, 'r') as rfile:

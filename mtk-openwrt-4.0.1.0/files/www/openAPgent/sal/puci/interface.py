@@ -17,17 +17,10 @@ UCI_INTERFACE_V6ADDR_STR='v6Addr'
 
 
 
-
-def interface_puci_module_restart(ifname):
+def interface_puci_module_restart(iflist):
     noti_data = dict()
     noti_data['config_file'] = UCI_NETWORK_FILE
-    noti_data['ifname'] = ifname
-    puci_send_message_to_apnotifier(SAL_PUCI_MODULE_RESTART, noti_data)
-
-def dhcp_puci_module_restart():
-    noti_data = dict()
-    noti_data['config_file'] = UCI_DHCP_CONFIG_FILE
-    noti_data['container_name'] = "dnsmasq"
+    noti_data['iflist'] = iflist
     puci_send_message_to_apnotifier(SAL_PUCI_MODULE_RESTART, noti_data)
 
 
@@ -96,6 +89,7 @@ def puci_interface_config_detail_update(request, ifname):
 def interface_config_common_set(request):
     interface_list = request[UCI_INTERFACE_LIST_STR]
     req_dns_data = dict()
+    iflist = list()
 
     while len(interface_list) > 0:
         ifdata = interface_list.pop(0)
@@ -108,11 +102,13 @@ def interface_config_common_set(request):
         interface_config_common_uci_set(ifdata, ifname)
         if UCI_INTERFACE_V4ADDR_STR in ifdata:
             interface_config_v4addr_uci_set(ifdata[UCI_INTERFACE_V4ADDR_STR], ifname)
-
-        interface_puci_module_restart(ifname)
+        iflist.append(ifname)
 
     # To return current dns server
     interface_config_update_dhcp_config(req_dns_data)
+
+    interface_puci_module_restart(iflist)
+
 
     data = {
         'header' : {
@@ -137,10 +133,10 @@ def interface_config_common_detail_set(request, ifname):
     if UCI_INTERFACE_V4ADDR_STR in request:
         interface_config_v4addr_uci_set(request[UCI_INTERFACE_V4ADDR_STR], ifname)
 
-    interface_puci_module_restart(ifname)
-
     # To return current dns server
     interface_config_update_dhcp_config(req_dns_data)
+
+    interface_puci_module_restart([ifname])
 
     data = {
         'header' : {
@@ -210,6 +206,7 @@ def interface_config_v4addr_set(request, ifname):
 
     # To return current dns server
     interface_config_update_dhcp_config(req_dns_data)
+    interface_puci_module_restart([ifname])
 
     data = {
         'header' : {
@@ -281,7 +278,6 @@ def interface_config_update_dhcp_config(req_dns_data):
     if uci_config.section_map != None:
         uci_config.set_uci_config(dhcp_option)
 
-    dhcp_puci_module_restart()
 
 def interface_config_get_request_dns_data(ifname, req_v4addr):
     req_dns_data = dict()
