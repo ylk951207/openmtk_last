@@ -98,15 +98,18 @@ if __name__ == '__main__':
 
 	wifi24LEDProc = Process(target=wifi24_led) 
 	wifi24LEDProc.daemon=True
-	wifi24LEDProc.start()
-	wifi24LEDProc.join()
 
 	wifi50LEDProc = Process(target=wifi50_led) 
 	wifi50LEDProc.daemon=True
-	wifi50LEDProc.start()
-	wifi50LEDProc.join()
 
 	systemLEDProc = Process(target=system_led) 
 	systemLEDProc.daemon=True
+
+	wifi24LEDProc.start()
+	wifi50LEDProc.start()
 	systemLEDProc.start()
+
+	wifi24LEDProc.join()
+	wifi50LEDProc.join()
 	systemLEDProc.join()
+
