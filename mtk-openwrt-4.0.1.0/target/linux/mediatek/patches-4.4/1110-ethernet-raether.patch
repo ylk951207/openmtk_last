@@ -7,12 +7,12 @@ diff -urN a/drivers/net/ethernet/raeth/raether.c b/drivers/net/ethernet/raeth/ra
  		sw_ioctl(&ioctl_data);
 +
 +#if 1		/* [2018.10.11 hepark] */
-+		printk ("%s: ioctl_data link: %d, speed %d, duplex %d\n",
-+						__func__, ioctl_data.link_status, ioctl_data.speed, ioctl_data.duplex);
++		//printk ("%s: ioctl_data link: %d, speed %d, duplex %d\n",
++		//				__func__, ioctl_data.link_status, ioctl_data.speed, ioctl_data.duplex);
 +		ret = copy_to_user(ifr->ifr_data, &ioctl_data, sizeof(ioctl_data));
 +		if (ret < 0)
 +			printk ("copy_to_user() failed\n");
-+		printk ("copy_to_user() success\n");
++		//printk ("copy_to_user() success\n");
 +#endif
  		break;
  
@@ -46,7 +46,7 @@ diff -urN a/drivers/net/ethernet/raeth/rtl8367c/rtk_hal.c b/drivers/net/ethernet
 +		data->speed = GET_SPEED_MBYTES(speed);
 +		data->duplex = duplex;
 +	}
-+	printk ("link_status %d, speed %d, duplex %d\n", data->link_status, data->speed, data->duplex);
++	//printk ("link_status %d, speed %d, duplex %d\n", data->link_status, data->speed, data->duplex);
 +#endif
  }
  
