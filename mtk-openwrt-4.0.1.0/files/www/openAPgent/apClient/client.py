@@ -4,10 +4,9 @@ import socket
 from common.env import *
 from common.misc import *
 from common.sysinfo import *
+from common.module_restart import *
 
 from apClient.docker_proc import *
-from apClient.puci_proc import *
-from apClient.wifi_proc import *
 #from apClient.device_info import send_ip_address_change_notification
 
 

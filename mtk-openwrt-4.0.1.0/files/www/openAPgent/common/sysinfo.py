@@ -8,6 +8,8 @@ import libs._network as ln
 
 from common.env import *
 from common.misc import *
+from common.module_restart import *
+
 from conf.ap_device_config import *
 
 
@@ -308,7 +310,7 @@ def device_info_get_dns_server(ifname):
 	return dns_data
 
 
-def device_update_lan_dns_server(self):
+def device_update_lan_dns_server():
 	option_str = ""
 	dns_data = device_info_get_dns_server(None)
 
