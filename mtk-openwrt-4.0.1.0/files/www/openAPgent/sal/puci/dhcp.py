@@ -8,7 +8,6 @@ from common.misc import *
 from common.sysinfo import *
 from common.message import *
 
-
 MAX_RETRY_COUNT = 3
 
 

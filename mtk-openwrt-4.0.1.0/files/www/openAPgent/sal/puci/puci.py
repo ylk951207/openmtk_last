@@ -41,6 +41,13 @@ def puci_send_message_to_apnotifier(command, noti_data):
     else:
         log_info(LOG_MODULE_PUCI, "Cannot find provisioining file(%s)" %PROVISIONING_DONE_FILE)
 
+
+def puci_execute_module_restart(command, noti_data):
+    cmd_str = "cd /www/openAPgent; python -m utils/ap_module_restart %d '%s'" %(command, str(noti_data))
+    log_info(LOG_MODULE_PUCI, "Exeute command: %s" %cmd_str)
+    subprocess_open_nonblock(cmd_str)
+    log_info(LOG_MODULE_PUCI, "command: done")
+
 #
 # TODO: Detail error handling 
 #

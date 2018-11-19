@@ -14,7 +14,10 @@ Command Execution Functions
 '''
 
 def subprocess_open_nonblock(command):
-	return subprocess.Popen(shlex.split(command))
+	try:
+		subprocess.Popen(shlex.split(command))
+	except Exception as e:
+		log_info ("MISC", "command error: %s" %str(e))
 
 def subprocess_open(command):
 	popen = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)

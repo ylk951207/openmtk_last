@@ -21,6 +21,7 @@ def interface_puci_module_restart(iflist):
     noti_data = dict()
     noti_data['config_file'] = UCI_NETWORK_FILE
     noti_data['iflist'] = iflist
+    #puci_execute_module_restart (SAL_PUCI_MODULE_RESTART, noti_data)
     puci_send_message_to_apnotifier(SAL_PUCI_MODULE_RESTART, noti_data)
 
 '''
@@ -107,11 +108,16 @@ def interface_config_common_set(request):
             interface_config_v4addr_uci_set(ifdata[UCI_INTERFACE_V4ADDR_STR], ifname)
         iflist.append(ifname)
 
-    # To return current dns server
-    interface_config_update_dhcp_config(req_dns_data, wan_static)
+    # Get dns server to be updated
+    restart_flag = interface_config_update_dhcp_config(req_dns_data, wan_static)
 
-    interface_puci_module_restart(iflist)
+    # Restart the module, if interface is lan or dns server is changed.
+    # If lan's address/netmask is changed, it is needed to update dhcp range also.
+    if ifname == 'lan':
+        restart_flag = True
 
+    if restart_flag == True:
+        interface_puci_module_restart(iflist)
 
     data = {
         'header' : {
@@ -140,10 +146,16 @@ def interface_config_common_detail_set(request, ifname):
     if ifname == 'wan' and request['protocol'] == 'static':
         wan_static = True
 
-    # To return current dns server
-    interface_config_update_dhcp_config(req_dns_data, wan_static)
+    # Get dns server to be updated
+    restart_flag = interface_config_update_dhcp_config(req_dns_data, wan_static)
 
-    interface_puci_module_restart([ifname])
+    # Restart the module, if interface is lan or dns server is changed.
+    # If lan's address/netmask is changed, it is needed to update dhcp range also.
+    if ifname == 'lan':
+        restart_flag = True
+
+    if restart_flag == True:
+        interface_puci_module_restart([ifname])
 
     data = {
         'header' : {
@@ -212,9 +224,20 @@ def interface_config_v4addr_set(request, ifname):
     if error_msg:
         return error_msg
 
-    # To return current dns server
-    interface_config_update_dhcp_config(req_dns_data, True)
-    interface_puci_module_restart([ifname])
+    wan_static = False
+    if ifname == 'wan':
+        wan_static = True
+
+    # Get dns server to be updated
+    restart_flag = interface_config_update_dhcp_config(req_dns_data, wan_static)
+
+    # Restart the module, if interface is lan or dns server is changed.
+    # If lan's address/netmask is changed, it is needed to update dhcp range also.
+    if ifname == 'lan':
+        restart_flag = True
+
+    if restart_flag == True:
+        interface_puci_module_restart([ifname])
 
     data = {
         'header' : {
@@ -264,6 +287,9 @@ def interface_config_update_dhcp_config(req_dns_data, wan_static):
         if len(req_dns_data[LAN_DNS_SERVER_KEY]) > 0:
             dns_list = req_dns_data[LAN_DNS_SERVER_KEY]
 
+    if len(dns_list) < 0:
+        dns_list = dns_data[LAN_DNS_SERVER_KEY]
+
     '''
     If LAN config doesn't include dns server, apply WAN dns servers.
     '''
@@ -284,11 +310,26 @@ def interface_config_update_dhcp_config(req_dns_data, wan_static):
         if "," in option_str:
             option_list.append(option_str)
 
-    dhcp_option = {'dhcpOptions' : option_list}
+    changed = True
+    output, error = subprocess_open("uci show dhcp.lan.dhcp_option")
+    if 'dhcp.lan.dhcp_option' in output:
+        output = output.strip("=")
+        output = output.strip().strip("'")
+        if len(option_list) > 0 and output == option_list[0]:
+            changed = False
+    else:
+        if len(option_list) == 0:
+            changed = False
 
-    uci_config = ConfigUCI(UCI_DHCP_CONFIG_FILE, UCI_DHCP_INTERFACE_POOL_CONFIG, 'lan')
-    if uci_config.section_map != None:
-        uci_config.set_uci_config(dhcp_option)
+    log_info(UCI_NETWORK_FILE, "dhcp changed : " + str(changed))
+
+    if changed == True:
+        dhcp_option = {'dhcpOptions' : option_list}
+        uci_config = ConfigUCI(UCI_DHCP_CONFIG_FILE, UCI_DHCP_INTERFACE_POOL_CONFIG, 'lan')
+        if uci_config.section_map != None:
+            uci_config.set_uci_config(dhcp_option)
+
+    return changed
 
 
 def interface_config_get_request_dns_data(ifname, req_v4addr, protocol):
