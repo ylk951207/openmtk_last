@@ -23,7 +23,6 @@ def interface_puci_module_restart(iflist):
     noti_data['iflist'] = iflist
     puci_send_message_to_apnotifier(SAL_PUCI_MODULE_RESTART, noti_data)
 
-
 '''
 InterfaceConfig
 '''
@@ -90,14 +89,18 @@ def interface_config_common_set(request):
     interface_list = request[UCI_INTERFACE_LIST_STR]
     req_dns_data = dict()
     iflist = list()
+    wan_static = False
 
     while len(interface_list) > 0:
         ifdata = interface_list.pop(0)
         ifname = ifdata['ifname']
 
-        req_dns_data = interface_config_get_request_dns_data(ifname, ifdata['v4Addr'])
+        req_dns_data = interface_config_get_request_dns_data(ifname, ifdata['v4Addr'], ifdata['protocol'])
         if req_dns_data:
             ifdata['v4Addr']['dnsServer'].reverse()
+
+        if ifname == 'wan' and ifdata['protocol'] == 'static':
+            wan_static = True
 
         interface_config_common_uci_set(ifdata, ifname)
         if UCI_INTERFACE_V4ADDR_STR in ifdata:
@@ -105,7 +108,7 @@ def interface_config_common_set(request):
         iflist.append(ifname)
 
     # To return current dns server
-    interface_config_update_dhcp_config(req_dns_data)
+    interface_config_update_dhcp_config(req_dns_data, wan_static)
 
     interface_puci_module_restart(iflist)
 
@@ -125,7 +128,7 @@ def interface_config_common_detail_set(request, ifname):
 
     log_info(UCI_NETWORK_FILE, "ifname[%s]" %ifname)
 
-    req_dns_data = interface_config_get_request_dns_data(ifname, request['v4Addr'])
+    req_dns_data = interface_config_get_request_dns_data(ifname, request['v4Addr'], request['protocol'])
     if req_dns_data:
         request['v4Addr']['dnsServer'].reverse()
 
@@ -133,8 +136,12 @@ def interface_config_common_detail_set(request, ifname):
     if UCI_INTERFACE_V4ADDR_STR in request:
         interface_config_v4addr_uci_set(request[UCI_INTERFACE_V4ADDR_STR], ifname)
 
+    wan_static = False
+    if ifname == 'wan' and request['protocol'] == 'static':
+        wan_static = True
+
     # To return current dns server
-    interface_config_update_dhcp_config(req_dns_data)
+    interface_config_update_dhcp_config(req_dns_data, wan_static)
 
     interface_puci_module_restart([ifname])
 
@@ -196,7 +203,8 @@ def interface_config_v4addr_set(request, ifname):
     if not ifname:
         return response_make_simple_error_body(500, "Not found interface name", None)
 
-    req_dns_data = interface_config_get_request_dns_data(ifname, request)
+    # TODO: If 'proto' config isn't 'static', return with error
+    req_dns_data = interface_config_get_request_dns_data(ifname, request, 'static')
     if req_dns_data:
         request['dnsServer'].reverse()
 
@@ -205,7 +213,7 @@ def interface_config_v4addr_set(request, ifname):
         return error_msg
 
     # To return current dns server
-    interface_config_update_dhcp_config(req_dns_data)
+    interface_config_update_dhcp_config(req_dns_data, True)
     interface_puci_module_restart([ifname])
 
     data = {
@@ -247,7 +255,7 @@ def interface_config_v4addr_uci_set(req_data, ifname):
 '''
 If dnsServer is changed, Update /etc/config/dhcp
 '''
-def interface_config_update_dhcp_config(req_dns_data):
+def interface_config_update_dhcp_config(req_dns_data, wan_static):
     dns_list = list()
     # Get dns server
     dns_data = device_info_get_dns_server(None)
@@ -260,7 +268,11 @@ def interface_config_update_dhcp_config(req_dns_data):
     If LAN config doesn't include dns server, apply WAN dns servers.
     '''
     if len(dns_list) <= 0:
-        dns_list = dns_data[WAN_DNS_SERVER_KEY]
+        if wan_static == True:
+            if req_dns_data and WAN_DNS_SERVER_KEY in req_dns_data:
+                dns_list = req_dns_data[WAN_DNS_SERVER_KEY]
+        else:
+            dns_list = dns_data[WAN_DNS_SERVER_KEY]
 
     option_list = []
     if len(dns_list) > 0:
@@ -279,22 +291,24 @@ def interface_config_update_dhcp_config(req_dns_data):
         uci_config.set_uci_config(dhcp_option)
 
 
-def interface_config_get_request_dns_data(ifname, req_v4addr):
+def interface_config_get_request_dns_data(ifname, req_v4addr, protocol):
     req_dns_data = dict()
 
     '''
     LAN interface only can support manual DNS configuration. 
     '''
-    if ifname != 'lan':
-        return None
+    if ifname == 'wan' and protocol == 'static':
+        if req_v4addr['dnsServer'] and len(req_v4addr['dnsServer']) > 0 :
+            req_dns_data[WAN_DNS_SERVER_KEY] = req_v4addr['dnsServer']
+            return req_dns_data
+    elif ifname == 'lan':
+        if not req_v4addr['dnsServer']:
+            return None
 
-    if not req_v4addr['dnsServer']:
-        return None
-
-    # copy original data, because req_data will be modified..
-    if len(req_v4addr['dnsServer']) > 0:
-        req_dns_data[LAN_DNS_SERVER_KEY] = list(req_v4addr['dnsServer'])
-        return req_dns_data
+        # copy original data, because req_data will be modified..
+        if len(req_v4addr['dnsServer']) > 0:
+            req_dns_data[LAN_DNS_SERVER_KEY] = list(req_v4addr['dnsServer'])
+            return req_dns_data
 
     return None
 

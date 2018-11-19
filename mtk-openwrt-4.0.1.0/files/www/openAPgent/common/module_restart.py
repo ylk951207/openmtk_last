@@ -102,6 +102,8 @@ class PuciModuleRestart(object):
                 log_error(LOG_MODULE_SERVICE, "*** docker  container get() error ***")
                 log_error(LOG_MODULE_SERVICE, "*** error: " + str(e))
                 continue
+            except:
+                log_error(LOG_MODULE_SERVICE, "*** unknown error **")
 
             log_info(LOG_MODULE_SERVICE, "container_status: " + str(container.status))
             if container.status != "running":
@@ -113,6 +115,8 @@ class PuciModuleRestart(object):
         except docker.errors.DockerException as e:
             log_error(LOG_MODULE_SERVICE, "*** docker  container restart() error ***")
             log_error(LOG_MODULE_SERVICE, "*** error: " + str(e))
+        except :
+            log_error(LOG_MODULE_SERVICE, "*** unknown error **")
 
     def _puci_container_module_restart(self, container_name, wifi_restart):
         log_info(LOG_MODULE_SERVICE, "<'%s' container restart>" %container_name)

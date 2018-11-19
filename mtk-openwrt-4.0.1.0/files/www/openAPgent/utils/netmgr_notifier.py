@@ -2,7 +2,7 @@ import sys
 from common.env import *
 from common.misc import *
 from common.message import *
-from common.sysinfo import device_update_lan_dns_server
+from common.sysinfo import *
 
 LOG_MODULE_NETMGR = "netmgr"
 
