@@ -66,7 +66,7 @@ class ClientCmdApp():
                 else:
                     log_info(LOG_MODULE_APCLIENT, 'Unknown command ' + str(command))
 
-            log_info(LOG_MODULE_APCLIENT, '---- Socket close ----')
+            log_info(LOG_MODULE_APCLIENT, '---- apClient Socket close ----')
             sock.close()
 
 

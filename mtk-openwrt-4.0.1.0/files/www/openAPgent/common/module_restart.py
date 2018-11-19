@@ -3,7 +3,7 @@ import docker
 from common.env import *
 from common.misc import *
 from common.message import *
-
+from common.sysinfo import *
 
 
 class WifiModuleRestart(object):
@@ -83,6 +83,12 @@ class PuciModuleRestart(object):
         else:
             self.iflist = None
 
+        if 'dnsmasq_restart' in request.keys():
+            self.dnsmasq_restart =  request['dnsmasq_restart']
+        else:
+            # Default = True
+            self.dnsmasq_restart = True
+
     def _docker_container_get_by_prefix(self, name_prefix):
         cmd_str = "docker ps -a --filter 'name=" + name_prefix + "' | grep " + name_prefix + " | awk '{print $NF}'"
         output, error = subprocess_open(cmd_str)
@@ -161,7 +167,10 @@ class PuciModuleRestart(object):
             When interface config is changed, the related container must be restarted
             to apply interface config.
             '''
-            self._puci_container_module_restart("dnsmasq", True)
+            log_info(LOG_MODULE_SERVICE, 'dnsmasq_restart: ' + str(self.dnsmasq_restart))
+
+            if self.dnsmasq_restart == True:
+                self._puci_container_module_restart("dnsmasq", True)
         else:
             self._puci_default_module_restart(self.config_file)
         '''

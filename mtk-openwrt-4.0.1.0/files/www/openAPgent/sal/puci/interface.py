@@ -17,11 +17,11 @@ UCI_INTERFACE_V6ADDR_STR='v6Addr'
 
 
 
-def interface_puci_module_restart(iflist):
+def interface_puci_module_restart(iflist, dnsmasq_restart):
     noti_data = dict()
     noti_data['config_file'] = UCI_NETWORK_FILE
     noti_data['iflist'] = iflist
-    #puci_execute_module_restart (SAL_PUCI_MODULE_RESTART, noti_data)
+    noti_data['dnsmasq_restart'] = dnsmasq_restart
     puci_send_message_to_apnotifier(SAL_PUCI_MODULE_RESTART, noti_data)
 
 '''
@@ -109,15 +109,14 @@ def interface_config_common_set(request):
         iflist.append(ifname)
 
     # Get dns server to be updated
-    restart_flag = interface_config_update_dhcp_config(req_dns_data, wan_static)
+    dnsmasq_restart = interface_config_update_dhcp_config(req_dns_data, wan_static)
 
     # Restart the module, if interface is lan or dns server is changed.
     # If lan's address/netmask is changed, it is needed to update dhcp range also.
     if ifname == 'lan':
-        restart_flag = True
+        dnsmasq_restart = True
 
-    if restart_flag == True:
-        interface_puci_module_restart(iflist)
+    interface_puci_module_restart(iflist, dnsmasq_restart)
 
     data = {
         'header' : {
@@ -147,15 +146,14 @@ def interface_config_common_detail_set(request, ifname):
         wan_static = True
 
     # Get dns server to be updated
-    restart_flag = interface_config_update_dhcp_config(req_dns_data, wan_static)
+    dnsmasq_restart = interface_config_update_dhcp_config(req_dns_data, wan_static)
 
     # Restart the module, if interface is lan or dns server is changed.
     # If lan's address/netmask is changed, it is needed to update dhcp range also.
     if ifname == 'lan':
-        restart_flag = True
+        dnsmasq_restart = True
 
-    if restart_flag == True:
-        interface_puci_module_restart([ifname])
+    interface_puci_module_restart([ifname], dnsmasq_restart)
 
     data = {
         'header' : {
@@ -229,15 +227,14 @@ def interface_config_v4addr_set(request, ifname):
         wan_static = True
 
     # Get dns server to be updated
-    restart_flag = interface_config_update_dhcp_config(req_dns_data, wan_static)
+    dnsmasq_restart = interface_config_update_dhcp_config(req_dns_data, wan_static)
 
     # Restart the module, if interface is lan or dns server is changed.
     # If lan's address/netmask is changed, it is needed to update dhcp range also.
     if ifname == 'lan':
-        restart_flag = True
+        dnsmasq_restart = True
 
-    if restart_flag == True:
-        interface_puci_module_restart([ifname])
+    interface_puci_module_restart([ifname], dnsmasq_restart)
 
     data = {
         'header' : {
