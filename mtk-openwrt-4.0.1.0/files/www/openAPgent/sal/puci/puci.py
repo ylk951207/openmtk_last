@@ -53,6 +53,8 @@ def puci_execute_module_restart(command, noti_data):
 #
 class ConfigUCI:
     def __init__(self, config_file, config_name, *args):
+        if config_file == None:
+            return
         self.config_file = config_file
         self.config_name = config_name
         self.section_map = uci_get_section_map(config_name, *args)

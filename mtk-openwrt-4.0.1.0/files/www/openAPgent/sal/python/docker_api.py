@@ -456,11 +456,12 @@ class DockerContainerProc():
             'rollbackContainer' : ""
         }
 
+        lock = FileLock("container_lock", dir="/tmp")
+        lock.acquire()
+
+        req_num = len(self.req_container_list)
         while len(self.req_container_list) > 0:
             req_container = self.req_container_list.pop(0)
-
-            lock = FileLock("container_lock", dir="/tmp")
-            lock.acquire()
 
             prev_container = self._docker_get_previous_run_container(req_container['containerName'])
             image_name = _get_docker_image_name(req_container['imageName'], req_container['imageTag'],
@@ -498,11 +499,11 @@ class DockerContainerProc():
                 log_info(LOG_MODULE_DOCKER, "containers.run() success for %s" %image_name)
                 self._docker_container_iptables_proc(prev_container, dest_port_list, True)
 
-        if error == False:
+        if req_num > 0 and error == False:
             self._docker_container_remove_unused_container(prev_container, error, dest_port_list)
-        log_info(LOG_MODULE_DOCKER, "rollback data : " + str(resp_body))
 
         lock.release()
+        log_info(LOG_MODULE_DOCKER, "rollback data : " + str(resp_body))
 
         return self.response.make_response_body(resp_body)
 

@@ -30,14 +30,7 @@ def uci_get_section_map(config_name, *args):
         'loggingFilename'        :  [ CONFIG_TYPE_SCALAR  , 'system.@system[0].log_file'                 ,' ' ],
         'loggingOutputLevel'     :  [ CONFIG_TYPE_SCALAR  , 'system.@system[0].conloglevel'              ,' ' ],
         'loggingCronLogLevel'    :  [ CONFIG_TYPE_SCALAR  , 'system.@system[0].cronloglevel'             ,' ' ],
-      }
-      return section_map
-
-  if config_name == 'system_config_ntp':
-      section_map = {
-        'enableNtpClient'        :  [ CONFIG_TYPE_SCALAR  , ''                    ,' ' ],
-        'provideNtpServer'       :  [ CONFIG_TYPE_SCALAR  , ''                   ,' ' ],
-        'ntpServerCandidates'    :  [ CONFIG_TYPE_LIST    , 'chrony.@pool[0].hostname'                  ,' ' ],
+        'internal_logRemote'     :  [ CONFIG_TYPE_SCALAR  , 'system.@system[0].log_remote'               ,' ' ],
       }
       return section_map
 

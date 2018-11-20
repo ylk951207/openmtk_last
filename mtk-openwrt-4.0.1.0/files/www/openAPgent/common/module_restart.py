@@ -84,6 +84,7 @@ class PuciModuleRestart(object):
     def __init__(self, request):
         if not request : return
 
+        self.request = request
         self.config_file = request['config_file']
 
         if 'container_name' in request.keys():
@@ -187,9 +188,14 @@ class PuciModuleRestart(object):
         else:
             self._puci_default_module_restart(self.config_file)
 
-            if self.config_file == "system":
-                self.container_name = 'chrony'
-                self._puci_container_module_restart(self.container_name, False)
+            if self.config_file == "system" and 'modules' in self.request:
+                if 'ntp' in self.request['modules']:
+                    self.container_name = 'chrony'
+                    self._puci_container_module_restart(self.container_name, False)
+                if 'logging' in self.request['modules']:
+                    command = '/etc/init.d/log restart'
+                    subprocess_open_nonblock(command)
+                    log_info(LOG_MODULE_SERVICE, "** Execute command '%s'" % command)
 
 
 def puci_module_restart_proc(request):

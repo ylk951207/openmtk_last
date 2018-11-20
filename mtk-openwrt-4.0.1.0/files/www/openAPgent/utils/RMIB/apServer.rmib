@@ -206,12 +206,7 @@ DEFINE_FIELD_system_config_logging= {
     'loggingFilename'       : CONFIG_TYPE_SCALAR : 'system.@system[0].log_file'
     'loggingOutputLevel'    : CONFIG_TYPE_SCALAR : 'system.@system[0].conloglevel'
     'loggingCronLogLevel'   : CONFIG_TYPE_SCALAR : 'system.@system[0].cronloglevel'
-};
-
-DEFINE_FIELD_system_config_ntp= {
-    'enableNtpClient'       : CONFIG_TYPE_SCALAR : 'system.ntp.enabled'
-    'provideNtpServer'      : CONFIG_TYPE_SCALAR : 'system.ntp.enable_server'
-    'ntpServerCandidates'   : CONFIG_TYPE_LIST   : 'system.ntp.server'
+    'internal_logRemote'    : CONFIG_TYPE_SCALAR : 'system.@system[0].log_remote'
 };
 
 # args[0] is ifname(logical ifname)
