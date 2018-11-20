@@ -10,6 +10,8 @@ UCI_SYSTEM_CONFIG_COMMON_CONFIG = "system_config_common"
 UCI_SYSTEM_CONFIG_LOGGING_CONFIG = "system_config_logging"
 UCI_SYSTEM_CONFIG_NTP_CONFIG = "system_config_ntp"
 
+#If ntp is enable, but server doesn't exist, use the default hostname.
+NTP_SERVER_DEFAULT_HOSTNAME="2.openwrt.pool.ntp.org"
 
 def system_puci_module_restart():
     noti_data = dict()
@@ -96,6 +98,12 @@ def system_config_set(request):
         system_config_uci_set(UCI_SYSTEM_CONFIG_LOGGING_CONFIG, log_req)
 
     if 'ntp' in request.keys():
+        if request['ntp']['enableNtpClient'] == True:
+            if len(request['ntp']['ntpServerCandidates']) <= 0:
+                request['ntp']['ntpServerCandidates'] = [NTP_SERVER_DEFAULT_HOSTNAME]
+        else:
+            request['ntp']['ntpServerCandidates'] = None
+
         system_config_uci_set(UCI_SYSTEM_CONFIG_NTP_CONFIG, request['ntp'])
 
     system_puci_module_restart()
@@ -118,6 +126,12 @@ def system_config_detail_set(request, command):
         request = convert_set_system_logging_output_cron_data(request)
         system_config_uci_set(UCI_SYSTEM_CONFIG_LOGGING_CONFIG, request)
     elif command == 'ntp':
+        if request['enableNtpClient'] == True:
+            if not request['ntpServerCandidates'] or len(request['ntpServerCandidates']) <= 0:
+                request['ntpServerCandidates'] = [NTP_SERVER_DEFAULT_HOSTNAME]
+        else:
+            request['ntpServerCandidates'] = None
+
         system_config_uci_set(UCI_SYSTEM_CONFIG_NTP_CONFIG, request)
     else:
         return response_make_simple_error_body(500, "Not found command", None)
@@ -147,6 +161,15 @@ def system_config_uci_get(uci_file, system_data):
 
     for map_key, map_val in uci_config.section_map.items():
         system_data[map_key] = map_val[2]
+
+    if uci_file == UCI_SYSTEM_CONFIG_NTP_CONFIG:
+        system_data['provideNtpServer'] = False
+        if len(system_data['ntpServerCandidates']) > 0:
+            system_data['enableNtpClient'] = True
+            if NTP_SERVER_DEFAULT_HOSTNAME in system_data['ntpServerCandidates']:
+                system_data['ntpServerCandidates'] = []
+        else:
+            system_data['enableNtpClient'] = False
 
     return system_data
 

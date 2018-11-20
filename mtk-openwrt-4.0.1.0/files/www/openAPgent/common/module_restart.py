@@ -187,6 +187,10 @@ class PuciModuleRestart(object):
         else:
             self._puci_default_module_restart(self.config_file)
 
+            if self.config_file == "system":
+                self.container_name = 'chrony'
+                self._puci_container_module_restart(self.container_name, False)
+
 
 def puci_module_restart_proc(request):
     log_info(LOG_MODULE_SERVICE, 'Received message: request(%s)' % (str(request)))
