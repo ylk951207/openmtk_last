@@ -1,6 +1,8 @@
 #!/bin/sh
 /bin/cp -af /chrony.conf /etc/chrony/chrony.conf
-/bin/cp -af /chrony.config /etc/config/chrony
+if [ ! -e /etc/config/chrony ]; then
+	/bin/cp -af /chrony.config /etc/config/chrony
+fi
 /bin/cp -af /chronyc-* /usr/bin/chronyc
 /bin/cp -af /chronyd-* /usr/sbin/chronyd
 /chronyd.init start
