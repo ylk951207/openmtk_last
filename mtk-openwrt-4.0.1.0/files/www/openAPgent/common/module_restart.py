@@ -61,6 +61,7 @@ class WifiModuleRestart(object):
         else:
             if self.req_enable == True:
                 self._wifi_device_enable_proc(1)
+                self._wifi_module_reload()
 
 
 def wifi_module_reload_all_devices():
