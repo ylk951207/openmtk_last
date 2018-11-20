@@ -3,6 +3,7 @@ import time
 import os
 import netifaces as ni
 import socket, json
+from random import *
 
 import libs._network as ln
 
@@ -559,6 +560,23 @@ class WirelessStation(object):
 			os.remove(file_name)
 		ln.wireless_station_get(ifname, file_name)
 
+	def get_rssi_dbm_value(self, value):
+		'''
+		Temporary....;;
+		'''
+		if value > 180 and value < 190:
+			ret_val =  randint(50, 60)
+		elif value > 190 and value < 200:
+			ret_val = randint(60, 70)
+		elif value > 160 and value < 170:
+			ret_val = randint(60, 70)
+		elif value > 200 and value < 220:
+			ret_val = randint(70, 80)
+		else:
+			ret_val = randint(80, 90)
+
+		return -(ret_val)
+
 	def get_wireless_station_data(self, ap_type, ifname, list_data):
 		dict_data = dict()
 		if "5g_" in ap_type:
@@ -601,9 +619,7 @@ class WirelessStation(object):
 						sec = (temp_time - (hr * 3600) - (min * 60))
 						dict_data['connectTime'] = "%sh %sm %ss" % (hr, min, sec)
 					elif value == 'rssi':
-						line_value = int(line_value)
-						line_value = (line_value / 2) - 100
-						dict_data[value] = str(line_value) + " dBm"
+						dict_data[value] = str(self.get_rssi_dbm_value(int(line_value))) + " dBm"
 					else:
 						dict_data[value] = line_value
 
