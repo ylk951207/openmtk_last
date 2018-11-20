@@ -126,6 +126,8 @@ class ConfigUCI:
             # Update the requested SET Value to section_map
             if req_key in self.section_map:
                 map_val = self.section_map[req_key]
+                if not map_val[1]:
+                    continue
                 map_val[2] = self.convert_config_value(req_val)
                 if req_key != "macAddr":
                     map_val.append('section_map_value_updated')
