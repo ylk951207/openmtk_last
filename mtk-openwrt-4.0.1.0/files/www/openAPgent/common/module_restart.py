@@ -167,6 +167,12 @@ class PuciModuleRestart(object):
         subprocess_open_nonblock(command)
         log_info(LOG_MODULE_SERVICE, "** Execute command '%s'" %command)
 
+    def other_module_restart(self, name):
+        if name == 'logging':
+            command = '/etc/init.d/log restart'
+            subprocess_open_nonblock(command)
+            log_info(LOG_MODULE_SERVICE, "** Execute command '%s'" % command)
+
     def puci_module_restart(self):
         log_info(LOG_MODULE_SERVICE, "Restart UCI config module: " + self.config_file)
 
@@ -194,9 +200,7 @@ class PuciModuleRestart(object):
                     self.container_name = 'chrony'
                     self._puci_container_module_restart(self.container_name, False)
                 if 'logging' in self.request['modules']:
-                    command = '/etc/init.d/log restart'
-                    subprocess_open_nonblock(command)
-                    log_info(LOG_MODULE_SERVICE, "** Execute command '%s'" % command)
+                    self.other_module_restart(self.request['modules'])
 
 
 def puci_module_restart_proc(request):
