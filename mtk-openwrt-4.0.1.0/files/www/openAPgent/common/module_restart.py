@@ -123,6 +123,7 @@ class PuciModuleRestart(object):
                 continue
             except Exception as e:
                 log_info(LOG_MODULE_SERVICEMISC, "container.get: %s" % str(e))
+                continue
 
             log_info(LOG_MODULE_SERVICE, "container_status: " + str(container.status))
             if container.status != "running":

@@ -83,6 +83,7 @@ def system_provisioning_done_proc():
 
     pmr._puci_container_module_restart("snmpd", False)
     pmr._puci_container_module_restart("dnsmasq", False)
+    pmr._puci_container_module_restart("chrony", False)
 
     wifi_module_reload_all_devices()
 
