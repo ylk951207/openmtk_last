@@ -55,8 +55,10 @@ define Build/Compile
 endef
 
 define Package/iptables-mod-ndpi/install
+	$(INSTALL_DIR) $(1)/root
 	$(INSTALL_DIR) $(1)/usr/lib/iptables
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ndpi-netfilter/ipt/libxt_ndpi.so $(1)/usr/lib/iptables
+	$(INSTALL_BIN) ./files/run-ndpi_dev01.sh $(1)/root/.
 endef
 
 define KernelPackage/ipt-ndpi
