@@ -85,7 +85,6 @@ def puci_interface_config_detail_update(request, ifname):
     return interface_config_common_detail_set(request, ifname)
 
 
-
 def interface_config_common_set(request):
     interface_list = request[UCI_INTERFACE_LIST_STR]
     req_dns_data = dict()
@@ -96,9 +95,10 @@ def interface_config_common_set(request):
         ifdata = interface_list.pop(0)
         ifname = ifdata['ifname']
 
-        req_dns_data = interface_config_get_request_dns_data(ifname, ifdata['v4Addr'], ifdata['protocol'])
-        if req_dns_data:
+        ret_data = interface_config_get_request_dns_data(ifname, ifdata['v4Addr'], ifdata['protocol'])
+        if ret_data:
             ifdata['v4Addr']['dnsServer'].reverse()
+            req_dns_data.update(ret_data)
 
         if ifname == 'wan' and ifdata['protocol'] == 'static':
             wan_static = True
@@ -280,6 +280,8 @@ def interface_config_update_dhcp_config(req_dns_data, wan_static):
     # Get dns server
     dns_data = device_info_get_dns_server(None)
 
+    log_info(UCI_NETWORK_FILE, "wan_static: " + str(wan_static)  + ", Request DNS Server : " + str(req_dns_data))
+
     if req_dns_data and LAN_DNS_SERVER_KEY in req_dns_data:
         if len(req_dns_data[LAN_DNS_SERVER_KEY]) > 0:
             dns_list = req_dns_data[LAN_DNS_SERVER_KEY]
@@ -297,6 +299,7 @@ def interface_config_update_dhcp_config(req_dns_data, wan_static):
         else:
             dns_list = dns_data[WAN_DNS_SERVER_KEY]
 
+    log_info(UCI_NETWORK_FILE, "dns_list: " + str(dns_list))
     option_list = []
     if len(dns_list) > 0:
         option_str = "6"
@@ -318,7 +321,7 @@ def interface_config_update_dhcp_config(req_dns_data, wan_static):
         if len(option_list) == 0:
             changed = False
 
-    log_info(UCI_NETWORK_FILE, "dhcp changed : " + str(changed))
+    log_info(UCI_NETWORK_FILE, "dhcp changed : " + str(changed) + ", option_list: " + str(option_list))
 
     if changed == True:
         dhcp_option = {'dhcpOptions' : option_list}
@@ -337,7 +340,11 @@ def interface_config_get_request_dns_data(ifname, req_v4addr, protocol):
     '''
     if ifname == 'wan' and protocol == 'static':
         if req_v4addr['dnsServer'] and len(req_v4addr['dnsServer']) > 0 :
-            req_dns_data[WAN_DNS_SERVER_KEY] = req_v4addr['dnsServer']
+            req_dns_data[WAN_DNS_SERVER_KEY] = list()
+            for server in req_v4addr['dnsServer']:
+                if server.strip():
+                    req_dns_data[WAN_DNS_SERVER_KEY].append(server)
+            #req_dns_data[WAN_DNS_SERVER_KEY] = list(req_v4addr['dnsServer'])
             return req_dns_data
     elif ifname == 'lan':
         if not req_v4addr['dnsServer']:
@@ -345,7 +352,11 @@ def interface_config_get_request_dns_data(ifname, req_v4addr, protocol):
 
         # copy original data, because req_data will be modified..
         if len(req_v4addr['dnsServer']) > 0:
-            req_dns_data[LAN_DNS_SERVER_KEY] = list(req_v4addr['dnsServer'])
+            req_dns_data[LAN_DNS_SERVER_KEY] = list()
+            for server in req_v4addr['dnsServer']:
+                if server.strip():
+                    req_dns_data[LAN_DNS_SERVER_KEY].append(server)
+            #req_dns_data[LAN_DNS_SERVER_KEY] = list(req_v4addr['dnsServer'])
             return req_dns_data
 
     return None

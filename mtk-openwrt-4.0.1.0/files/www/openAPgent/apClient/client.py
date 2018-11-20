@@ -80,8 +80,9 @@ def system_provisioning_done_proc():
 
     pmr._puci_default_module_restart("system")
     pmr._puci_default_module_restart("firewall")
+    pmr.other_module_restart('logging')
 
-    pmr._puci_container_module_restart("snmpd", False)
+    pmr._puci_container_module_restart("net-snmp", False)
     pmr._puci_container_module_restart("dnsmasq", False)
     pmr._puci_container_module_restart("chrony", False)
 
