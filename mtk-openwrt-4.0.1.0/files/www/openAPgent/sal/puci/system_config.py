@@ -202,8 +202,13 @@ def system_config_ntp_uci_get (system_data):
 
 def system_config_ntp_set(request):
     if request['enableNtpClient'] == True:
-        if not request['ntpServerCandidates'] or len(request['ntpServerCandidates']) <= 0:
-            request['ntpServerCandidates'] = [NTP_SERVER_DEFAULT_HOSTNAME]
+        ntp_server_exist = False
+        if request['ntpServerCandidates']:
+            for server in request['ntpServerCandidates']:
+                if  server.strip():
+                    ntp_server_exist = True
+        if not ntp_server_exist:
+           request['ntpServerCandidates'] = [NTP_SERVER_DEFAULT_HOSTNAME]
     else:
         request['ntpServerCandidates'] = []
 
