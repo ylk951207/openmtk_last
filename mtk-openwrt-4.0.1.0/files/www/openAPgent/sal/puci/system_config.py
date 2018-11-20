@@ -5,6 +5,7 @@ from common.message import *
 
 
 UCI_SYSTEM_CONFIG_FILE = "system"
+UCI_CHRONY_CONFIG_FILE = "chrony"
 UCI_SYSTEM_CONFIG_COMMON_CONFIG = "system_config_common"
 UCI_SYSTEM_CONFIG_LOGGING_CONFIG = "system_config_logging"
 UCI_SYSTEM_CONFIG_NTP_CONFIG = "system_config_ntp"
@@ -134,7 +135,11 @@ def system_config_detail_set(request, command):
 
 
 def system_config_uci_get(uci_file, system_data):
-    uci_config = ConfigUCI(UCI_SYSTEM_CONFIG_FILE, uci_file)
+    if uci_file == UCI_SYSTEM_CONFIG_NTP_CONFIG:
+        uci_config = ConfigUCI(UCI_CHRONY_CONFIG_FILE, uci_file)
+    else:
+        uci_config = ConfigUCI(UCI_SYSTEM_CONFIG_FILE, uci_file)
+
     if uci_config.section_map == None:
         return response_make_simple_error_body(500, "Not found UCI config", None)
 
@@ -148,7 +153,10 @@ def system_config_uci_get(uci_file, system_data):
 
 def system_config_uci_set(uci_file, req_data):
     system_data = dict()
-    uci_config = ConfigUCI(UCI_SYSTEM_CONFIG_FILE, uci_file)
+    if uci_file == UCI_SYSTEM_CONFIG_NTP_CONFIG:
+        uci_config = ConfigUCI(UCI_CHRONY_CONFIG_FILE, uci_file)
+    else:
+        uci_config = ConfigUCI(UCI_SYSTEM_CONFIG_FILE, uci_file)
     if uci_config.section_map == None:
         return response_make_simple_error_body(500, "Not found UCI config", None)
 
@@ -160,7 +168,6 @@ def system_config_uci_set(uci_file, req_data):
             system_data[map_key] = map_val[2]
 
     return system_data
-
 
 
 def convert_set_system_logging_output_cron_data(log_req):

@@ -15,6 +15,9 @@ def py_provisioning_done_create(request):
     return response_make_simple_success_body(None)
 
 def py_keepalive_check_list():
+    if not os.path.exists(PROVISIONING_DONE_FILE):
+        response_make_simple_error_body(500, "Device Not Ready", None)
+
     return response_make_simple_success_body(None)
 
 

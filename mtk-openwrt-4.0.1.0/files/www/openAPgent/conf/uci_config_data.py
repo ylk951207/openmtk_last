@@ -35,9 +35,9 @@ def uci_get_section_map(config_name, *args):
 
   if config_name == 'system_config_ntp':
       section_map = {
-        'enableNtpClient'        :  [ CONFIG_TYPE_SCALAR  , 'system.ntp.enabled'                         ,' ' ],
-        'provideNtpServer'       :  [ CONFIG_TYPE_SCALAR  , 'system.ntp.enable_server'                   ,' ' ],
-        'ntpServerCandidates'    :  [ CONFIG_TYPE_LIST    , 'system.ntp.server'                          ,' ' ],
+        'enableNtpClient'        :  [ CONFIG_TYPE_SCALAR  , ''                    ,' ' ],
+        'provideNtpServer'       :  [ CONFIG_TYPE_SCALAR  , ''                   ,' ' ],
+        'ntpServerCandidates'    :  [ CONFIG_TYPE_LIST    , 'chrony.@pool[0].hostname'                  ,' ' ],
       }
       return section_map
 
