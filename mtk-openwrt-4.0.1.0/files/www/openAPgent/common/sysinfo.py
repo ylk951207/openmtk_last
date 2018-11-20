@@ -569,7 +569,7 @@ class WirelessStation(object):
 		elif value > 190 and value < 200:
 			ret_val = randint(60, 70)
 		elif value > 160 and value < 170:
-			ret_val = randint(60, 70)
+			ret_val = randint(50, 60)
 		elif value > 200 and value < 220:
 			ret_val = randint(70, 80)
 		else:

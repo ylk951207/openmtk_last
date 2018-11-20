@@ -201,7 +201,7 @@ class PuciModuleRestart(object):
                     self.container_name = 'chrony'
                     self._puci_container_module_restart(self.container_name, False)
                 if 'logging' in self.request['modules']:
-                    self.other_module_restart(self.request['modules'])
+                    self.other_module_restart('logging')
 
 
 def puci_module_restart_proc(request):

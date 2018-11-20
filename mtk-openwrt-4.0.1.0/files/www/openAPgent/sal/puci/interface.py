@@ -286,7 +286,7 @@ def interface_config_update_dhcp_config(req_dns_data, wan_static):
         if len(req_dns_data[LAN_DNS_SERVER_KEY]) > 0:
             dns_list = req_dns_data[LAN_DNS_SERVER_KEY]
 
-    if len(dns_list) < 0:
+    if len(dns_list) <= 0:
         dns_list = dns_data[LAN_DNS_SERVER_KEY]
 
     '''
