@@ -6,6 +6,19 @@ from common.message import *
 from common.sysinfo import *
 
 
+def wifi_device_get_interface_operstate(ifname):
+    filename = '/sys/class/net/' + ifname + '/flags'
+    try:
+        with open(filename, 'r') as f:
+            flags = int(f.read()[2:-1])
+            if (flags % 2) == 1:
+                return True
+            else:
+                return False
+    except:
+        log_error(LOG_MODULE_SYSINFO, "file '%s' open() error" % filename)
+        return False
+
 class WifiModuleRestart(object):
     def __init__(self, request):
         self.req_ifname = request['ifname']
@@ -38,7 +51,7 @@ class WifiModuleRestart(object):
         log_info(LOG_MODULE_SERVICE, "** Execute wifi reload (command: %s) **" %command)
 
     def wifi_module_restart_proc(self):
-        current_state = device_get_wireless_state(self.req_ifname)
+        current_state = wifi_device_get_interface_operstate(self.req_ifname)
         log_info(LOG_MODULE_SERVICE, "wifi current state: " + str(current_state) + ", req_enable: " + str(self.req_enable))
         if current_state == True:
             if self.req_enable == False:
@@ -173,9 +186,7 @@ class PuciModuleRestart(object):
                 self._puci_container_module_restart("dnsmasq", True)
         else:
             self._puci_default_module_restart(self.config_file)
-        '''
-        TODO : Send result message to cACP
-        '''
+
 
 def puci_module_restart_proc(request):
     log_info(LOG_MODULE_SERVICE, 'Received message: request(%s)' % (str(request)))
