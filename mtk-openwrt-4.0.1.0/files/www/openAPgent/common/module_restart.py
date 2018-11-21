@@ -2,6 +2,7 @@
 import docker
 from common.env import *
 from common.misc import *
+from common.file import FileLock
 from common.message import *
 from common.sysinfo import *
 
@@ -21,62 +22,48 @@ def wifi_device_get_interface_operstate(ifname):
 
 class WifiModuleRestart(object):
     def __init__(self, request):
-        self.req_ifname = request['ifname']
-        self.req_enable = request['enable']
-        self.req_devname = request['devname']
+        if request:
+            if 'ifname' in request:
+                self.req_ifname = request['ifname']
+            if 'enable' in request:
+                self.req_enable = request['enable']
+            if 'devname' in request:
+                self.req_devname = request['devname']
 
-    def _wifi_device_enable_proc(self, enable):
-        log_info(LOG_MODULE_SERVICE, "** wifi up/down devname(%s), up(%d) **" %(self.req_devname, enable))
+    def _wifi_device_enable_proc(self, enable, req_devname):
+        log_info(LOG_MODULE_SERVICE, "** wifi up/down devname(%s), up(%d) **" %(req_devname, enable))
         if enable == True:
-            subprocess_open_nonblock('/sbin/wifi up %s' % self.req_devname)
+            subprocess_open('/sbin/wifi up %s' %req_devname)
         else:
-            subprocess_open_nonblock('/sbin/wifi down %s' % self.req_devname)
-        log_info(LOG_MODULE_SERVICE, "** wifi up/down done **")
+            subprocess_open('/sbin/wifi down %s' %req_devname)
+        log_info(LOG_MODULE_SERVICE, "** wifi up/down done %s **" %req_devname)
 
-    '''
-    def _wifi_interface_enable_proc(self, enable):
-        if enable == True:
-            log_info(LOG_MODULE_SERVICE, "ifup for ifname: " + self.req_ifname)
-            subprocess_open_nonblock('ifconfig %s up '%self.req_ifname)
-        else:
-            log_info(LOG_MODULE_SERVICE, "** ifconfig %s down **" + self.req_ifname)
-            subprocess_open_nonblock('ifconfig %s down '%self.req_ifname)
-        log_info(LOG_MODULE_SERVICE, "** Execute ifconfig **")
-    '''
+    def _wifi_module_reload(self, req_devname):
+        lock = FileLock("lock_wifi." + req_devname, dir="/tmp")
+        if lock.acqure_nonblock() == True:
+            log_info(LOG_MODULE_SERVICE, "** /sbin/wifi reload %s **" %req_devname)
+            command = "/sbin/wifi reload %s" %req_devname
+            subprocess_open(command)
+            lock.release()
 
-    def _wifi_module_reload(self):
-        log_info(LOG_MODULE_SERVICE, "** /sbin/wifi reload for %s**" %self.req_devname)
-        command = "/sbin/wifi reload %s" %self.req_devname
-        subprocess_open_nonblock(command)
-        log_info(LOG_MODULE_SERVICE, "** Execute wifi reload (command: %s) **" %command)
-
-    def wifi_module_restart_proc(self):
+    def _wifi_module_restart_proc(self):
         current_state = wifi_device_get_interface_operstate(self.req_ifname)
         log_info(LOG_MODULE_SERVICE, "wifi current state: " + str(current_state) + ", req_enable: " + str(self.req_enable))
         if current_state == True:
             if self.req_enable == False:
-                self._wifi_device_enable_proc(0)
+                self._wifi_device_enable_proc(0, self.req_devname)
             else:
-                self._wifi_module_reload()
+                self._wifi_module_reload(self.req_devname)
         else:
             if self.req_enable == True:
-                self._wifi_device_enable_proc(1)
-                self._wifi_module_reload()
-
+                self._wifi_device_enable_proc(1, self.req_devname)
+                self._wifi_module_reload(self.req_devname)
 
 def wifi_module_reload_all_devices():
-    log_info(LOG_MODULE_SERVICE, "** /sbin/wifi reload **" )
-    command = "/sbin/wifi reload"
-    subprocess_open_nonblock(command)
-    log_info(LOG_MODULE_SERVICE, "** Execute wifi reload (command: %s) **" % command)
-
-
-def wifi_module_restart_proc(request):
-    log_info(LOG_MODULE_SERVICE, 'Received message: request(%s)' % (str(request)))
-
-    wmr = WifiModuleRestart(request)
-    wmr.wifi_module_restart_proc()
-
+    log_info(LOG_MODULE_SERVICE, "** /sbin/wifi all reload **")
+    wmr = WifiModuleRestart(None)
+    wmr._wifi_module_reload(FIVE_GIGA_DEVICE_NAME)
+    wmr._wifi_module_reload(TWO_GIGA_DEVICE_NAME)
 
 '''
 Python UCI module restart 
@@ -141,10 +128,14 @@ class PuciModuleRestart(object):
 
     def _puci_container_module_restart(self, container_name, wifi_restart):
         log_info(LOG_MODULE_SERVICE, "<'%s' container restart>" %container_name)
-        client = docker.from_env()
-        container_list = self._docker_container_get_by_prefix(container_name)
-        if container_list:
-            self._docker_container_restart(client, container_list)
+
+        lock = FileLock("lock_cotainer." + container_name, dir="/tmp")
+        if lock.acqure_nonblock() == True:
+            client = docker.from_env()
+            container_list = self._docker_container_get_by_prefix(container_name)
+            if container_list:
+                self._docker_container_restart(client, container_list)
+            lock.release()
 
         if wifi_restart == True:
             wifi_module_reload_all_devices()
@@ -197,15 +188,9 @@ class PuciModuleRestart(object):
             self._puci_default_module_restart(self.config_file)
 
             if self.config_file == "system" and 'modules' in self.request:
+                if 'logging' in self.request['modules']:
+                    self.other_module_restart('logging')
                 if 'ntp' in self.request['modules']:
                     self.container_name = 'chrony'
                     self._puci_container_module_restart(self.container_name, False)
-                if 'logging' in self.request['modules']:
-                    self.other_module_restart('logging')
 
-
-def puci_module_restart_proc(request):
-    log_info(LOG_MODULE_SERVICE, 'Received message: request(%s)' % (str(request)))
-
-    pmr = PuciModuleRestart(request)
-    pmr.puci_module_restart()

@@ -153,6 +153,16 @@ class FileLock:
 		fcntl.flock(self.lock_file, ops)
 		log_info(LOG_MODULE_FILE, "++ Acqure File Lock (%s) ++" % self.lock_file)
 
+	def acqure_nonblock(self):
+		ops = fcntl.LOCK_EX|fcntl.LOCK_NB
+		try:
+			fcntl.flock(self.lock_file, ops)
+		except Exception as e:
+			log_info(LOG_MODULE_FILE, "++ Already locked (%s)" + str(e))
+			return False
+		log_info(LOG_MODULE_FILE, "++ Acqure File Lock (%s) ++" % self.lock_file)
+		return True
+
 	def release(self):
 		"""Release the lock. Return None even if lock not currently acquired"""
 		fcntl.flock(self.lock_file, fcntl.LOCK_UN)

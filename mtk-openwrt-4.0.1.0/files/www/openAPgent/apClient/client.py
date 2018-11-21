@@ -9,6 +9,7 @@ from common.module_restart import *
 from apClient.docker_proc import *
 #from apClient.device_info import send_ip_address_change_notification
 
+APCLIENT_WORKER_CMD="cd /www/openAPgent; python -m utils/apclient_worker "
 
 class CommandSocket():
     def __init__(self, addr, port):
@@ -69,6 +70,36 @@ class ClientCmdApp():
             log_info(LOG_MODULE_APCLIENT, '---- apClient Socket close ----')
             sock.close()
 
+
+def puci_module_restart_proc(request):
+    log_info(LOG_MODULE_SERVICE, 'Received message: request(%s)' % (str(request)))
+
+    command = "%d " %SAL_PUCI_MODULE_RESTART
+    for key, value in request.items():
+        if type(value) == list:
+            elem_str = ""
+            for elem in value:
+                elem_str = elem_str + "/" + elem
+            elem_str = elem_str.strip("/")
+            value = elem_str
+        command = command + "%s:%s," %(str(key), str(value))
+    command = command.strip(",")
+    subprocess_open_nonblock(APCLIENT_WORKER_CMD + command)
+    log_info(LOG_MODULE_SERVICE, 'Excute worker (%s)' % (str(APCLIENT_WORKER_CMD + command)))
+    #pmr = PuciModuleRestart(request)
+    #pmr.puci_module_restart()
+
+def wifi_module_restart_proc(request):
+    log_info(LOG_MODULE_SERVICE, 'Received message: request(%s)' % (str(request)))
+
+    command = "%d " %SAL_WIFI_MODULE_RESTART
+    for key, value in request.items():
+         command = command + "%s:%s," %(str(key), str(value))
+    command = command.strip(",")
+    subprocess_open_nonblock(APCLIENT_WORKER_CMD + command)
+    log_info(LOG_MODULE_SERVICE, 'Excute worker (%s)' % (str(APCLIENT_WORKER_CMD + command)))
+    #wmr = WifiModuleRestart(request)
+    #wmr._wifi_module_restart_proc()
 
 def system_provisioning_done_proc():
     log_info(LOG_MODULE_APCLIENT, "================= Service module restart for provisioning  ==============")

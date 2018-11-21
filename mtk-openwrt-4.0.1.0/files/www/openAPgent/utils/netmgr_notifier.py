@@ -38,7 +38,7 @@ init_log("Netmgr_notifier")
 
 ifname = sys.argv[1]
 
-log_info (LOG_MODULE_NETMGR, '----- Start netmgr python module (ifname %s) ----'%ifname)
+log_info (LOG_MODULE_NETMGR, '-------- netMgrd: Start netmgr python module (ifname %s) -------'%ifname)
 
 send_ip_address_change_notification (ifname)
 
@@ -47,5 +47,5 @@ Update dns server
 '''
 device_update_lan_dns_server()
 
-log_info (LOG_MODULE_NETMGR, '----- End netmgr python module  ----')
+log_info (LOG_MODULE_NETMGR, '--------- netMgrd: End  --------')
 
