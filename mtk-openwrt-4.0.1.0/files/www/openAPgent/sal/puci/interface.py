@@ -282,15 +282,29 @@ def interface_config_update_dhcp_config(req_dns_data, wan_static):
 
     log_info(UCI_NETWORK_FILE, "wan_static: " + str(wan_static)  + ", Request DNS Server : " + str(req_dns_data))
 
+    '''
+    First, Request configuration check
+    '''
     if req_dns_data and LAN_DNS_SERVER_KEY in req_dns_data:
+        # Lan config exists
         if len(req_dns_data[LAN_DNS_SERVER_KEY]) > 0:
             dns_list = req_dns_data[LAN_DNS_SERVER_KEY]
-
-    if len(dns_list) <= 0:
-        dns_list = dns_data[LAN_DNS_SERVER_KEY]
+    else:
+        # Wan Config without Lan config
+        output, error = subprocess_open("uci show network.lan.dns")
+        if "network.lan.dns=" in output:
+            lan_dns_list = []
+            output = output.split("=")[1]
+            output = output.strip()
+            output = output.split()
+            for server in output:
+                server = server.strip()
+                lan_dns_list.append(server)
+            log_info(UCI_NETWORK_FILE, "lan_dns_list: " + str(lan_dns_list))
+            dns_list = lan_dns_list
 
     '''
-    If LAN config doesn't include dns server, apply WAN dns servers.
+    Second, Lan config doesn't exist, apply WAN dns servers.
     '''
     if len(dns_list) <= 0:
         if wan_static == True:
@@ -351,13 +365,13 @@ def interface_config_get_request_dns_data(ifname, req_v4addr, protocol):
             return None
 
         # copy original data, because req_data will be modified..
+        req_dns_data[LAN_DNS_SERVER_KEY] = list()
         if len(req_v4addr['dnsServer']) > 0:
-            req_dns_data[LAN_DNS_SERVER_KEY] = list()
             for server in req_v4addr['dnsServer']:
                 if server.strip():
                     req_dns_data[LAN_DNS_SERVER_KEY].append(server)
             #req_dns_data[LAN_DNS_SERVER_KEY] = list(req_v4addr['dnsServer'])
-            return req_dns_data
+        return req_dns_data
 
     return None
 
