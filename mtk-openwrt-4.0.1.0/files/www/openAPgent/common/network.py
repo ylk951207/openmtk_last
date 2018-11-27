@@ -10,12 +10,11 @@ import libs._network as ln
 from common.env import *
 from common.misc import *
 from common.module_restart import *
-
-from conf.ap_device_config import *
-
+from config.ap_device_config import *
 
 
-LOG_MODULE_SYSINFO="sysinfo"
+
+LOG_MODULE_SYSINFO="common.network"
 
 '''
 From left to right near wan port

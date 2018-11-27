@@ -2,7 +2,7 @@ import sys
 from common.env import *
 from common.misc import *
 from common.message import *
-from common.sysinfo import *
+from common.network import *
 
 LOG_MODULE_NETMGR = "netmgr"
 

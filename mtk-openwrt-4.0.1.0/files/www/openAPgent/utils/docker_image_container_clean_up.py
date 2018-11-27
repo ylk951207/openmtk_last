@@ -4,7 +4,7 @@ import docker
 from common.env import *
 from common.misc import *
 from common.message import *
-from common.sysinfo import *
+from common.network import *
 
 def initialize_docker_containers():
     client = docker.from_env()

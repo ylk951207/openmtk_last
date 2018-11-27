@@ -12,7 +12,7 @@ WORKDIR=os.getcwd()
 Configuration Files
 '''
 
-DEVICE_INFO_CONFIG=WORKDIR+"/conf/ap_device_config.py"
+DEVICE_INFO_CONFIG=WORKDIR+"/config/ap_device_config.py"
 
 
 '''
@@ -39,6 +39,7 @@ APNOTIFIER_CMD_PORT=8008
 
 PROVISIONING_DONE_FILE="/tmp/provisioning-done"
 
+APCLIENT_WORKER_CMD="cd /www/openAPgent; python -m utils/apclient_worker "
 
 '''
 apClient Command 
@@ -71,7 +72,6 @@ LOG_MODULE_APCLIENT='apClient'
 LOG_MODULE_REQUEST='Request'
 LOG_MODULE_RESPONSE='Response'
 LOG_MODULE_SERVICE="service"
-
 LOG_MODULE_DOCKER="docker"
 
 APSERVER_LOG_PATH="/var/log/apServer.log"

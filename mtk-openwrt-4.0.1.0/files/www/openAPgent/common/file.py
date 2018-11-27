@@ -3,7 +3,7 @@ import os
 
 from common.env import *
 from common.misc import *
-from conf.wireless_config_data import *
+from config.wireless_config_data import *
 
 
 DELIMITER_EQUEL = "="

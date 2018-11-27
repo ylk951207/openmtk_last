@@ -1,7 +1,7 @@
 from common.env import *
 from common.misc import *
 from common.message import *
-from conf.uci_config_data import *
+from config.uci_config_data import *
 
 
 UCI_SHOW_CMD="uci show "

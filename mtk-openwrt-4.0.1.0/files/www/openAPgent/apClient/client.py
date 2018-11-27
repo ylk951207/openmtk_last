@@ -3,14 +3,17 @@ import socket
 
 from common.env import *
 from common.misc import *
-from common.sysinfo import *
+from common.network import *
 from common.module_restart import *
 
 from apClient.docker_proc import *
-#from apClient.device_info import send_ip_address_change_notification
 
-APCLIENT_WORKER_CMD="cd /www/openAPgent; python -m utils/apclient_worker "
+MAX_SOCK_MSG_LENGTH=65535
 
+
+'''
+Initialize command socket
+'''
 class CommandSocket():
     def __init__(self, addr, port):
         self.sock=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -19,7 +22,6 @@ class CommandSocket():
         self.sock.listen(5)
 
 
-MAX_SOCK_MSG_LENGTH=65535
 '''
 apClient Command Handler
 '''
@@ -39,17 +41,6 @@ class ClientCmdApp():
             data = sock.recv(MAX_SOCK_MSG_LENGTH)
 
             if data:
-                '''
-                if 'netmgr' in data:
-                    log_info(LOG_MODULE_APCLIENT, 'Recv message: ' + str(data))
-                    data = data.split(":")[1]
-                    data=data.split()
-                    send_ip_address_change_notification(data[0], data[1])
-                    log_info(LOG_MODULE_APCLIENT, '---- Socket close ----')
-                    sock.close()
-                    continue
-                '''
-
                 data = eval(data)
                 command = data['command']
                 log_info(LOG_MODULE_APCLIENT, "command: " + str(command) + ", data : " + str(data) + "len: " + str(len))
@@ -100,6 +91,7 @@ def wifi_module_restart_proc(request):
     log_info(LOG_MODULE_SERVICE, 'Excute worker (%s)' % (str(APCLIENT_WORKER_CMD + command)))
     #wmr = WifiModuleRestart(request)
     #wmr._wifi_module_restart_proc()
+
 
 def system_provisioning_done_proc():
     log_info(LOG_MODULE_APCLIENT, "================= Service module restart for provisioning  ==============")
@@ -154,6 +146,9 @@ def system_reboot_proc(request):
 
 class ClientInitialize():
     def __init__(self):
+        '''
+        Update dhcp dns server
+        '''
         device_update_lan_dns_server()
 
 

@@ -5,6 +5,7 @@ from common.misc import *
 from apClient.client import *
 from apClient.device_info import *
 
+
 '''
 Main Routine
 '''
@@ -17,8 +18,12 @@ log_info (LOG_MODULE_APCLIENT, '----- Start Client Command Application  ----')
 
 ClientInitialize()
 
+'''
+Device Registration to cAPC
+'''
 if not os.path.exists(PROVISIONING_DONE_FILE):
     register_device_info()
+
 
 '''
  Main Loop

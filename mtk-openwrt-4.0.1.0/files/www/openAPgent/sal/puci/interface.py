@@ -4,7 +4,7 @@ from puci import *
 from common.env import *
 from common.misc import *
 from common.message import *
-from common.sysinfo import device_info_get_dns_server
+from common.network import device_info_get_dns_server
 
 UCI_NETWORK_FILE="network"
 UCI_INTERFACE_COMMON_CONFIG = "interface_config"

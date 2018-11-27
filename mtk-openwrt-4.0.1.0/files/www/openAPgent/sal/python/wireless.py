@@ -3,7 +3,7 @@ from common.env import *
 from common.misc import *
 from common.file import*
 from common.message import *
-from common.sysinfo import *
+from common.network import *
 
 
 WIRELESS_COMMON_CONFIG = "wireless_common_config"
@@ -91,9 +91,13 @@ def wireless_module_restart(enable, ifname, devname):
         noti_data['enable'] = enable
         noti_data['ifname'] = ifname
         noti_data['devname'] = devname
+
+        wifi_module_restart_proc(noti_data)
+        '''
         server_msg = ApServerLocalMassage(APNOTIFIER_CMD_PORT)
         server_msg.send_message_to_apnotifier(SAL_WIFI_MODULE_RESTART, noti_data)
-        log_info(WIRELESS_COMMON_CONFIG, "** Send wifi module restart message to apClient **")
+        '''
+        log_info(WIRELESS_COMMON_CONFIG, "** Send wifi module restart message **")
     else:
         log_info(WIRELESS_COMMON_CONFIG, "Cannot find provisioining file(%s)" % PROVISIONING_DONE_FILE)
 

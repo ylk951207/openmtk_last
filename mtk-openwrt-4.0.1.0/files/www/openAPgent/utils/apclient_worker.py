@@ -12,6 +12,12 @@ init_log("apclient_worker")
 
 log_info(LOG_MODULE_SERVICE, '------ apClient_worker:Input command(%s), params(%s) ------' % (str(command), params))
 
+'''
+Example:
+interface) python -m utils/apclient_worker 2 dnsmasq_restart:True,iflist:lan,config_file:network
+wifi) python -m utils/apclient_worker 4 devname:MT7622.1,ifname:ra0,enable:True
+chrony) python -m utils/apclient_worker 2 config_file:system,modules:ntp
+'''
 
 request = dict()
 params = params.split(PARAMS_DELIMITER)

@@ -1,9 +1,9 @@
 from common.env import *
 from common.misc import *
 from common.message import *
-from common.sysinfo import *
+from common.network import *
 
-LOG_MODULE_SYSINFO="sysinfo"
+LOG_MODULE_PYSYSTEM="python.system"
 
 
 def py_provisioning_done_create(request):
@@ -11,7 +11,7 @@ def py_provisioning_done_create(request):
         noti_data = dict()
         server_msg = ApServerLocalMassage(APNOTIFIER_CMD_PORT)
         server_msg.send_message_to_apnotifier(SAL_PROVISIONING_DONE, noti_data)
-        log_info(LOG_MODULE_SYSINFO, "** Send provisioning done message to apClient **")
+        log_info(LOG_MODULE_PYSYSTEM, "** Send provisioning done message to apClient **")
     return response_make_simple_success_body(None)
 
 def py_keepalive_check_list():
@@ -47,7 +47,7 @@ def py_system_time_info_list():
             'isSuccessful': 'true'
         }
     }
-    log_info(LOG_MODULE_SAL, "Response = ", str(data))
+    log_info(LOG_MODULE_PYSYSTEM, "Response = ", str(data))
 
     return data
 
@@ -110,7 +110,7 @@ def py_interface_address_info_retrieve(ifname, add_header):
     if not ifname:
         return response_make_simple_error_body(500, "Not found interface name", None)
 
-    log_info(LOG_MODULE_SYSINFO, "[ifname] : " + ifname)
+    log_info(LOG_MODULE_PYSYSTEM, "[ifname] : " + ifname)
 
     ni_addrs = DeviceNetifacesInfo(None)
     dns_data = device_info_get_dns_server(ifname)

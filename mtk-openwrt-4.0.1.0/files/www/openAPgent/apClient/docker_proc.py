@@ -5,7 +5,7 @@ import docker
 from common.env import *
 from common.misc import *
 from common.message import *
-from common.sysinfo import *
+from common.network import *
 
 
 LOG_MODULE_DOCKER_INIT="InitDocker"
@@ -73,10 +73,6 @@ def initialize_docker_container_iptables():
     os.rename (TEMP_FIREWALL_USER_FILE, FIREWALL_USER_FILE)
 
     log_info(LOG_MODULE_DOCKER_INIT, "*** Docker container iptables Initialization Done (port:%s) ***" %(str(port_list)))
-    '''
-    Firewall restart will be executed by system_provisioning_done_proc() function.
-    pmr._puci_default_module_restart("firewall")
-    '''
 
 def _get_docker_image_name(image_name, image_tag, registry):
     if registry:
@@ -172,12 +168,6 @@ def docker_image_create_proc(request):
     noti_req = APgentSendNotification()
     noti_req.set_notification_value(200, "Successful")
 
-    '''
-    if request['overwriteFlag'] == True:
-        _docker_image_remove(client, noti_req, request)
-
-    if noti_req.response['resultCode'] == 200:
-    '''
     _docker_image_pull(client, noti_req, request)
 
     log_info(LOG_MODULE_DOCKER, "*** End image pull ***")
