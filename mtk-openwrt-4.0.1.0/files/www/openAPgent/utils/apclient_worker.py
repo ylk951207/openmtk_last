@@ -5,34 +5,30 @@ from common.module_restart import *
 
 PARAMS_DELIMITER=","
 
-command = int(sys.argv[1])
-params = sys.argv[2]
-
 init_log("apclient_worker")
 
-log_info(LOG_MODULE_SERVICE, '------ apClient_worker:Input command(%s), params(%s) ------' % (str(command), params))
+command = int(sys.argv[1])
+request = dict()
+for i in range (2, len(sys.argv)):
+    param = sys.argv[i].split(":")
+    if param[1] == "True":
+        param[1] = True
+    elif param[1] == "False":
+        param[1] = False
+    elif "," in param[1]:
+        param[1] = param[1].split(",")
+
+    request[param[0]] = param[1]
+
+log_info(LOG_MODULE_SERVICE, '------ apClient_worker:Input command(%s)------' % (str(command)))
 
 '''
 Example:
-interface) python -m utils/apclient_worker 2 dnsmasq_restart:True,iflist:lan,config_file:network
-wifi) python -m utils/apclient_worker 4 devname:MT7622.1,ifname:ra0,enable:True
-chrony) python -m utils/apclient_worker 2 config_file:system,modules:ntp
+interface) cd /www/openAPgent; python -m utils/apclient_worker 2 dnsmasq_restart:True iflist:lan,wan config_file:network
+system) cd /www/openAPgent; python -m utils/apclient_worker 2 modules:logging,ntp config_file:system
+dhcp) cd /www/openAPgent; python -m utils/apclient_worker 2 config_file:dhcp container_name:dnsmasq
+wifi) cd /www/openAPgent; python -m utils/apclient_worker 4 devname:MT7615.1 ifname:rai0 enable:True
 '''
-
-request = dict()
-params = params.split(PARAMS_DELIMITER)
-
-for value in params:
-    value = value.split(":")
-    if value[1] == "True":
-        value[1] = True
-    elif value[1] == "False":
-        value[1] = False
-    elif "/" in value[1]:
-        value[1] = value[1].split("/")
-
-    request[value[0]] = value[1]
-
 log_info(LOG_MODULE_SERVICE, "Request ARGS: " + str(request))
 
 if command == SAL_WIFI_MODULE_RESTART:

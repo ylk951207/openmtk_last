@@ -38,8 +38,14 @@ def puci_module_restart_proc(request):
 
     command = "%d " %SAL_PUCI_MODULE_RESTART
     for key, value in request.items():
-         command = command + "%s:%s," %(str(key), str(value))
-    command = command.strip(",")
+        if type(value) == list:
+            list_str = ""
+            for element in value:
+                list_str = list_str + ",%s"%element
+            value = list_str
+            value = value.strip(",")
+        command = command + "%s:%s " %(str(key), str(value))
+    command = command.strip("")
     subprocess_open_nonblock(APCLIENT_WORKER_CMD + command)
     log_info(LOG_MODULE_PUCI, 'Excute worker (%s)' % (str(APCLIENT_WORKER_CMD + command)))
 
