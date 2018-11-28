@@ -33,20 +33,27 @@ def restart_uci_config_module(config_file, ifname):
     return output, error
 
 
-def puci_send_message_to_apnotifier(command, noti_data):
+def puci_module_restart_proc(request):
+    log_info(LOG_MODULE_PUCI, 'Received message: request(%s)' % (str(request)))
+
+    command = "%d " %SAL_PUCI_MODULE_RESTART
+    for key, value in request.items():
+         command = command + "%s:%s," %(str(key), str(value))
+    command = command.strip(",")
+    subprocess_open_nonblock(APCLIENT_WORKER_CMD + command)
+    log_info(LOG_MODULE_PUCI, 'Excute worker (%s)' % (str(APCLIENT_WORKER_CMD + command)))
+
+def puci_execute_module_restart(command, noti_data):
     if os.path.exists(PROVISIONING_DONE_FILE):
+        puci_module_restart_proc(noti_data)
+        '''
         server_msg = ApServerLocalMassage(APNOTIFIER_CMD_PORT)
         server_msg.send_message_to_apnotifier(command, noti_data)
+        '''
         log_info(LOG_MODULE_PUCI, "** Send service module restart message to apClient **")
     else:
         log_info(LOG_MODULE_PUCI, "Cannot find provisioining file(%s)" %PROVISIONING_DONE_FILE)
 
-
-def puci_execute_module_restart(command, noti_data):
-    cmd_str = "cd /www/openAPgent; python -m utils/ap_module_restart %d '%s'" %(command, str(noti_data))
-    log_info(LOG_MODULE_PUCI, "Exeute command: %s" %cmd_str)
-    subprocess_open_nonblock(cmd_str)
-    log_info(LOG_MODULE_PUCI, "command: done")
 
 #
 # TODO: Detail error handling 

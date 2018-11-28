@@ -194,17 +194,3 @@ class PuciModuleRestart(object):
                     self.container_name = 'chrony'
                     self._puci_container_module_restart(self.container_name, False)
 
-
-
-'''
-Client
-'''
-def wifi_module_restart_proc(request):
-    log_info(LOG_MODULE_SERVICE, 'Received message: request(%s)' % (str(request)))
-
-    command = "%d " %SAL_WIFI_MODULE_RESTART
-    for key, value in request.items():
-         command = command + "%s:%s," %(str(key), str(value))
-    command = command.strip(",")
-    subprocess_open_nonblock(APCLIENT_WORKER_CMD + command)
-    log_info(LOG_MODULE_SERVICE, 'Excute worker (%s)' % (str(APCLIENT_WORKER_CMD + command)))

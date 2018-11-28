@@ -11,7 +11,7 @@ UCI_PORT_FORWARDING_CONFIG = "port_forwarding_config"
 def firewall_puci_module_restart():
     noti_data = dict()
     noti_data['config_file'] = UCI_FIREWALL_CONFIG_FILE
-    puci_send_message_to_apnotifier(SAL_PUCI_MODULE_RESTART, noti_data)
+    puci_execute_module_restart(SAL_PUCI_MODULE_RESTART, noti_data)
 
 def puci_port_forwarding_list():
     body_data = list()

@@ -15,7 +15,7 @@ def dhcp_puci_module_restart():
     noti_data = dict()
     noti_data['config_file'] = UCI_DHCP_CONFIG_FILE
     noti_data['container_name'] = "dnsmasq"
-    puci_send_message_to_apnotifier(SAL_PUCI_MODULE_RESTART, noti_data)
+    puci_execute_module_restart(SAL_PUCI_MODULE_RESTART, noti_data)
 
 '''
 DHCP Common Config

@@ -164,14 +164,11 @@ def py_system_reboot_create(request):
     delay = int(request['delay'])
 
     # Default delay for response
-    if delay <= 0: delay = 2
+    if delay <= 3: delay = 3
 
-    #cmd_str = "reboot -d %d" % delay
-    #subprocess_open(cmd_str)
-
-    req_data = {'delay' : delay}
-    server_msg = ApServerLocalMassage(APNOTIFIER_CMD_PORT)
-    server_msg.send_message_to_apnotifier(SAL_SYSTEM_REBOOT, req_data)
+    cmd_str = "reboot -d %d" % delay
+    subprocess_open_nonblock(cmd_str)
+    log_info(LOG_MODULE_PYSYSTEM, "** System Reboot Done **")
 
     data = {
         'header': {
@@ -181,5 +178,4 @@ def py_system_reboot_create(request):
         }
     }
     return data
-
 

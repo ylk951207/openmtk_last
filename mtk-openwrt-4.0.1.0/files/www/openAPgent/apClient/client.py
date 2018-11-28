@@ -49,48 +49,11 @@ class ClientCmdApp():
                     system_provisioning_done_proc()
                 elif command == SAL_PYTHON_DOCKER_IMAGE_CREATE:
                     docker_image_create_proc(data['body'])
-                elif command == SAL_PUCI_MODULE_RESTART:
-                    puci_module_restart_proc(data['body'])
-                elif command == SAL_WIFI_MODULE_RESTART:
-                    wifi_module_restart_proc(data['body'])
-                elif command == SAL_SYSTEM_REBOOT:
-                    system_reboot_proc(data['body'])
                 else:
                     log_info(LOG_MODULE_APCLIENT, 'Unknown command ' + str(command))
 
             log_info(LOG_MODULE_APCLIENT, '---- apClient Socket close ----')
             sock.close()
-
-
-def puci_module_restart_proc(request):
-    log_info(LOG_MODULE_SERVICE, 'Received message: request(%s)' % (str(request)))
-
-    command = "%d " %SAL_PUCI_MODULE_RESTART
-    for key, value in request.items():
-        if type(value) == list:
-            elem_str = ""
-            for elem in value:
-                elem_str = elem_str + "/" + elem
-            elem_str = elem_str.strip("/")
-            value = elem_str
-        command = command + "%s:%s," %(str(key), str(value))
-    command = command.strip(",")
-    subprocess_open_nonblock(APCLIENT_WORKER_CMD + command)
-    log_info(LOG_MODULE_SERVICE, 'Excute worker (%s)' % (str(APCLIENT_WORKER_CMD + command)))
-    #pmr = PuciModuleRestart(request)
-    #pmr.puci_module_restart()
-
-def wifi_module_restart_proc(request):
-    log_info(LOG_MODULE_SERVICE, 'Received message: request(%s)' % (str(request)))
-
-    command = "%d " %SAL_WIFI_MODULE_RESTART
-    for key, value in request.items():
-         command = command + "%s:%s," %(str(key), str(value))
-    command = command.strip(",")
-    subprocess_open_nonblock(APCLIENT_WORKER_CMD + command)
-    log_info(LOG_MODULE_SERVICE, 'Excute worker (%s)' % (str(APCLIENT_WORKER_CMD + command)))
-    #wmr = WifiModuleRestart(request)
-    #wmr._wifi_module_restart_proc()
 
 
 def system_provisioning_done_proc():
@@ -133,26 +96,12 @@ def puci_provisioning_done_file_create():
     log_info(LOG_MODULE_APCLIENT, "** Create %s file **" %PROVISIONING_DONE_FILE)
 
 
-def system_reboot_proc(request):
-    if not 'delay' in request: return
-
-    delay = request['delay']
-
-    cmd_str = "reboot -d %d" % delay
-    output, error = subprocess_open(cmd_str)
-
-    log_info(LOG_MODULE_APCLIENT, "** System Reboot Done (output:%s, error:%s)**" %(output, error))
-
-
 class ClientInitialize():
     def __init__(self):
         '''
         Update dhcp dns server
         '''
         device_update_lan_dns_server()
-
-
-
 
 
 

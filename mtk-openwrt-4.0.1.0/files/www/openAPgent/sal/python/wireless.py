@@ -85,6 +85,18 @@ def wireless_get_device_info(ap_type, if_name):
 
     return device_name, int(if_index)
 
+
+
+def wifi_module_restart_proc(request):
+    log_info(WIRELESS_COMMON_CONFIG, 'Received message: request(%s)' % (str(request)))
+
+    command = "%d " %SAL_WIFI_MODULE_RESTART
+    for key, value in request.items():
+         command = command + "%s:%s," %(str(key), str(value))
+    command = command.strip(",")
+    subprocess_open_nonblock(APCLIENT_WORKER_CMD + command)
+    log_info(WIRELESS_COMMON_CONFIG, 'Excute worker (%s)' % (str(APCLIENT_WORKER_CMD + command)))
+
 def wireless_module_restart(enable, ifname, devname):
     if os.path.exists(PROVISIONING_DONE_FILE):
         noti_data = dict()
