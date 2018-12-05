@@ -1,4 +1,5 @@
 import os
+from multiprocessing import Process
 from common.env import *
 from common.misc import *
 
@@ -24,9 +25,17 @@ Device Registration to cAPC
 if not os.path.exists(PROVISIONING_DONE_FILE):
     register_device_info()
 
-
 '''
  Main Loop
 '''
-client = ClientCmdApp()
-client.run()
+client_p = Process(target=client_run)
+'''
+Send provisiong start to cAPC
+'''
+prov_start_p = Process(target=post_provisiong_start)
+
+client_p.start()
+prov_start_p.start()
+
+# prov_start_p.join()
+# client_p.join()

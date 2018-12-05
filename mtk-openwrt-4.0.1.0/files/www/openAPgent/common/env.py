@@ -27,6 +27,7 @@ CAPC_SERVER_URL='http://' + CAPC_SERVER_IP + ':' + CAPC_SERVER_PORT
 
 CAPC_DEVICE_INFO_POST_URL=CAPC_SERVER_URL+'/v1/devices/registration/'
 
+CAPC_NOTIFICATION_PROVISIONING_START_URL = CAPC_SERVER_URL+'/v1/notifications/provisioning-start'
 CAPC_NOTIFICATION_PROVISIONING_FINISH_URL = CAPC_SERVER_URL+'/v1/notifications/provisioning-finish'
 CAPC_NOTIFICATION_IMAGE_POST_URL = CAPC_SERVER_URL+'/v1/notifications/virtualization/images'
 CAPC_NOTIFICATION_ADDRESS_CHANGE_URL = CAPC_SERVER_URL+'/v1/notifications/interfaces/address-change'
@@ -38,6 +39,7 @@ APCLIENT_PID_PATH="/var/run/apClient.pid"
 APNOTIFIER_CMD_PORT=8008
 
 PROVISIONING_DONE_FILE="/tmp/provisioning-done"
+PROVISIONING_RECEIVE_FILE="/tmp/provisioning-receive"
 
 APCLIENT_WORKER_CMD="cd /www/openAPgent; python -m utils/apclient_worker "
 

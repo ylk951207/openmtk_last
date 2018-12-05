@@ -95,6 +95,10 @@ def puci_provisioning_done_file_create():
     f.close()
     log_info(LOG_MODULE_APCLIENT, "** Create %s file **" %PROVISIONING_DONE_FILE)
 
+def client_run():
+    client = ClientCmdApp()
+    client.run()
+
 
 class ClientInitialize():
     def __init__(self):
@@ -102,6 +106,4 @@ class ClientInitialize():
         Update dhcp dns server
         '''
         device_update_lan_dns_server()
-
-
 

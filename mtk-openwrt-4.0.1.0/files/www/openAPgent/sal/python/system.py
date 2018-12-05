@@ -5,8 +5,16 @@ from common.network import *
 
 LOG_MODULE_PYSYSTEM="python.system"
 
+def provisioning_receive_file_create():
+    f = open(PROVISIONING_RECEIVE_FILE, "w")
+    f.write("Receive Success")
+    f.close()
+    log_info(LOG_MODULE_APCLIENT, "** Create %s file **" %PROVISIONING_RECEIVE_FILE)
+
 
 def py_provisioning_done_create(request):
+    provisioning_receive_file_create()
+
     if not os.path.exists(PROVISIONING_DONE_FILE):
         noti_data = dict()
         server_msg = ApServerLocalMassage(APNOTIFIER_CMD_PORT)
