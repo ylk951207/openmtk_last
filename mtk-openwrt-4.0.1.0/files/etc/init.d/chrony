@@ -83,6 +83,9 @@ start()
 			exit 0
 		else
 			echo "Container($CONTAINER_NAME) exist. Just $con start."
+			if [ -e /var/run/chronyd.pid ]; then
+				rm -f /var/run/chronyd.pid
+			fi
 			docker start $con
 			exit 0
 		fi
