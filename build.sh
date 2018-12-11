@@ -77,9 +77,9 @@ openwrt)
 skb-release)
 	# Compile for the release version
         cp mtk-openwrt-4.0.1.0/files/www/openAPgent/common/env.py env.py~
-        sed -e s/CAPC_SERVER_IP=\'capc.withusp.com\'/CAPC_SERVER_IP=\'capc.skbrpoadband.com\'/g env.py~  > \
+        sed -e s/CAPC_SERVER_IP=\'capc.withusp.com\'/CAPC_SERVER_IP=\'capc.skbroadband.com\'/g env.py~  > \
                 mtk-openwrt-4.0.1.0/files/www/openAPgent/common/env.py
-        echo "++++++++++++++ Modify mtk-openwrt-4.0.1.0/files/www/openAPgent/common/env.py (write capc.skbrpoadband.com) +++++++++++++++"
+        echo "++++++++++++++ Modify mtk-openwrt-4.0.1.0/files/www/openAPgent/common/env.py (write capc.skbroadband.com) +++++++++++++++"
 	compile_openwrt
 	release_openwrt_image
 	;;
