@@ -1,0 +1,115 @@
+diff -urN linux-4.4.124.orig/arch/arm64/boot/dts/mediatek/mt7622-ac2600rfb1.dts linux-4.4.124.patch/arch/arm64/boot/dts/mediatek/mt7622-ac2600rfb1.dts
+--- linux-4.4.124.orig/arch/arm64/boot/dts/mediatek/mt7622-ac2600rfb1.dts	2018-12-11 03:34:52.414598065 +0000
++++ linux-4.4.124.patch/arch/arm64/boot/dts/mediatek/mt7622-ac2600rfb1.dts	2018-12-11 02:16:13.922775125 +0000
+@@ -126,22 +126,6 @@
+ 	non-removable;
+ };
+ 
+-&mmc1 {
+-	pinctrl-names = "default", "state_uhs";
+-	pinctrl-0 = <&mmc1_pins_default>;
+-	pinctrl-1 = <&mmc1_pins_uhs>;
+-	status = "okay";
+-	bus-width = <4>;
+-	max-frequency = <50000000>;
+-	cap-sd-highspeed;
+-	r_smpl = <1>;
+-	cd-gpios = <&pio 81 0>;
+-	vmmc-supply = <&mmc_fixed_3v3_power>;
+-	vqmmc-supply = <&mmc_fixed_3v3_power>;
+-	assigned-clocks = <&topckgen CLK_TOP_MSDC30_1_SEL>;
+-	assigned-clock-parents = <&topckgen CLK_TOP_UNIV48M>;
+-};
+-
+ &nandc {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&nand_pins_default>;
+@@ -252,6 +236,14 @@
+ 		};
+ 	};
+ 
++	usb1_pins: usb1@0 {
++		pins_cmd_dat {
++			pinmux = <MT7622_PIN_18_I2S4_IN__FUNC_GPIO18>;
++			output-high;
++			output-enable;
++		};
++	};
++
+ 	mmc0_pins_default: mmc0default {
+ 		pins_cmd_dat {
+ 			pinmux = <MT7622_PIN_47_NDL0__FUNC_EMMC_DATA0>,
+@@ -701,6 +693,8 @@
+ };
+ 
+ &usb1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&usb1_pins>;
+ 	status = "okay";
+ };
+ 
+diff -urN linux-4.4.124.orig/arch/arm64/boot/dts/mediatek/mt7622-ac4300rfb1.dts linux-4.4.124.patch/arch/arm64/boot/dts/mediatek/mt7622-ac4300rfb1.dts
+--- linux-4.4.124.orig/arch/arm64/boot/dts/mediatek/mt7622-ac4300rfb1.dts	2018-12-11 03:34:52.414598065 +0000
++++ linux-4.4.124.patch/arch/arm64/boot/dts/mediatek/mt7622-ac4300rfb1.dts	2018-12-11 02:18:23.190770275 +0000
+@@ -105,22 +105,6 @@
+ 	non-removable;
+ };
+ 
+-&mmc1 {
+-	pinctrl-names = "default", "state_uhs";
+-	pinctrl-0 = <&mmc1_pins_default>;
+-	pinctrl-1 = <&mmc1_pins_uhs>;
+-	status = "okay";
+-	bus-width = <4>;
+-	max-frequency = <50000000>;
+-	cap-sd-highspeed;
+-	r_smpl = <1>;
+-	cd-gpios = <&pio 81 0>;
+-	vmmc-supply = <&mmc_fixed_3v3_power>;
+-	vqmmc-supply = <&mmc_fixed_3v3_power>;
+-	assigned-clocks = <&topckgen CLK_TOP_MSDC30_1_SEL>;
+-	assigned-clock-parents = <&topckgen CLK_TOP_UNIV48M>;
+-};
+-
+ &nandc {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&nand_pins_default>;
+@@ -255,6 +239,14 @@
+ 		};
+ 	};
+ 
++	usb1_pins: usb1@0 {
++		pins_cmd_dat {
++			pinmux = <MT7622_PIN_18_I2S4_IN__FUNC_GPIO18>;
++			output-high;
++			output-enable;
++		};
++	};
++
+ 	mmc1_pins_default: mmc1default {
+ 		pins_cmd_dat {
+ 			pinmux = <MT7622_PIN_19_I2S2_OUT__FUNC_SD_D0>,
+@@ -660,6 +652,8 @@
+ };
+ 
+ &usb1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&usb1_pins>;
+ 	status = "okay";
+ };
+ 
+diff -urN linux-4.4.124.orig/drivers/pinctrl/mediatek/pinctrl-mtk-common.c linux-4.4.124.patch/drivers/pinctrl/mediatek/pinctrl-mtk-common.c
+--- linux-4.4.124.orig/drivers/pinctrl/mediatek/pinctrl-mtk-common.c	2018-05-07 05:31:53.000000000 +0000
++++ linux-4.4.124.patch/drivers/pinctrl/mediatek/pinctrl-mtk-common.c	2018-12-11 03:34:14.214599499 +0000
+@@ -2134,6 +2134,11 @@
+ 	irq_set_chained_handler_and_data(irq, mtk_eint_irq_handler, pctl);
+ 	if (mtk_eint_create_attr(&pdev->dev))
+ 		pr_warn("mtk_eint create attribute error\n");
++
++	/* Add by LSS for Reset USB by GPIO18 */
++	pr_emerg("GPIO18 Low Assert\n");
++	mtk_gpio_set(pctl->chip, 18, 0);
++
+ 	return 0;
+ 
+ chip_error:
