@@ -54,7 +54,7 @@ compile_openwrt()
 
 
 case $1 in
-openwrt-build)
+wp-release)
 	# Compile for the official version
 	cp mtk-openwrt-4.0.1.0/files/www/openAPgent/common/env.py env.py~
 	sed -e s/CAPC_SERVER_IP=\'192.168.1.182\'/CAPC_SERVER_IP=\'capc.withusp.com\'/g env.py~  > \
@@ -69,11 +69,21 @@ openwrt)
 	cp mtk-openwrt-4.0.1.0/files/www/openAPgent/common/env.py env.py~
 	sed -e s/CAPC_SERVER_IP=\'capc.withusp.com\'/CAPC_SERVER_IP=\'192.168.1.182\'/g env.py~  > \
 		mtk-openwrt-4.0.1.0/files/www/openAPgent/common/env.py
-    echo "++++++++++++++ Modify mtk-openwrt-4.0.1.0/files/www/openAPgent/common/env.py (write 192.168.1.182) +++++++++++++++"
+        echo "++++++++++++++ Modify mtk-openwrt-4.0.1.0/files/www/openAPgent/common/env.py (write 192.168.1.182) +++++++++++++++"
 
 	compile_openwrt
 	release_openwrt_image
-    ;;
+	;;
+skb-release)
+	# Compile for the release version
+        cp mtk-openwrt-4.0.1.0/files/www/openAPgent/common/env.py env.py~
+        sed -e s/CAPC_SERVER_IP=\'capc.withusp.com\'/CAPC_SERVER_IP=\'capc.skbrpoadband.com\'/g env.py~  > \
+                mtk-openwrt-4.0.1.0/files/www/openAPgent/common/env.py
+        echo "++++++++++++++ Modify mtk-openwrt-4.0.1.0/files/www/openAPgent/common/env.py (write capc.skbrpoadband.com) +++++++++++++++"
+	compile_openwrt
+	release_openwrt_image
+	;;
+
 bootloader)
 	echo "Compile bootloader"
     ;;
