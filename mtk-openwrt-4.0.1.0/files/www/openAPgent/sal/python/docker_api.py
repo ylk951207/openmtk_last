@@ -470,6 +470,10 @@ class DockerContainerProc():
             params_dic = self._docker_container_get_parameter_parse(req_container, dest_port_list)
 
             try:
+                if prev_container and "chrony" in req_container['containerName']:
+                    if os.path.exists(CHRONY_PID_PATH):
+                        os.remove(CHRONY_PID_PATH)
+                        log_info(LOG_MODULE_DOCKER, CHRONY_PID_PATH + ' file remove')
                 self.client.containers.run(image_name, **params_dic)
             except docker.errors.DockerException as e:
                 log_error(LOG_MODULE_DOCKER, "*** docker containers.run() error ***")
@@ -592,6 +596,11 @@ class DockerContainerProc():
                 self.response.set_response_value(e.response.status_code, e, False)
                 break
             else:
+                if "chrony" in container_name and mgt_command == "remove":
+                    if os.path.exists(CHRONY_PID_PATH):
+                        os.remove(CHRONY_PID_PATH)
+                        log_info(LOG_MODULE_DOCKER, CHRONY_PID_PATH + ' file remove')
+
                 self._docker_container_mgt_proc(mgt_command, container, None, req_container['options'])
 
         return self.response.make_response_body(None)

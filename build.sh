@@ -19,7 +19,7 @@ get_image_name()
 	#suffix='_$(date +%m%d)'
 	suffix=''
 	version=$(cat .mtk_version)
-	IMAGE_NAME="mtk4010_mt7622_AC2600_${version}${suffix}.bin"
+	IMAGE_NAME="mtk4010_mt7622_ALIS114_${version}${suffix}.bin"
 }
 
 release_openwrt_image()

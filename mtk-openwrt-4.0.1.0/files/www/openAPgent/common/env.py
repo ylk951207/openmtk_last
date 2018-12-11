@@ -100,6 +100,7 @@ MODULE_PORT_MAPPING_TABLE = {
 }
 #    'dnsmasq' : ['53', '67'],
 
+CHRONY_PID_PATH = "/var/run/chronyd.pid"
 '''
 Wireless
 '''
