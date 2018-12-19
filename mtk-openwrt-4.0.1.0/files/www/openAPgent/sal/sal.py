@@ -471,6 +471,17 @@ def sal_system_reboot(method, request, pk):
 
 
 '''
+ Define device_remove SAL function
+'''
+def sal_device_remove(method, request, pk):
+  # For Python APIs
+  if method == SAL_METHOD_CREATE:
+    request = request_message_value_strip_all(request)
+    log_info(LOG_MODULE_SAL, 'Request dump = ', json.dumps(request, indent=2))
+    return py_device_remove_create(request)
+
+
+'''
  Define if_statistics SAL function
 '''
 def sal_if_statistics(method, request, pk):

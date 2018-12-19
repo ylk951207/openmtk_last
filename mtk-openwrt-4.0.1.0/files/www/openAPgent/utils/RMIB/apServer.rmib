@@ -156,6 +156,12 @@ CLASSNAME=SystemReboot
 SAL_FUNCTION=py
 METHODLIST=create
 
+URI=v1/notifications/device-remove
+BASENAME=device_remove
+CLASSNAME=DeviceRemove
+SAL_FUNCTION=py
+METHODLIST=create
+
 URI=v1/statistics
 BASENAME=if_statistics
 CLASSNAME=IfStatistics
@@ -186,8 +192,6 @@ BASENAME=container_management
 CLASSNAME=ContainerManagement
 SAL_FUNCTION=py
 METHODLIST=create,detail_create
-
-
 
 
 #

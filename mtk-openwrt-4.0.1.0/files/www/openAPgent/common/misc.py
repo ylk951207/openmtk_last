@@ -101,3 +101,11 @@ def log_warn(module, *values):
 	else:
 		val_list = ' '.join(str(x) for x in values)
 		gLogger.logger.warn('%s[%d]: %s' % (module, os.getpid(), val_list))
+
+'''
+Processing to remove chorny container pid file
+'''
+def chorny_pid_file_remove():
+	if os.path.exists(CHRONY_PID_PATH):
+		os.remove(CHRONY_PID_PATH)
+		log_info(LOG_MODULE_MISC, CHRONY_PID_PATH + ' PID file remove')

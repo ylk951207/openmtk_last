@@ -1,3 +1,4 @@
+import os
 from common.env import *
 from common.misc import *
 from common.message import *
@@ -187,3 +188,34 @@ def py_system_reboot_create(request):
     }
     return data
 
+'''
+I want decide function name the py_device_remove_POST, but the INTERPRETER decide xxx_remove_create
+'''
+def py_device_remove_create(request):
+    if os.path.exists(PROVISIONING_DONE_FILE):
+        os.remove(PROVISIONING_DONE_FILE)
+        log_info(LOG_MODULE_PYSYSTEM, "** Remove Provisiong-done file **")
+
+    output, error = subprocess_open("cat "+ APCLIENT_PID_PATH)
+    if not error and output:
+        try:
+            os.kill(int(output), 9)
+            log_info(LOG_MODULE_PYSYSTEM, "kill " + str(output) + " pid")
+        except:
+            log_error(LOG_MODULE_PYSYSTEM, 'No such process pid ' + str(output))
+
+    os.chdir("/www/openAPgent")
+    '''
+    Re-registration goes too fast to create a 10-second delay
+    '''
+    subprocess_open_nonblock("sleep 10; python -m apClient")
+    log_info(LOG_MODULE_PYSYSTEM, "** Device Registration Restart**")
+
+    data = {
+        'header': {
+               'resultCode': 200,
+               'resultMessage': 'Success.',
+               'isSuccessful': 'true'
+        }
+    }
+    return data

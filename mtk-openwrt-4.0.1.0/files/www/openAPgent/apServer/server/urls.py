@@ -31,6 +31,7 @@ custom_router.register(r'v1/configs/wireless', views.WirelessConfigViewSet, base
 custom_router.register(r'v1/configs/firewall/port-forwarding', views.PortForwardingViewSet, base_name='port_forwarding')
 custom_router.register(r'v1/management/firmware', views.FirmwareMgtViewSet, base_name='firmware_management')
 custom_router.register(r'v1/management/system-reboot', views.SystemRebootViewSet, base_name='system_reboot')
+custom_router.register(r'v1/notifications/device-remove', views.DeviceRemoveViewSet, base_name='device_remove')
 custom_router.register(r'v1/statistics', views.IfStatisticsViewSet, base_name='if_statistics')
 custom_router.register(r'v1/virtualization/images', views.DockerImagesViewSet, base_name='docker_images')
 custom_router.register(r'v1/virtualization/containers-creation', views.ContainerCreationViewSet, base_name='container_creation')

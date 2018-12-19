@@ -1,4 +1,5 @@
 import sys
+import os
 from common.env import *
 from common.misc import *
 from common.message import *
@@ -34,18 +35,18 @@ def send_ip_address_change_notification(ifname):
     return
 
 
-init_log("Netmgr_notifier")
+if __name__ == "__main__":
+	init_log("Netmgr_notifier")
 
-ifname = sys.argv[1]
+	ifname = sys.argv[1]
 
-log_info (LOG_MODULE_NETMGR, '-------- netMgrd: Start netmgr python module (ifname %s) -------'%ifname)
+	if os.path.exists(PROVISIONING_DONE_FILE):
+		log_info (LOG_MODULE_NETMGR, '-------- netMgrd: Start netmgr python module (ifname %s) -------'%ifname)
+		send_ip_address_change_notification(ifname)
 
-send_ip_address_change_notification (ifname)
+	'''
+	Update dns server
+	'''
+	device_update_lan_dns_server()
 
-'''
-Update dns server
-'''
-device_update_lan_dns_server()
-
-log_info (LOG_MODULE_NETMGR, '--------- netMgrd: End  --------')
-
+	log_info (LOG_MODULE_NETMGR, '--------- netMgrd: End  --------')

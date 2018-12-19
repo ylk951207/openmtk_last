@@ -7,6 +7,7 @@ from common.network import *
 from common.module_restart import *
 
 from apClient.docker_proc import *
+from utils.netmgr_notifier import *
 
 MAX_SOCK_MSG_LENGTH=65535
 
@@ -43,7 +44,7 @@ class ClientCmdApp():
             if data:
                 data = eval(data)
                 command = data['command']
-                log_info(LOG_MODULE_APCLIENT, "command: " + str(command) + ", data : " + str(data) + "len: " + str(len))
+                log_info(LOG_MODULE_APCLIENT, "command: " + str(command) + ", data : " + str(data) + "len: " + str(len(data)))
 
                 if command == SAL_PROVISIONING_DONE:
                     system_provisioning_done_proc()
@@ -70,6 +71,7 @@ def system_provisioning_done_proc():
 
     pmr._puci_container_module_restart("net-snmp", False)
     pmr._puci_container_module_restart("dnsmasq", False)
+    chorny_pid_file_remove()
     pmr._puci_container_module_restart("chrony", False)
 
     wifi_module_reload_all_devices()
@@ -86,6 +88,7 @@ def system_provisioning_done_proc():
         status_code = noti_req.send_notification(CAPC_NOTIFICATION_PROVISIONING_FINISH_URL)
         if status_code == 200:
             log_info(LOG_MODULE_APCLIENT, "** Send provisioning finish to Controller Success **")
+            send_ip_address_change_notification(WAN_ETHDEV)
             puci_provisioning_done_file_create()
             break
 

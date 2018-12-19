@@ -467,6 +467,16 @@ class SystemRebootViewSet(viewsets.ViewSet):
 
 
 '''
+ Define Class DeviceRemove
+'''
+class DeviceRemoveViewSet(viewsets.ViewSet):
+  def create(self, request):
+    log_info(LOG_MODULE_APSERVER, "*** DeviceRemove create() ***")
+    data = sal_device_remove(SAL_METHOD_CREATE, request.data, None)
+    return Response(data, content_type='application/json')
+
+
+'''
  Define Class IfStatistics
 '''
 class IfStatisticsViewSet(viewsets.ViewSet):
