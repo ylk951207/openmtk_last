@@ -24,6 +24,8 @@ get_image_name()
 
 release_openwrt_image()
 {
+	flag=$1
+	
 	echo "\nOpenwrt(mtk-openwrt-4.0.1.0) Compile Done\n"
 	if [ ! -d ${RELEASE_DIR} ]; then
 		mkdir ${RELEASE_DIR}
@@ -32,12 +34,21 @@ release_openwrt_image()
 
 	get_image_name
 
-	cp ${MTK_ORG_IMAGE_PATH} ${RELEASE_DIR}/${IMAGE_NAME}
+	
+	if [ $flag -eq wp ];then
+	    cp ${MTK_ORG_IMAGE_PATH} ${RELEASE_DIR}/wp_${IMAGE_NAME}
+
+	elif [ $flag -eq skb ];then 
+	    cp ${MTK_ORG_IMAGE_PATH} ${RELEASE_DIR}/skb_${IMAGE_NAME}
+
+	fi
+
 	echo "\nRelease openwrt mediatek image to release directory. (${IMAGE_NAME}) \n"
 	ls -al release
 
 	echo "\n"
 }
+
 
 compile_openwrt()
 {
@@ -60,12 +71,12 @@ wp-release)
 	echo "++++++++++++++ Modify mtk-openwrt-4.0.1.0/files/www/openAPgent/common/env.py (write capc.withusp.com) +++++++++++++++"
 
 	compile_openwrt
-	release_openwrt_image
+	release_openwrt_image wp
 	;;
 openwrt)
 	# Compile for the development version
-        sed -in s/^CAPC_SERVER_IP=.*/CAPC_SERVER_IP=\'192.168.1.182\'/g mtk-openwrt-4.0.1.0/files/www/openAPgent/common/env.py
-        echo "++++++++++++++ Modify mtk-openwrt-4.0.1.0/files/www/openAPgent/common/env.py (write 192.168.1.182) +++++++++++++++"
+        sed -in s/^CAPC_SERVER_IP=.*/CAPC_SERVER_IP=\'192.168.100.11\'/g mtk-openwrt-4.0.1.0/files/www/openAPgent/common/env.py
+        echo "++++++++++++++ Modify mtk-openwrt-4.0.1.0/files/www/openAPgent/common/env.py (write 192.168.100.11 +++++++++++++++"
 
 	compile_openwrt
 	release_openwrt_image
@@ -75,7 +86,7 @@ skb-release)
         sed -in s/^CAPC_SERVER_IP=.*/CAPC_SERVER_IP=\'capc.skbroadband.com\'/g mtk-openwrt-4.0.1.0/files/www/openAPgent/common/env.py
         echo "++++++++++++++ Modify mtk-openwrt-4.0.1.0/files/www/openAPgent/common/env.py (write capc.skbroadband.com) +++++++++++++++"
 	compile_openwrt
-	release_openwrt_image
+	release_openwrt_image skb
 	;;
 
 bootloader)
